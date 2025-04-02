@@ -31,7 +31,7 @@ export class Magento2Api implements ICredentialType {
     test: ICredentialTestRequest = {
         request: {
             baseURL: '={{$credentials.host}}',
-            url: '/rest/default/V1/modules',
+            url: '/V1/modules',
         },
     };
 
