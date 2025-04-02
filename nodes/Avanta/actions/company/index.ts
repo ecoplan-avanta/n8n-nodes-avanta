@@ -27,8 +27,8 @@ export const description: INodeProperties[] = [
 			{
 				name: 'Deactivate',
 				value: 'deactivate',
-				description: 'Deactivate a company',
-				action: 'Deactivate a company',
+				description: 'Deactivate companies',
+				action: 'Deactivate companies',
 			},
 			{
 				name: 'Get Many',
