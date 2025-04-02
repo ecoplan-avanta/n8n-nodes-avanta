@@ -7,6 +7,17 @@ import {
 	IWebhookFunctions, type JsonObject, NodeApiError
 } from "n8n-workflow";
 
+export async function createApiRequest(this: IExecuteFunctions, data: any, url: string, async: boolean = true, i: number = 0) {
+	if (async) {
+		url = '/async/bulk' + url;
+	}
+	let responseData = await magentoApiRequest.call(this, 'POST', url, data);
+	return this.helpers.constructExecutionMetaData(
+		this.helpers.returnJsonArray(responseData as IDataObject[]),
+		{itemData: {item: i}},
+	);
+}
+
 export async function magentoApiRequest(
 	this: IWebhookFunctions | IHookFunctions | IExecuteFunctions | ILoadOptionsFunctions,
 	method: IHttpRequestMethods,
@@ -33,10 +44,8 @@ export async function magentoApiRequest(
 		if (Object.keys(body as IDataObject).length === 0) {
 			delete options.body;
 		}
-		console.log(options);
 		return await this.helpers.requestWithAuthentication.call(this, 'magento2Api', options);
 	} catch (error) {
-		console.log(error);
 		throw new NodeApiError(this.getNode(), error as JsonObject);
 	}
 }
@@ -61,6 +70,5 @@ export async function magentoApiRequestAllItems(
 		console.log(responseData.total_count);
 	} while (returnData.length < responseData.total_count);
 
-	console.log(returnData);
 	return returnData;
 }
