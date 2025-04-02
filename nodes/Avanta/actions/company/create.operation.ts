@@ -194,9 +194,9 @@ const displayOptions = {
     },
 };
 
-const restUrl = '/V1/proline-admin/company';
-
 export const description = updateDisplayOptions(displayOptions, properties);
+
+const restUrl = '/V1/proline-admin/company';
 
 export async function execute(
     this: IExecuteFunctions
