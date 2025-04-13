@@ -17,24 +17,24 @@ import * as salesOrg from './actions/salesOrg';
 import {loadOptions} from './methods';
 
 //import {companyAddressFields, companyAddressOperations} from "./descriptions/CompanyAddressesDescription";
-export class Avanta implements INodeType {
+export class avanta implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Avanta',
+		displayName: 'avanta',
 		name: 'avanta',
 		icon: 'file:assets/avanta.svg',
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Consume Avanta API',
+		description: 'Consume avanta API',
 		defaults: {
-			name: 'Avanta',
+			name: 'avanta',
 		},
 		usableAsTool: true,
 		inputs: [NodeConnectionType.Main],
 		outputs: [NodeConnectionType.Main],
 		credentials: [
 			{
-				name: 'magento2Api',
+				name: 'avantaApi',
 				required: true,
 			},
 		],

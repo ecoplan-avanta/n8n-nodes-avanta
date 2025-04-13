@@ -28,7 +28,7 @@ export async function magentoApiRequest(
 	_headers: IDataObject = {},
 	option: IDataObject = {},
 ): Promise<any> {
-	const credentials = await this.getCredentials('magento2Api');
+	const credentials = await this.getCredentials('avantaApi');
 
 	let options: IRequestOptions = {
 		method,
@@ -44,7 +44,7 @@ export async function magentoApiRequest(
 		if (Object.keys(body as IDataObject).length === 0) {
 			delete options.body;
 		}
-		return await this.helpers.requestWithAuthentication.call(this, 'magento2Api', options);
+		return await this.helpers.requestWithAuthentication.call(this, 'avantaApi', options);
 	} catch (error) {
 		throw new NodeApiError(this.getNode(), error as JsonObject);
 	}

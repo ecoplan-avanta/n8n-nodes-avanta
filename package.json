@@ -1,20 +1,7 @@
 {
   "name": "n8n-nodes-avanta",
   "version": "0.1.0",
-  "description": "",
-  "keywords": [
-    "n8n-community-node-package"
-  ],
-  "license": "MIT",
-  "homepage": "",
-  "author": {
-    "name": "",
-    "email": ""
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/avanta/n8n-nodes-avanta.git"
-  },
+  "description": "n8n avanta node",
   "main": "index.js",
   "scripts": {
     "build": "tsc && gulp build:icons",
@@ -30,10 +17,10 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/AvantaApi.credentials.js"
+      "dist/credentials/avantaApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/Avanta/Avanta.node.js"
+      "dist/nodes/avanta/avanta.node.js"
     ]
   },
   "devDependencies": {

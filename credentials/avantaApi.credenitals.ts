@@ -5,10 +5,10 @@ import type {
     INodeProperties,
 } from 'n8n-workflow';
 
-export class Magento2Api implements ICredentialType {
-    name = 'magento2Api';
+export class avantaApi implements ICredentialType {
+    name = 'avantaApi';
 
-    displayName = 'Magento 2 API';
+    displayName = 'anvanta API';
 
     documentationUrl = 'magento2';
 
