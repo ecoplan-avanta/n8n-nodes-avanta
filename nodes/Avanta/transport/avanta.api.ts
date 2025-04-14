@@ -66,8 +66,6 @@ export async function magentoApiRequestAllItems(
 		responseData = await magentoApiRequest.call(this, method, resource, body, query);
 		returnData.push.apply(returnData, responseData[propertyName] as IDataObject[]);
 		query.current_page = query.current_page ? (query.current_page as number)++ : 1;
-		console.log(returnData.length);
-		console.log(responseData.total_count);
 	} while (returnData.length < responseData.total_count);
 
 	return returnData;

@@ -113,15 +113,12 @@ export async function execute(
 			);
 			responseData = responseData.items;
 		}
-		console.log(responseData);
 		const executionData = this.helpers.constructExecutionMetaData(
 			this.helpers.returnJsonArray(responseData as IDataObject[]),
 			{ itemData: { item: i } },
 		);
 		returnData.push(...executionData);
 	}
-
-	console.log(returnData);
 
 	return returnData;
 }

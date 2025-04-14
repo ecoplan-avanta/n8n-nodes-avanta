@@ -1,5 +1,5 @@
 {
-  "name": "n8n-nodes-avanta",
+  "name": "n8n-node-avanta",
   "version": "0.1.0",
   "description": "n8n avanta node",
   "main": "index.js",

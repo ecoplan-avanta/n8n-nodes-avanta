@@ -3,8 +3,6 @@ import {sort} from "../helpers/utils";
 import {magentoApiRequest} from "../transport";
 import type {CustomerAttributeMetadata, Search} from "../transport";
 
-console.log('test1235');
-
 export async function getCountries(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 	//https://magento.redoc.ly/2.3.7-admin/tag/directorycountries
 	const countries = await magentoApiRequest.call(
@@ -40,7 +38,6 @@ export async function getGroups(this: ILoadOptionsFunctions): Promise<INodePrope
 }
 
 export async function getStoreGroups(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
-	console.log('test123');
 	//https://magento.redoc.ly/2.3.7-admin/tag/storestoreConfigs
 	const stores = await magentoApiRequest.call(
 		this,
@@ -48,7 +45,7 @@ export async function getStoreGroups(this: ILoadOptionsFunctions): Promise<INode
 		'/V1/store/storeGroups',
 	);
 	const returnData: INodePropertyOptions[] = [];
-	console.log(returnData);
+
 	for (const store of stores) {
 		if (store.id > 0) {
 			returnData.push({
