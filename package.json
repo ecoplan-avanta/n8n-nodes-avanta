@@ -1,7 +1,19 @@
 {
-  "name": "n8n-node-avanta",
+  "name": "n8n-nodes-avanta",
   "version": "0.1.0",
-  "description": "n8n avanta node",
+  "description": "n8n avanta node to call avanta apis",
+  "keywords": [
+    "n8n-community-node-package"
+  ],
+  "homepage": "https://www.ecoplan.com",
+  "author": {
+    "name": "ECOPLAN",
+    "email": "info@ecoplan.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ECOPLANCOM/n8n-nodes-avanta.git"
+  },
   "main": "index.js",
   "scripts": {
     "build": "tsc && gulp build:icons",
