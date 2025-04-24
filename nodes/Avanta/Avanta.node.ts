@@ -17,7 +17,7 @@ import * as salesOrg from './actions/salesOrg';
 import {loadOptions} from './methods';
 
 //import {companyAddressFields, companyAddressOperations} from "./descriptions/CompanyAddressesDescription";
-export class avanta implements INodeType {
+export class Avanta implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'avanta',
 		name: 'avanta',

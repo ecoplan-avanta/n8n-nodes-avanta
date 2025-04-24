@@ -5,7 +5,7 @@ import type {
     INodeProperties,
 } from 'n8n-workflow';
 
-export class avantaApi implements ICredentialType {
+export class AvantaApi implements ICredentialType {
     name = 'avantaApi';
 
     displayName = 'anvanta API';
