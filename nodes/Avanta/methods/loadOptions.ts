@@ -328,7 +328,7 @@ export async function getExtensionAttributes(this: ILoadOptionsFunctions): Promi
 	const attributes = await magentoApiRequest.call(
 		this,
 		'POST',
-		'/V1/proline/connector/interfaceMetaData',
+		'/V1/avanta/redoc/interfaceMetaData',
 		body
 	);
 	const returnData: INodePropertyOptions[] = [];
