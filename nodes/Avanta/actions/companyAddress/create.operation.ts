@@ -227,8 +227,8 @@ export async function execute(
             additionalFields = formatExtensionAttributes.call(this, additionalFields);
             let companyAddress = {
                 'address': {} as Address,
-                'company_customer_id': company_customer_id,
-                'company_group_id': company_group_id
+                'companyCustomerId': company_customer_id,
+                'companyGroupId': company_group_id
             }
             companyAddress.address = {
                 'external_address_id': external_address_id,
