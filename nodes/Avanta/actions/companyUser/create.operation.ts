@@ -323,9 +323,15 @@ export async function execute(
 
             companyUser.user = {
                 'email': email,
-                'firstname': firstname,
-                'lastname': lastname,
                 'proline_customer_id': proline_customer_id
+            }
+
+            if (firstname) {
+                companyUser.user.firstname = firstname;
+            }
+
+            if (lastname) {
+                companyUser.user.lastname = lastname;
             }
 
             companyUser.user = {...companyUser.user, ...additionalFields};
