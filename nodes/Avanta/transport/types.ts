@@ -4,10 +4,10 @@ export interface Customer {
 	custom_attributes?: CustomAttribute[];
 	dob?: string;
 	email: string;
-	firstname: string;
+	firstname?: string;
 	gender?: number;
 	group_id?: number;
-	lastname: string;
+	lastname?: string;
 	middlename?: string;
 	password?: string;
 	prefix?: string;
