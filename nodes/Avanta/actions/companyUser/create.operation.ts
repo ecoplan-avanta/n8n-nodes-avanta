@@ -326,11 +326,11 @@ export async function execute(
                 'proline_customer_id': proline_customer_id
             }
 
-            if (firstname) {
+            if (firstname && firstname.trim() !== '') {
                 companyUser.user.firstname = firstname;
             }
 
-            if (lastname) {
+            if (lastname && lastname.trim() !== '') {
                 companyUser.user.lastname = lastname;
             }
 
