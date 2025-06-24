@@ -14,6 +14,34 @@ import * as salesOrg from './salesOrg';
 
 export const description: INodeProperties[] = [
 	{
+		displayName: 'Request Options',
+		name: 'request_options',
+		type: 'collection',
+		placeholder: 'Add option',
+		default: {},
+		options: [
+			{
+				displayName: 'Ignore SSL Issues (Insecure)',
+				name: 'allowUnauthorizedCerts',
+				type: 'boolean',
+				noDataExpression: true,
+				default: false,
+				description: 'Whether to connect even if SSL certificate validation is not possible',
+			},
+			{
+				displayName: 'Timeout',
+				name: 'timeout',
+				type: 'number',
+				typeOptions: {
+					minValue: 1,
+				},
+				default: 10000,
+				description:
+					'Time in ms to wait for the server to send response headers (and start the response body) before aborting the request',
+			},
+		],
+	},
+	{
 		displayName: 'Return to Webhook',
 		name: 'return',
 		type: 'boolean',
