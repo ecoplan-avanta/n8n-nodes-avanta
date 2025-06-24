@@ -29,6 +29,13 @@ export async function magentoApiRequest(
 	option: IDataObject = {},
 ): Promise<any> {
 	const credentials = await this.getCredentials('avantaApi');
+	const {
+		timeout = 10000,
+		allowUnauthorizedCerts = false
+	} = this.getNodeParameter('request_options', 0, {}) as {
+		timeout?: number;
+		allowUnauthorizedCerts?: boolean;
+	};
 
 	let options: IRequestOptions = {
 		method,
@@ -36,7 +43,8 @@ export async function magentoApiRequest(
 		qs,
 		uri: uri || `${credentials.host}${resource}`,
 		json: true,
-		rejectUnauthorized: false,
+		rejectUnauthorized: !allowUnauthorizedCerts,
+		timeout: timeout
 	};
 
 	try {
