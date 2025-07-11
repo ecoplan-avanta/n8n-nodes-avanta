@@ -238,6 +238,8 @@ export async function execute(
 
             if (additionalFields.street) {
                 companyAddress.address.street = [additionalFields.street as string];
+            } else {
+                companyAddress.address.street = [];
             }
 
             if (!bulk) {
