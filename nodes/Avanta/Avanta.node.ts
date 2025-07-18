@@ -14,6 +14,7 @@ import * as company from './actions/company';
 import * as companyAddress from './actions/companyAddress';
 import * as companyUser from './actions/companyUser';
 import * as salesOrg from './actions/salesOrg';
+import * as product from './actions/product';
 import {loadOptions} from './methods';
 
 //import {companyAddressFields, companyAddressOperations} from "./descriptions/CompanyAddressesDescription";
@@ -61,6 +62,10 @@ export class Avanta implements INodeType {
 						name: 'SalesOrg',
 						value: 'salesOrg',
 					},
+					{
+						name: 'Product',
+						value: 'product',
+					}
 				],
 				default: 'company',
 			},
@@ -68,7 +73,8 @@ export class Avanta implements INodeType {
 			...company.description,
 			...companyAddress.description,
 			...companyUser.description,
-			...salesOrg.description
+			...salesOrg.description,
+			...product.description
 		],
 	};
 

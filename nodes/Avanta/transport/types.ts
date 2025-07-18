@@ -183,13 +183,71 @@ export interface Product {
 	updated_at?: string;
 	weight?: number;
 	extension_attributes?: {
-		category_links?: [
-			{
-				category_id?: string;
-			},
-		];
+		website_ids?: number[];
+		stock_item?: {
+			qty?: string;
+			is_in_stock?: number;
+		};
+		external_category_links?: {
+			external_category_id?: string;
+		}[];
 	};
 	custom_attributes?: CustomAttribute[];
+	dynamic_custom_attributes?: DynamicCustomAttribute[];
+	product_symbols?: ProductSymbol[];
+	dynamic_media_gallery_entries?: MediaGalleryEntry[];
+	download_items?: DownloadItem[];
+	product_links?: ProductLink[];
+}
+
+export interface DynamicCustomAttribute {
+	attribute_code?: string;
+	value?: string | Array<{key: string, value: string}>;
+}
+
+export interface ProductSymbol {
+	extension_attributes?: {
+		sku?: string;
+		symbol_codes?: string[];
+	};
+	store_id?: number;
+}
+
+export interface MediaGalleryEntry {
+	media_type?: string;
+	position?: number;
+	disabled?: boolean;
+	label?: string;
+	scope?: string;
+	types?: string[];
+	file?: string;
+	content?: {
+		content?: string;
+		name?: string;
+	};
+}
+
+export interface DownloadItem {
+	status?: number;
+	show_in_portal?: number;
+	title?: string;
+	external_id?: string;
+	visibility?: number;
+	product_all?: number;
+	filename?: string;
+	extension_attributes?: {
+		content?: string;
+		store_id?: number;
+		external_category_ids?: string[];
+		external_company_ids?: string[];
+		skus?: string[];
+	};
+}
+
+export interface ProductLink {
+	sku?: string;
+	linked_product_sku?: string;
+	link_type?: string;
 }
 
 export interface ProductAttribute {

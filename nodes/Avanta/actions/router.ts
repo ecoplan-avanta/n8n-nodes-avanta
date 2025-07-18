@@ -11,6 +11,7 @@ import * as company from './company';
 import * as companyAddress from './companyAddress';
 import * as companyUser from './companyUser';
 import * as salesOrg from './salesOrg';
+import * as product from './product';
 
 export const description: INodeProperties[] = [
 	{
@@ -47,6 +48,11 @@ export const description: INodeProperties[] = [
 		type: 'boolean',
 		description: 'A \'Respond to Webhook\' node is required after this node to return the response.',
 		default: false,
+		displayOptions: {
+			show: {
+				operation: ['create'],
+			},
+		},
 	},
 	{
 		displayName: 'Use Bulk API',
@@ -63,11 +69,15 @@ export const description: INodeProperties[] = [
 ];
 
 export async function router(this: IExecuteFunctions) {
-	const returnToWebhook = this.getNodeParameter('return', 0) as boolean;
 	let returnData: INodeExecutionData[] = [];
 
 	const resource = this.getNodeParameter('resource', 0);
 	const operation = this.getNodeParameter('operation', 0) as string;
+
+	let returnToWebhook = false;
+	if (operation === 'create') {
+		returnToWebhook = this.getNodeParameter('return', 0) as boolean;
+	}
 
 	switch (resource) {
 		case 'company':
@@ -81,6 +91,9 @@ export async function router(this: IExecuteFunctions) {
 			break;
 		case 'salesOrg':
 			returnData = await (salesOrg as any)[operation].execute.call(this);
+			break;
+		case 'product':
+			returnData = await (product as any)[operation].execute.call(this);
 			break;
 		default:
 			throw new NodeOperationError(this.getNode(), `The resource "${resource}" is not known`);

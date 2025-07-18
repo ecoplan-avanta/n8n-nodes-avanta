@@ -1,7 +1,8 @@
 import type {IDataObject, ILoadOptionsFunctions, INodePropertyOptions, IExecuteFunctions} from 'n8n-workflow';
 import {sort} from "../helpers/utils";
-import {magentoApiRequest} from "../transport";
+import {magentoApiRequest, magentoApiRequestAllItems} from "../transport";
 import type {CustomerAttributeMetadata, Search} from "../transport";
+import type {ProductAttribute } from '../transport/types';
 
 export async function getCountries(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 	//https://magento.redoc.ly/2.3.7-admin/tag/directorycountries
@@ -340,4 +341,76 @@ export async function getExtensionAttributes(this: ILoadOptionsFunctions): Promi
 	}
 	returnData.sort(sort);
 	return returnData;
+}
+
+export async function getProductLinkTypes(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+	const types = (await magentoApiRequest.call(
+		this,
+		'GET',
+		'/V1/products/links/types',
+	)) as IDataObject[];
+	const returnData: INodePropertyOptions[] = [];
+	for (const type of types) {
+		returnData.push({
+			name: type.name as string,
+			value: type.name as string,
+		});
+	}
+	returnData.sort(sort);
+	return returnData;
+}
+
+
+export async function getProductAttributes(
+	this: ILoadOptionsFunctions,
+
+	filter?: (attribute: ProductAttribute) => any,
+	extraValue?: { name: string; value: string },
+): Promise<INodePropertyOptions[]> {
+	//https://magento.redoc.ly/2.3.7-admin/tag/productsattribute-setssetslist#operation/catalogAttributeSetRepositoryV1GetListGet
+
+	let additionalAttributes = [
+		'external_proline_visibility_group',
+		'external_proline_company_whitelist_visibility'
+	]
+	let attributes: ProductAttribute[] = await magentoApiRequestAllItems.call(
+		this,
+		'items',
+		'GET',
+		'/V1/products/attributes',
+		{},
+		{
+			search_criteria: 0,
+		},
+	);
+
+	attributes = attributes.filter(
+		(attribute) =>
+			attribute.default_frontend_label !== undefined && attribute.default_frontend_label !== '',
+	);
+
+	if (filter) {
+		attributes = attributes.filter(filter);
+	}
+
+	const returnData: INodePropertyOptions[] = [];
+	for (const attribute of attributes) {
+		returnData.push({
+			name: attribute.attribute_code,
+			value: attribute.attribute_code,
+		});
+	}
+
+	// Add additional attributes
+	for (const attr of additionalAttributes) {
+		returnData.push({
+			name: attr,
+			value: attr,
+		});
+	}
+
+	if (extraValue) {
+		returnData.unshift(extraValue);
+	}
+	return returnData.sort(sort);
 }
