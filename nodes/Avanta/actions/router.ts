@@ -10,6 +10,7 @@ import {NodeOperationError} from 'n8n-workflow';
 import * as company from './company';
 import * as companyAddress from './companyAddress';
 import * as companyUser from './companyUser';
+import * as companySku from './companySku';
 import * as salesOrg from './salesOrg';
 import * as product from './product';
 
@@ -88,6 +89,9 @@ export async function router(this: IExecuteFunctions) {
 			break;
 		case 'companyUser':
 			returnData = await (companyUser as any)[operation].execute.call(this);
+			break;
+		case 'companySku':
+			returnData = await (companySku as any)[operation].execute.call(this);
 			break;
 		case 'salesOrg':
 			returnData = await (salesOrg as any)[operation].execute.call(this);
