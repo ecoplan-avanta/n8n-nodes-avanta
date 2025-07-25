@@ -12,6 +12,7 @@ import {router} from './actions/router';
 import * as routerDescription from './actions/router';
 import * as company from './actions/company';
 import * as companyAddress from './actions/companyAddress';
+import * as companyContact from './actions/companyContact';
 import * as companyUser from './actions/companyUser';
 import * as companySku from './actions/companySku';
 import * as salesOrg from './actions/salesOrg';
@@ -55,6 +56,10 @@ export class Avanta implements INodeType {
 						name: 'CompanyAddress',
 						value: 'companyAddress',
 					},
+                    {
+                        name: 'CompanyContact',
+                        value: 'companyContact',
+                    },
 					{
 						name: 'CompanyUser',
 						value: 'companyUser',
@@ -77,7 +82,8 @@ export class Avanta implements INodeType {
 			...routerDescription.description,
 			...company.description,
 			...companyAddress.description,
-			...companyUser.description,
+            ...companyContact.description,
+            ...companyUser.description,
 			...companySku.description,
 			...salesOrg.description,
 			...product.description

@@ -9,6 +9,7 @@ import {NodeOperationError} from 'n8n-workflow';
 
 import * as company from './company';
 import * as companyAddress from './companyAddress';
+import * as companyContact from './companyContact';
 import * as companyUser from './companyUser';
 import * as companySku from './companySku';
 import * as salesOrg from './salesOrg';
@@ -71,7 +72,6 @@ export const description: INodeProperties[] = [
 
 export async function router(this: IExecuteFunctions) {
 	let returnData: INodeExecutionData[] = [];
-
 	const resource = this.getNodeParameter('resource', 0);
 	const operation = this.getNodeParameter('operation', 0) as string;
 
@@ -87,6 +87,9 @@ export async function router(this: IExecuteFunctions) {
 		case 'companyAddress':
 			returnData = await (companyAddress as any)[operation].execute.call(this);
 			break;
+        case 'companyContact':
+            returnData = await (companyContact as any)[operation].execute.call(this);
+            break;
 		case 'companyUser':
 			returnData = await (companyUser as any)[operation].execute.call(this);
 			break;
