@@ -4,7 +4,7 @@ import * as create from './create.operation';
 import * as getAll from './getAll.operation';
 import * as remove from './remove.operation';
 import * as linkCompany from './link-contact-to-companies.operation';
-import * as linkSalesorg from './link-contact-to-companies.operation';
+import * as linkSalesorg from './link-contact-to-salesorg.operation';
 
 export {create, getAll, remove, linkCompany, linkSalesorg};
 
@@ -23,8 +23,8 @@ export const description: INodeProperties[] = [
             {
                 name: 'Create',
                 value: 'create',
-                description: 'Create a contact',
-                action: 'Create a contact',
+                description: 'Create or update a contact',
+                action: 'Create or update a contact',
             },
             {
                 name: 'Delete',
