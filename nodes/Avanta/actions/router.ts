@@ -13,6 +13,13 @@ import * as companyUser from './companyUser';
 import * as companySku from './companySku';
 import * as salesOrg from './salesOrg';
 import * as product from './product';
+import * as backorders from './reports/backorders';
+import * as creditmemos from './reports/creditmemos';
+import * as invoices from './reports/invoices';
+import * as orders from './reports/orders';
+import * as reshipments from './reports/reshipments';
+import * as shipments from './reports/shipments';
+import * as trackings from './reports/trackings';
 
 export const description: INodeProperties[] = [
 	{
@@ -98,6 +105,27 @@ export async function router(this: IExecuteFunctions) {
 			break;
 		case 'product':
 			returnData = await (product as any)[operation].execute.call(this);
+			break;
+		case 'backorders':
+			returnData = await (backorders as any)[operation].execute.call(this);
+			break;
+		case 'creditmemos':
+			returnData = await (creditmemos as any)[operation].execute.call(this);
+			break;
+		case 'invoices':
+			returnData = await (invoices as any)[operation].execute.call(this);
+			break;
+		case 'orders':
+			returnData = await (orders as any)[operation].execute.call(this);
+			break;
+		case 'reshipments':
+			returnData = await (reshipments as any)[operation].execute.call(this);
+			break;
+		case 'shipments':
+			returnData = await (shipments as any)[operation].execute.call(this);
+			break;
+		case 'trackings':
+			returnData = await (trackings as any)[operation].execute.call(this);
 			break;
 		default:
 			throw new NodeOperationError(this.getNode(), `The resource "${resource}" is not known`);

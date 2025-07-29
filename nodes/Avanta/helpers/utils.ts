@@ -2,7 +2,12 @@ import type {
 	IDataObject,
 	IExecuteFunctions,
 	INodeProperties,
+	INodeExecutionData
 } from 'n8n-workflow';
+
+import { NodeApiError } from 'n8n-workflow';
+import { magentoApiRequest, magentoApiRequestAllItems } from '../transport';
+import type { Search } from '../transport';
 
 export function prepareErrorData(this: IExecuteFunctions, error: any, i: number) {
 	let description = error.description;
@@ -47,10 +52,40 @@ export function formatExtensionAttributes(this: IExecuteFunctions, additionalFie
 
 export function getSearchFilters(
 	resource: string,
-	filterableAttributeFunction: string,
-	sortableAttributeFunction: string,
+	filterableAttributeFunction: string | null = null,
+	sortableAttributeFunction: string | null = null,
 ): INodeProperties[] {
 	return [
+		{
+			displayName: 'Return All',
+			name: 'returnAll',
+			type: 'boolean',
+			displayOptions: {
+				show: {
+					resource: [resource],
+					operation: ['getAll'],
+				},
+			},
+			default: false,
+			description: 'Whether to return all results or only up to a given limit',
+		},
+		{
+			displayName: 'Limit',
+			name: 'limit',
+			type: 'number',
+			displayOptions: {
+				show: {
+					resource: [resource],
+					operation: ['getAll'],
+					returnAll: [false],
+				},
+			},
+			typeOptions: {
+				minValue: 1,
+			},
+			default: 5,
+			description: 'Max number of results to return',
+		},
 		{
 			displayName: 'Filter',
 			name: 'filterType',
@@ -101,6 +136,77 @@ export function getSearchFilters(
 			default: '',
 		},
 	];
+}
+
+const buildQuery = (
+	context: IExecuteFunctions,
+	index: number,
+	returnAll: boolean,
+): Search => {
+	const withPositions = context.getNodeParameter('withPositions', index, false) as boolean;
+	const filterType = context.getNodeParameter('filterType', index, 'none') as string;
+	const qs: Search = { withPositions, search_criteria: {} };
+
+	if (filterType === 'json') {
+		const filterJson = context.getNodeParameter('filterJson', index, '') as string;
+		if (filterJson) {
+			const parsedJson = validateJSON(filterJson);
+			if (!parsedJson) {
+				throw new NodeApiError(context.getNode(), { message: 'Filter (JSON) must be valid JSON' });
+			}
+			Object.assign(qs, parsedJson);
+		}
+	}
+
+	qs.search_criteria!.page_size = returnAll
+		? 1000
+		: Math.max(1, context.getNodeParameter('limit', index, 5) as number);
+
+	return qs;
+};
+
+export async function executeGetAll(
+	this: IExecuteFunctions,
+	endpoint: string,
+): Promise<INodeExecutionData[]> {
+	if (!endpoint) {
+		throw new NodeApiError(this.getNode(), { message: 'Endpoint must not be empty' });
+	}
+
+	const returnData: INodeExecutionData[] = [];
+
+	for (const [index] of this.getInputData().entries()) {
+		try {
+			const returnAll = this.getNodeParameter('returnAll', index, false) as boolean;
+			const qs = buildQuery(this, index, returnAll);
+
+			const response = returnAll
+				? await magentoApiRequestAllItems.call(this, 'items', 'GET', endpoint, {}, qs as IDataObject)
+				: await magentoApiRequest.call(this, 'GET', endpoint, {}, qs as IDataObject);
+
+			const responseData = Array.isArray(response.items) ? response.items : [response];
+
+			returnData.push(
+				...this.helpers.constructExecutionMetaData(
+					this.helpers.returnJsonArray(responseData),
+					{ itemData: { item: index } },
+				),
+			);
+		} catch (error) {
+			if (this.continueOnFail()) {
+				returnData.push(
+					...this.helpers.constructExecutionMetaData(
+						this.helpers.returnJsonArray({ error: (error as Error).message }),
+						{ itemData: { item: index } },
+					),
+				);
+				continue;
+			}
+			throw new NodeApiError(this.getNode(), { message: (error as Error).message });
+		}
+	}
+
+	return returnData;
 }
 
 export function validateJSON(json: string | undefined): any {
@@ -253,4 +359,37 @@ export function getProductOptionalFields(): INodeProperties[] {
 			default: 0,
 		},
 	];
+}
+
+export function formatDate(input: string | undefined): string | undefined {
+	if (!input) return undefined;
+
+	// Handle ISO 8601 (e.g., 2021-05-13T00:00:00.000Z)
+	if (input.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/)) {
+		const date = new Date(input);
+		if (isNaN(date.getTime())) return undefined;
+		return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+	}
+
+	// Handle German format (e.g., 13.05.2021 or 13.05.2021 00:00:00)
+	const germanMatch = input.match(/^(\d{2})\.(\d{2})\.(\d{4})(\s+\d{2}:\d{2}:\d{2})?$/);
+	if (germanMatch) {
+		const [, day, month, year, time] = germanMatch;
+		const timePart = time ? time.trim() : '00:00:00';
+		const date = new Date(`${year}-${month}-${day}T${timePart}Z`);
+		if (isNaN(date.getTime())) return undefined;
+		return `${year}-${month}-${day} ${timePart}`;
+	}
+
+	// Handle YYYY-MM-DD or YYYY-MM-DD HH:mm:ss
+	const standardMatch = input.match(/^(\d{4})-(\d{2})-(\d{2})(\s+\d{2}:\d{2}:\d{2})?$/);
+	if (standardMatch) {
+		const [, year, month, day, time] = standardMatch;
+		const timePart = time ? time.trim() : '00:00:00';
+		const date = new Date(`${year}-${month}-${day}T${timePart}Z`);
+		if (isNaN(date.getTime())) return undefined;
+		return `${year}-${month}-${day} ${timePart}`;
+	}
+
+	return undefined; // Return undefined for invalid dates
 }

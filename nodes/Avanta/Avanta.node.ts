@@ -16,6 +16,7 @@ import * as companyUser from './actions/companyUser';
 import * as companySku from './actions/companySku';
 import * as salesOrg from './actions/salesOrg';
 import * as product from './actions/product';
+import * as reports from './actions/reports';
 import {loadOptions} from './methods';
 
 //import {companyAddressFields, companyAddressOperations} from "./descriptions/CompanyAddressesDescription";
@@ -70,6 +71,34 @@ export class Avanta implements INodeType {
 					{
 						name: 'Product',
 						value: 'product',
+					},
+					{
+						name: 'Backorder',
+						value: 'backorders',
+					},
+					{
+						name: 'Creditmemo',
+						value: 'creditmemos',
+					},
+					{
+						name: 'Invoice',
+						value: 'invoices',
+					},
+					{
+						name: 'Order',
+						value: 'orders',
+					},
+					{
+						name: 'Reshipment',
+						value: 'reshipments',
+					},
+					{
+						name: 'Shipment',
+						value: 'shipments',
+					},
+					{
+						name: 'Tracking',
+						value: 'trackings',
 					}
 				],
 				default: 'company',
@@ -80,7 +109,8 @@ export class Avanta implements INodeType {
 			...companyUser.description,
 			...companySku.description,
 			...salesOrg.description,
-			...product.description
+			...product.description,
+			...reports.description
 		],
 	};
 
