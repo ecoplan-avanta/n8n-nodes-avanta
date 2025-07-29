@@ -10,21 +10,16 @@ import {createApiRequest} from "../../transport";
 
 const properties: INodeProperties[] = [
     {
-        displayName: 'External IDs',
-        name: 'external_ids',
+        displayName: 'External ID',
+        name: 'external_id',
         type: 'string',
-        typeOptions: {
-            multipleValues: true,
-        },
         displayOptions: {
             show: {
-                resource: ['companyContact'],
+                resource: ['company'],
                 operation: ['remove'],
             },
         },
-        default: [],
-        placeholder: 'e.g. XS123, PL456, DO789',
-        description: 'A list of external IDs to be deleted.',
+        default: '',
     }
 ];
 
@@ -43,7 +38,10 @@ export async function execute(
     this: IExecuteFunctions
 ): Promise<INodeExecutionData[]> {
     const returnData: INodeExecutionData[] = [];
-    const data = this.getNodeParameter('external_ids', 0) as string[];
+    let data = [];
+    for (let i = 0; i < this.getInputData().length; i++) {
+        data.push(this.getNodeParameter('external_id', i) as string);
+    }
 
     try {
         const executionData = await createApiRequest.call(this, {'externalIds': data}, restUrl, false, 0);
