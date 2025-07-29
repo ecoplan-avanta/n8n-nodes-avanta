@@ -5,7 +5,7 @@ import {
 } from 'n8n-workflow';
 
 import {updateDisplayOptions} from "../../helpers/displayOptions";
-import {prepareErrorData} from "../../helpers/utils";
+import {formatExtensionAttributes, prepareErrorData} from "../../helpers/utils";
 import {createApiRequest} from "../../transport";
 import type {CompanyContact} from "../../transport";
 
@@ -117,13 +117,13 @@ const properties: INodeProperties[] = [
                 default: '',
             },
             {
-                displayName: 'Store Group ID',
-                name: 'group_id',
-                type: 'options',
+                displayName: 'Store IDs',
+                name: 'store_ids',
+                type: 'multiOptions',
                 description:
                     'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
                 typeOptions: {
-                    loadOptionsMethod: 'getStoreGroups',
+                    loadOptionsMethod: 'getStores',
                 },
                 default: '',
             },
@@ -160,7 +160,9 @@ export async function execute(
             const firstname = this.getNodeParameter('firstname', i) as string;
             const lastname = this.getNodeParameter('lastname', i) as string;
             const email = this.getNodeParameter('email', i) as string;
+            let additionalFields = this.getNodeParameter('additionalFields', i);
 
+            additionalFields = formatExtensionAttributes.call(this, additionalFields);
             let companyContact = {
                 'contact': {} as CompanyContact
             };
@@ -169,9 +171,12 @@ export async function execute(
                 lastname: lastname,
                 email: email
             }
+            companyContact.contact = {...companyContact.contact, ...additionalFields};
+console.log(companyContact.contact);
 
             if (!bulk) {
                 const executionData = await createApiRequest.call(this, companyContact, restUrl, false, i);
+                console.log(executionData);
                 returnData.push(...executionData);
             } else {
                 data.push(companyContact);
