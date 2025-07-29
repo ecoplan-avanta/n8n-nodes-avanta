@@ -15,7 +15,7 @@ const properties: INodeProperties[] = [
         type: 'string',
         displayOptions: {
             show: {
-                resource: ['company'],
+                resource: ['companyContact'],
                 operation: ['remove'],
             },
         },
