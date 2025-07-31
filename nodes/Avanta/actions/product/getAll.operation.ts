@@ -8,17 +8,17 @@ import {updateDisplayOptions} from '../../helpers/displayOptions';
 import {getSearchFilters, executeGetAll} from "../../helpers/utils";
 
 const properties: INodeProperties[] = [
-	...getSearchFilters('salesOrg')
+	...getSearchFilters('product')
 ];
 
 const displayOptions = {
 	show: {
-		resource: ['salesOrg'],
+		resource: ['product'],
 		operation: ['getAll'],
 	},
 };
 
-const restUrl = '/V1/proline-admin/salesorg';
+const restUrl = '/V1/products';
 
 export const description = updateDisplayOptions(displayOptions, properties);
 

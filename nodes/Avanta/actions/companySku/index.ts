@@ -2,9 +2,8 @@ import type {INodeProperties} from 'n8n-workflow';
 
 import * as create from './create.operation';
 import * as remove from './remove.operation';
-import * as getAll from './getAll.operation';
 
-export {create,getAll,remove};
+export {create, remove};
 
 export const description: INodeProperties[] = [
 	{
@@ -14,32 +13,25 @@ export const description: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: {
 			show: {
-				resource: ['salesOrg'],
+				resource: ['companySku'],
 			},
 		},
 		options: [
 			{
 				name: 'Create/Update',
 				value: 'create',
-				description: 'Create or update a sales organisation',
-				action: 'Create or update a sales organisation',
+				description: 'Create or update a company sku',
+				action: 'Create or update a company sku',
 			},
 			{
 				name: 'Delete',
-				value: 'remove',
-				description: 'Delete a sales organisation',
-				action: 'Delete a sales organisation',
-			},
-			{
-				name: 'Get Many',
-				value: 'getAll',
-				description: 'Get many sales organisations',
-				action: 'Get many sales organisations',
-			},
+				value: 'delete',
+				description: 'Delete a company sku',
+				action: 'Delete a company sku',
+			}
 		],
 		default: 'create',
 	},
 	...create.description,
-	...getAll.description,
 	...remove.description
 ];
