@@ -14,27 +14,27 @@ export const description: INodeProperties[] = [
 		noDataExpression: true,
 		displayOptions: {
 			show: {
-				resource: ['salesOrg'],
+				resource: ['companyRole'],
 			},
 		},
 		options: [
 			{
 				name: 'Create/Update',
 				value: 'create',
-				description: 'Create or update a sales organisation',
-				action: 'Create or update a sales organisation',
+				description: 'Create or update a company role',
+				action: 'Create or update a company role',
 			},
 			{
 				name: 'Delete',
 				value: 'remove',
-				description: 'Delete a sales organisation',
-				action: 'Delete a sales organisation',
+				description: 'Delete a company role',
+				action: 'Delete a company role',
 			},
 			{
 				name: 'Get Many',
 				value: 'getAll',
-				description: 'Get many sales organisations',
-				action: 'Get many sales organisations',
+				description: 'Get many company roles',
+				action: 'Get many company roles',
 			},
 		],
 		default: 'create',

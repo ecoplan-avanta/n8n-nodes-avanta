@@ -686,3 +686,43 @@ export interface TrackingReport {
 	tracking_id?: number;
 	updated_at?: string;
 }
+
+export interface SalesOrg {
+	name: string;
+	agreement_ids: string[];
+	agreement_identifier?: string;
+	alias?: string;
+	business_hours?: string;
+	ceo?: string;
+	city?: string;
+	company?: string;
+	country_id?: string;
+	email?: string;
+	external_config?: string;
+	external_id?: string;
+	extra_content?: string;
+	fax?: string;
+	group_id?: number;
+	postcode?: string;
+	registration_court?: string;
+	registration_nr?: string;
+	status?: number;
+	street?: string;
+	tax_vat_id?: string;
+	telephone?: string;
+}
+
+export interface CompanyGroup {
+	external_id?: string;
+	name: string;
+	store_group_id: number;
+}
+
+export interface CompanyRole {
+	company_id: number;
+	external_id?: string;
+	is_system: number;
+	parent_id: number;
+	role_name: string;
+	role_type?: string;
+}
