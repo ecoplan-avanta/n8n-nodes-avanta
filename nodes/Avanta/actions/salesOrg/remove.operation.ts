@@ -83,7 +83,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
     }
 
     try {
-        const requestData = { externalIds: [...new Set(allExternalIds)], groupId };
+        const requestData = { externalIds: [...new Set(allExternalIds)], storeGroupId: groupId };
         const executionData = await createApiRequest.call(this, requestData, restUrl, false, 0);
         returnData.push(...executionData);
     } catch (error) {
