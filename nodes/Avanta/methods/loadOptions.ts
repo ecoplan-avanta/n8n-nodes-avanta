@@ -339,6 +339,13 @@ export async function getExtensionAttributes(this: ILoadOptionsFunctions): Promi
 	const resourceMapping: Record<string, string> = {
 		company: 'Ecoplan\\Proline\\Api\\Data\\CompanyInterface',
 		companyAddress: 'Ecoplan\\Proline\\Api\\Data\\CompanyAddressInterface',
+		orders: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\OrderHeadReportInterface',
+		shipments: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\ShipmentHeadReportInterface',
+		reshipments: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\ReshipmentHeadReportInterface',
+		backorders: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\BackorderHeadReportInterface',
+		invoices: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\InvoiceHeadReportInterface',
+		creditmemos: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\CreditmemoHeadReportInterface',
+		trackings: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\TrackingReportInterface'
 	};
 
 	const body = {

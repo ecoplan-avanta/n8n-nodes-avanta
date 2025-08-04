@@ -4,7 +4,6 @@ import {
     INodeProperties
 } from 'n8n-workflow';
 import { NodeApiError } from 'n8n-workflow';
-
 import { updateDisplayOptions } from '../../helpers/displayOptions';
 import { prepareErrorData } from '../../helpers/utils';
 import { createApiRequest } from '../../transport';
@@ -19,13 +18,12 @@ const properties: INodeProperties[] = [
         },
         displayOptions: {
             show: {
-                resource: ['company'],
-                operation: ['deactivate'],
+                resource: ['companyGroup'],
+                operation: ['remove'],
             },
         },
         default: '',
-        required: true,
-        description: 'The store group ID to associate with the deactivation. Uses the first item\'s value. Supports <a href="https://docs.n8n.io/code/expressions/">n8n expressions</a> for dynamic input.',
+        description: 'Store group ID (uses first item\'s value). Can use <a href="https://docs.n8n.io/code/expressions/">expressions</a>.',
     },
     {
         displayName: 'External IDs',
@@ -34,30 +32,30 @@ const properties: INodeProperties[] = [
         default: '',
         displayOptions: {
             show: {
-                resource: ['company'],
-                operation: ['deactivate'],
+                resource: ['companyGroup'],
+                operation: ['remove'],
             },
         },
-        description: 'Whitelist of external IDs to remain active (e.g., EXT1,EXT2 or ["EXT1", "EXT2"] via <a href="https://docs.n8n.io/code/expressions/">n8n expressions</a>). All other companies are deactivated. Use comma-separated IDs or a JSON array/single ID. Leave empty to skip an item.',
+        description: 'Comma-separated IDs (e.g., EXT1,EXT2) or JSON array/single ID via expression (e.g., ["EXT1", "EXT2"] or EXT1)',
     },
 ];
 
 const displayOptions = {
     show: {
-        resource: ['company'],
-        operation: ['deactivate'],
+        resource: ['companyGroup'],
+        operation: ['remove'],
     },
 };
 
 export const description = updateDisplayOptions(displayOptions, properties);
 
-const restUrl = '/V1/proline-admin/company/disablebywhitelistexternal';
+const restUrl = '/V1/proline-admin/companygroup/deletebyexternalid';
 
 export async function execute(this: IExecuteFunctions): Promise<INodeExecutionData[]> {
     const items = this.getInputData();
     const allExternalIds: string[] = [];
     const returnData: INodeExecutionData[] = [];
-    const groupId = this.getNodeParameter('store_group_id', 0) as string;
+    const groupId = this.getNodeParameter('group_id', 0) as string;
 
     for (let i = 0; i < items.length; i++) {
         try {
