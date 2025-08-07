@@ -6,7 +6,7 @@ import {
 
 import {updateDisplayOptions} from "../../helpers/displayOptions";
 import {formatExtensionAttributes, prepareErrorData} from "../../helpers/utils";
-import type {Company} from "../../transport";
+import type {DownloadCategory} from "../../transport";
 import {createApiRequest} from "../../transport";
 
 
@@ -32,17 +32,89 @@ const properties: INodeProperties[] = [
         displayOptions: {
             show: {
                 resource: ['download'],
-                operation: ['createDownloadCategory'],
+                operation: ['createCategory'],
             },
         },
         description: 'Category status: active or inactive',
-    }
+    },
+    {
+        displayName: 'Title',
+        name: 'title',
+        type: 'string',
+        required: true,
+        default: '',
+        displayOptions: {
+            show: {
+                resource: ['company'],
+                operation: ['createCategory'],
+            },
+        }
+    },
+    {
+        displayName: 'Level',
+        name: 'level',
+        type: 'number',
+        required: true,
+        default: '',
+        displayOptions: {
+            show: {
+                resource: ['company'],
+                operation: ['createCategory'],
+            },
+        }
+    },
+    {
+        displayName: 'Tree Path',
+        name: 'tree_path',
+        type: 'number',
+        required: true,
+        default: '',
+        displayOptions: {
+            show: {
+                resource: ['company'],
+                operation: ['createCategory'],
+            },
+        }
+    },
+    {
+        displayName: 'Additional Fields',
+        name: 'additionalFields',
+        type: 'collection',
+        placeholder: 'Add Field',
+        default: {},
+        displayOptions: {
+            show: {
+                resource: ['company'],
+                operation: ['create'],
+            },
+        },
+        options: [
+            {
+                displayName: 'Parent Category ID',
+                name: 'parent_category_id',
+                type: 'number',
+                default: '',
+            },
+            {
+                displayName: 'External ID',
+                name: 'external_id',
+                type: 'string',
+                default: '',
+            },
+            {
+                displayName: 'Sort Order',
+                name: 'order',
+                type: 'string',
+                default: '',
+            }
+        ]
+    },
 ]
 
 const displayOptions = {
     show: {
         resource: ['download'],
-        operation: ['createDownloadCategory']
+        operation: ['createCategory']
     }
 }
 
@@ -59,47 +131,29 @@ export async function execute(
     const returnData: INodeExecutionData[] = [];
     for (let i = 0; i < items.length; i++) {
         try {
-            const name = this.getNodeParameter('name', i) as string;
-            const customer_id = this.getNodeParameter('customer_id', i) as string;
-            const status = this.getNodeParameter('status', i) as boolean ? 1 : 0;
-            const external_company_customergroup_id = this.getNodeParameter('external_company_customergroup_id', i) as string;
-            const external_sales_org_id = this.getNodeParameter('external_sales_org_id', i) as string;
             let additionalFields = this.getNodeParameter(
                 'additionalFields',
                 i,
             );
 
             additionalFields = formatExtensionAttributes.call(this, additionalFields);
-            let company = {
-                'company': {} as Company
+            let category = {
+                'category': {} as DownloadCategory
             }
-            company.company = {
-                name: name,
-                customer_id: customer_id,
-                status: status
+            category.category = {
+                store_id: this.getNodeParameter('store_id', i) as number,
+                status: this.getNodeParameter('status', i) as boolean,
+                title: this.getNodeParameter('title', i) as string,
+                level: this.getNodeParameter('level', i) as number,
+                tree_path: this.getNodeParameter('tree_path', i) as string
             };
-            company.company = {...company.company, ...additionalFields};
-
-            company.company.extension_attributes = {
-                ...company.company.extension_attributes, ...{
-                    'external_company_customergroup_id': external_company_customergroup_id,
-                    'external_sales_org_id': external_sales_org_id
-                }
-            };
-
-            if (!('group_id' in company.company)) {
-                company.company.group_id = 1
-            }
-
-            if (!('company_role_id' in company.company)) {
-                company.company.company_role_id = 1
-            }
+            category.category = {...category.category, ...additionalFields};
 
             if (!bulk) {
-                const executionData = await createApiRequest.call(this, company, restUrl, false, i);
+                const executionData = await createApiRequest.call(this, category, restUrl, false, i);
                 returnData.push(...executionData);
             } else {
-                data.push(company);
+                data.push(category);
             }
         } catch (error) {
             if (this.continueOnFail()) {

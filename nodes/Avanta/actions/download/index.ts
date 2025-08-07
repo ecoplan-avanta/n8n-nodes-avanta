@@ -23,7 +23,7 @@ export const description: INodeProperties[] = [
                 action: 'Create or update a download category',
             }
         ],
-        default: 'create',
+        default: 'createCategory',
     },
     ...createCategory.description,
 ];
