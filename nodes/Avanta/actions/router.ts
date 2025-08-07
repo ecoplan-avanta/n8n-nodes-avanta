@@ -22,6 +22,7 @@ import * as orders from './reports/orders';
 import * as reshipments from './reports/reshipments';
 import * as shipments from './reports/shipments';
 import * as trackings from './reports/trackings';
+import * as download from './download';
 
 export const description: INodeProperties[] = [
 	{
@@ -135,6 +136,9 @@ export async function router(this: IExecuteFunctions) {
 		case 'trackings':
 			returnData = await (trackings as any)[operation].execute.call(this);
 			break;
+        case 'download':
+            returnData = await (download as any)[operation].execute.call(this);
+            break;
 		default:
 			throw new NodeOperationError(this.getNode(), `The resource "${resource}" is not known`);
 	}

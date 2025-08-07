@@ -19,6 +19,7 @@ import * as companySku from './actions/companySku';
 import * as salesOrg from './actions/salesOrg';
 import * as product from './actions/product';
 import * as reports from './actions/reports';
+import * as download from './actions/download';
 import {loadOptions} from './methods';
 
 //import {companyAddressFields, companyAddressOperations} from "./descriptions/CompanyAddressesDescription";
@@ -109,7 +110,11 @@ export class Avanta implements INodeType {
 					{
 						name: 'Tracking',
 						value: 'trackings',
-					}
+					},
+                    {
+                        name: 'Download',
+                        value: 'download',
+                    }
 				],
 				default: 'company',
 			},
@@ -122,8 +127,9 @@ export class Avanta implements INodeType {
 			...companySku.description,
 			...salesOrg.description,
 			...product.description,
-			...reports.description
-		],
+			...reports.description,
+            ...download.description
+        ],
 	};
 
 	methods = {
