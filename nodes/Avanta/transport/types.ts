@@ -737,3 +737,14 @@ export interface DownloadCategory {
     external_id?: string;
     order?: number;
 }
+
+export interface DownloadCategory {
+    store_id: number;
+    status: boolean;
+    title: string;
+    level: number;
+    tree_path: string;
+    parent_category_id?: number;
+    external_id?: string;
+    order?: number;
+}
