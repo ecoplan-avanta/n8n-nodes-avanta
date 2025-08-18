@@ -172,11 +172,9 @@ export async function execute(
                 email: email
             }
             companyContact.contact = {...companyContact.contact, ...additionalFields};
-console.log(companyContact.contact);
 
             if (!bulk) {
                 const executionData = await createApiRequest.call(this, companyContact, restUrl, false, i);
-                console.log(executionData);
                 returnData.push(...executionData);
             } else {
                 data.push(companyContact);
