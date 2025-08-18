@@ -9,6 +9,7 @@ import {NodeOperationError} from 'n8n-workflow';
 
 import * as company from './company';
 import * as companyAddress from './companyAddress';
+import * as companyContact from './companyContact';
 import * as companyGroup from './companyGroup';
 import * as companyRole from './companyRole';
 import * as companySku from './companySku';
@@ -72,7 +73,7 @@ export const description: INodeProperties[] = [
 		default: true,
 		displayOptions: {
 			show: {
-				operation: ['create'],
+				operation: ['create', 'linkCompany', 'linkSalesorg'],
 			},
 		},
 	}
@@ -102,6 +103,9 @@ export async function router(this: IExecuteFunctions) {
 		case 'companyRole':
 			returnData = await (companyRole as any)[operation].execute.call(this);
 			break;
+        case 'companyContact':
+            returnData = await (companyContact as any)[operation].execute.call(this);
+            break;
 		case 'companyUser':
 			returnData = await (companyUser as any)[operation].execute.call(this);
 			break;

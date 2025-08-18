@@ -8,7 +8,7 @@ import type {
 export class AvantaApi implements ICredentialType {
     name = 'avantaApi';
 
-    displayName = 'anvanta API';
+    displayName = 'avanta API';
 
     documentationUrl = 'magento2';
 

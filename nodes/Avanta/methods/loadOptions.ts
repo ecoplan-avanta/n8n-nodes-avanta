@@ -78,6 +78,24 @@ export async function getStores(this: ILoadOptionsFunctions): Promise<INodePrope
 	return returnData;
 }
 
+export async function getStoreViews(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
+    //https://magento.redoc.ly/2.3.7-admin/tag/storeViews
+    const storeViews = await magentoApiRequest.call(
+        this,
+        'GET',
+        '/V1/store/storeViews',
+    );
+    const returnData: INodePropertyOptions[] = [];
+    for (const storeView of storeViews) {
+        returnData.push({
+            name: storeView.name,
+            value: storeView.id,
+        });
+    }
+    returnData.sort(sort);
+    return returnData;
+}
+
 
 export async function getWebsites(this: ILoadOptionsFunctions): Promise<INodePropertyOptions[]> {
 	//https://magento.redoc.ly/2.3.7-admin/tag/storewebsites
