@@ -57,7 +57,7 @@ export const description: INodeProperties[] = [
 		displayName: 'Return to Webhook',
 		name: 'return',
 		type: 'boolean',
-		description: 'A \'Respond to Webhook\' node is required after this node to return the response.',
+		description: 'Whether to return the response to a webhook. A \'Respond to Webhook\' node is required after this node to return the response.',
 		default: false,
 		displayOptions: {
 			show: {
@@ -69,7 +69,7 @@ export const description: INodeProperties[] = [
 		displayName: 'Use Bulk API',
 		name: 'bulk',
 		type: 'boolean',
-		description: '',
+		description: 'Whether to use the bulk API for processing multiple items',
 		default: true,
 		displayOptions: {
 			show: {

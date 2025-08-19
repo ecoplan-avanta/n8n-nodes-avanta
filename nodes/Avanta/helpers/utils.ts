@@ -83,7 +83,7 @@ export function getSearchFilters(
 			typeOptions: {
 				minValue: 1,
 			},
-			default: 5,
+			default: 50,
 			description: 'Max number of results to return',
 		},
 		{

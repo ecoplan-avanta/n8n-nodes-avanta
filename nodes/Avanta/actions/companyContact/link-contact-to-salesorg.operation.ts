@@ -10,7 +10,7 @@ import {createApiRequest} from "../../transport";
 
 const properties: INodeProperties[] = [
     {
-        displayName: 'Contact external ID',
+        displayName: 'Contact External ID',
         name: 'contact_external_id',
         type: 'string',
         displayOptions: {
@@ -22,7 +22,7 @@ const properties: INodeProperties[] = [
         default: ''
     },
     {
-        displayName: 'Sales org external ID',
+        displayName: 'Sales Org External ID',
         name: 'salesorg_external_id',
         type: 'string',
         displayOptions: {
@@ -34,7 +34,7 @@ const properties: INodeProperties[] = [
         default: ''
     },
     {
-        displayName: 'Store Group ID',
+        displayName: 'Store Group Name or ID',
         name: 'group_id',
         type: 'options',
         description:

@@ -182,7 +182,7 @@ function getProductOptionalFields(): INodeProperties[] {
         	typeOptions: {
         		multipleValues: true,
         	},
-        	default: '',
+        	default: {},
         	placeholder: 'Add Custom Attribute',
         	options: [
         		{
@@ -190,9 +190,10 @@ function getProductOptionalFields(): INodeProperties[] {
         			name: 'customAttribute',
         			values: [
         				{
-        					displayName: 'Attribute Code',
+        					displayName: 'Attribute Code Name or ID',
         					name: 'attribute_code',
         					type: 'options',
+													description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
         					typeOptions: {
         						loadOptionsMethod: 'getProductAttributes',
         					},
@@ -209,9 +210,10 @@ function getProductOptionalFields(): INodeProperties[] {
         	],
         },
         {
-        	displayName: 'Parent Category ID',
+        	displayName: 'Parent Category Name or ID',
         	name: 'category',
         	type: 'options',
+									description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
         	typeOptions: {
         		loadOptionsMethod: 'getCategories',
         	},

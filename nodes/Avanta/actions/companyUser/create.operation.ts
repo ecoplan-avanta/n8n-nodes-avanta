@@ -223,6 +223,12 @@ const properties: INodeProperties[] = [
                 default: '',
             },
             {
+                displayName: 'Sales Org',
+                name: 'sales_org',
+                type: 'string',
+                default: '',
+            },
+            {
                 displayName: 'Store Name or ID',
                 name: 'store_id',
                 type: 'options',
@@ -265,12 +271,6 @@ const properties: INodeProperties[] = [
                 typeOptions: {
                     loadOptionsMethod: 'getWebsites',
                 },
-                default: '',
-            },
-            {
-                displayName: 'Sales Org',
-                name: 'sales_org',
-                type: 'string',
                 default: '',
             },
         ]
