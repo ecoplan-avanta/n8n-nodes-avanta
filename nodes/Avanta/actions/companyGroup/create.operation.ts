@@ -25,7 +25,7 @@ const properties: INodeProperties[] = [
         description: 'Name of the company group',
     },
     {
-        displayName: 'Store Group ID',
+        displayName: 'Store Group Name or ID',
         name: 'store_group_id',
         type: 'options',
         description:

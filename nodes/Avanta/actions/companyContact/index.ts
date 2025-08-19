@@ -33,21 +33,21 @@ export const description: INodeProperties[] = [
                 action: 'Delete contacts',
             },
             {
-                name: 'Get many',
+                name: 'Get Many',
                 value: 'getAll',
                 description: 'Get many company contacts',
                 action: 'Get many company contacts'
             },
             {
-                name: 'Link to company',
+                name: 'Link to Company',
                 value: 'linkCompany',
-                description: 'Establish link between contact person and companies by external id',
+                description: 'Establish link between contact person and companies by external ID',
                 action: 'Link to company'
             },
             {
                 name: 'Link to sales org',
                 value: 'linkSalesorg',
-                description: 'Establish link between contact person and sales org by external id',
+                description: 'Establish link between contact person and sales org by external ID',
                 action: 'Link to sales org'
             }
         ],

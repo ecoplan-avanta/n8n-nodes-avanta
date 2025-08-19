@@ -8,9 +8,9 @@ import type {
 export class AvantaApi implements ICredentialType {
     name = 'avantaApi';
 
-    displayName = 'avanta API';
+    displayName = 'Avanta API';
 
-    documentationUrl = 'magento2';
+    documentationUrl = 'https://github.com/ecoplan-avanta/n8n-nodes-avanta';
 
     properties: INodeProperties[] = [
         {

@@ -110,15 +110,38 @@ const properties: INodeProperties[] = [
                 default: '',
             },
             {
-                displayName: 'Store Group ID',
-                name: 'group_id',
-                type: 'options',
-                description:
-                    'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                displayName: 'Extension Attributes',
+                name: 'extension_attributes',
+                type: 'fixedCollection',
                 typeOptions: {
-                    loadOptionsMethod: 'getStoreGroups',
+                    multipleValues: true,
                 },
-                default: '',
+                default: {},
+                placeholder: 'Add Extension Attribute',
+                options: [
+                    {
+                        displayName: 'Extension Attribute',
+                        name: 'extension_attribute',
+                        values: [
+                            {
+                                displayName: 'Extension Attribute Name or ID',
+                                name: 'attribute_code',
+                                type: 'options',
+                                description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                                typeOptions: {
+                                    loadOptionsMethod: 'getExtensionAttributes',
+                                },
+                                default: '',
+                            },
+                            {
+                                displayName: 'Value',
+                                name: 'value',
+                                type: 'string',
+                                default: '',
+                            },
+                        ],
+                    },
+                ],
             },
             {
                 displayName: 'Interim Account',
@@ -139,6 +162,17 @@ const properties: INodeProperties[] = [
                 default: '',
             },
             {
+                displayName: 'Store Group Name or ID',
+                name: 'group_id',
+                type: 'options',
+                description:
+                    'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                typeOptions: {
+                    loadOptionsMethod: 'getStoreGroups',
+                },
+                default: '',
+            },
+            {
                 displayName: 'Telephone',
                 name: 'telephone',
                 type: 'string',
@@ -149,39 +183,6 @@ const properties: INodeProperties[] = [
                 name: 'vat_id',
                 type: 'string',
                 default: '',
-            },
-            {
-                displayName: 'Extension Attributes',
-                name: 'extension_attributes',
-                type: 'fixedCollection',
-                typeOptions: {
-                    multipleValues: true,
-                },
-                default: '',
-                placeholder: 'Add Extension Attribute',
-                options: [
-                    {
-                        displayName: 'Extension Attribute',
-                        name: 'extension_attribute',
-                        values: [
-                            {
-                                displayName: 'Extension Attribute',
-                                name: 'attribute_code',
-                                type: 'options',
-                                typeOptions: {
-                                    loadOptionsMethod: 'getExtensionAttributes',
-                                },
-                                default: '',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
-                        ],
-                    },
-                ],
             },
         ]
     },

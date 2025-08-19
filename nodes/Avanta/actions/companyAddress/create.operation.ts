@@ -23,7 +23,7 @@ const properties: INodeProperties[] = [
         },
     },
     {
-        displayName: 'Company Store Group ID',
+        displayName: 'Company Store Group Name or ID',
         name: 'company_group_id',
         type: 'options',
         description:
@@ -114,6 +114,46 @@ const properties: INodeProperties[] = [
                 default: 0,
             },
             {
+                displayName: 'Extension Attributes',
+                name: 'extension_attributes',
+                type: 'fixedCollection',
+                typeOptions: {
+                    multipleValues: true,
+                },
+                default: {},
+                placeholder: 'Add Extension Attribute',
+                options: [
+                    {
+                        displayName: 'Extension Attribute',
+                        name: 'extension_attribute',
+                        values: [
+                            {
+                                displayName: 'Extension Attribute Name or ID',
+                                name: 'attribute_code',
+                                type: 'options',
+                                description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                                typeOptions: {
+                                    loadOptionsMethod: 'getExtensionAttributes',
+                                },
+                                default: '',
+                            },
+                            {
+                                displayName: 'Value',
+                                name: 'value',
+                                type: 'string',
+                                default: '',
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                displayName: 'Postcode',
+                name: 'postcode',
+                type: 'string',
+                default: '',
+            },
+            {
                 displayName: 'Read Only',
                 name: 'read_only',
                 type: 'options',
@@ -128,12 +168,6 @@ const properties: INodeProperties[] = [
                     }
                 ],
                 default: 0,
-            },
-            {
-                displayName: 'Postcode',
-                name: 'postcode',
-                type: 'string',
-                default: '',
             },
             {
                 displayName: 'Region',
@@ -158,39 +192,6 @@ const properties: INodeProperties[] = [
                 name: 'vat_id',
                 type: 'string',
                 default: '',
-            },
-            {
-                displayName: 'Extension Attributes',
-                name: 'extension_attributes',
-                type: 'fixedCollection',
-                typeOptions: {
-                    multipleValues: true,
-                },
-                default: '',
-                placeholder: 'Add Extension Attribute',
-                options: [
-                    {
-                        displayName: 'Extension Attribute',
-                        name: 'extension_attribute',
-                        values: [
-                            {
-                                displayName: 'Extension Attribute',
-                                name: 'attribute_code',
-                                type: 'options',
-                                typeOptions: {
-                                    loadOptionsMethod: 'getExtensionAttributes',
-                                },
-                                default: '',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
-                        ],
-                    },
-                ],
             },
         ]
     },

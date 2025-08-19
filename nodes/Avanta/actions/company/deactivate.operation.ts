@@ -11,7 +11,7 @@ import { createApiRequest } from '../../transport';
 
 const properties: INodeProperties[] = [
     {
-        displayName: 'Store Group ID',
+        displayName: 'Store Group Name or ID',
         name: 'store_group_id',
         type: 'options',
         typeOptions: {
@@ -25,7 +25,7 @@ const properties: INodeProperties[] = [
         },
         default: '',
         required: true,
-        description: 'The store group ID to associate with the deactivation. Uses the first item\'s value. Supports <a href="https://docs.n8n.io/code/expressions/">n8n expressions</a> for dynamic input.',
+        description: 'The store group ID to associate with the deactivation. Uses the first item\'s value. Supports <a href="https://docs.n8n.io/code/expressions/">n8n expressions</a> for dynamic input. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     },
     {
         displayName: 'External IDs',

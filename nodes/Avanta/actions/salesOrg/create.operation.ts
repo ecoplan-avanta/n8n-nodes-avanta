@@ -25,7 +25,7 @@ const properties: INodeProperties[] = [
         description: 'Name of the sales organization',
     },
     {
-        displayName: 'Store Group ID',
+        displayName: 'Store Group Name or ID',
         name: 'group_id',
         type: 'options',
         description:
@@ -81,6 +81,13 @@ const properties: INodeProperties[] = [
         },
         options: [
             {
+                displayName: 'Agreement Identifier',
+                name: 'agreement_identifier',
+                type: 'string',
+                default: '',
+                description: 'Identifier for the agreement',
+            },
+            {
                 displayName: 'Agreement IDs',
                 name: 'agreement_ids',
                 type: 'fixedCollection',
@@ -104,13 +111,6 @@ const properties: INodeProperties[] = [
                     },
                 ],
                 description: 'List of agreement IDs',
-            },
-            {
-                displayName: 'Agreement Identifier',
-                name: 'agreement_identifier',
-                type: 'string',
-                default: '',
-                description: 'Identifier for the agreement',
             },
             {
                 displayName: 'Alias',
@@ -163,6 +163,40 @@ const properties: INodeProperties[] = [
                 description: 'Email address',
             },
             {
+                displayName: 'Extension Attributes',
+                name: 'extension_attributes',
+                type: 'fixedCollection',
+                typeOptions: {
+                    multipleValues: true,
+                },
+                default: {},
+                placeholder: 'Add Extension Attribute',
+                options: [
+                    {
+                        displayName: 'Extension Attribute',
+                        name: 'extension_attribute',
+                        values: [
+                            {
+                                displayName: 'Extension Attribute Name or ID',
+                                name: 'attribute_code',
+                                type: 'options',
+                                description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                                typeOptions: {
+                                    loadOptionsMethod: 'getExtensionAttributes',
+                                },
+                                default: '',
+                            },
+                            {
+                                displayName: 'Value',
+                                name: 'value',
+                                type: 'string',
+                                default: '',
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
                 displayName: 'External Config',
                 name: 'external_config',
                 type: 'string',
@@ -195,14 +229,12 @@ const properties: INodeProperties[] = [
                 name: 'registration_court',
                 type: 'string',
                 default: '',
-                description: 'Registration court',
             },
             {
                 displayName: 'Registration Number',
                 name: 'registration_nr',
                 type: 'string',
                 default: '',
-                description: 'Registration number',
             },
             {
                 displayName: 'Street',
@@ -224,39 +256,6 @@ const properties: INodeProperties[] = [
                 type: 'string',
                 default: '',
                 description: 'Telephone number',
-            },
-            {
-                displayName: 'Extension Attributes',
-                name: 'extension_attributes',
-                type: 'fixedCollection',
-                typeOptions: {
-                    multipleValues: true,
-                },
-                default: '',
-                placeholder: 'Add Extension Attribute',
-                options: [
-                    {
-                        displayName: 'Extension Attribute',
-                        name: 'extension_attribute',
-                        values: [
-                            {
-                                displayName: 'Extension Attribute',
-                                name: 'attribute_code',
-                                type: 'options',
-                                typeOptions: {
-                                    loadOptionsMethod: 'getExtensionAttributes',
-                                },
-                                default: '',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
-                        ],
-                    },
-                ],
             },
         ],
     },

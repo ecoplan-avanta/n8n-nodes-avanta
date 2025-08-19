@@ -22,10 +22,9 @@ import * as product from './actions/product';
 import * as reports from './actions/reports';
 import {loadOptions} from './methods';
 
-//import {companyAddressFields, companyAddressOperations} from "./descriptions/CompanyAddressesDescription";
 export class Avanta implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'avanta',
+		displayName: 'Avanta',
 		name: 'avanta',
 		icon: 'file:avanta.svg',
 		group: ['input'],
@@ -52,6 +51,10 @@ export class Avanta implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
+						name: 'Backorder',
+						value: 'backorders',
+					},
+					{
 						name: 'Company',
 						value: 'company',
 					},
@@ -59,21 +62,9 @@ export class Avanta implements INodeType {
 						name: 'CompanyAddress',
 						value: 'companyAddress',
 					},
-                    {
-                        name: 'CompanyContact',
-                        value: 'companyContact',
-                    },
 					{
-						name: 'CompanyUser',
-						value: 'companyUser',
-					},
-					{
-						name: 'CompanySku',
-						value: 'companySku',
-					},
-					{
-						name: 'SalesOrg',
-						value: 'salesOrg',
+						name: 'CompanyContact',
+						value: 'companyContact',
 					},
 					{
 						name: 'CompanyGroup',
@@ -84,12 +75,12 @@ export class Avanta implements INodeType {
 						value: 'companyRole',
 					},
 					{
-						name: 'Product',
-						value: 'product',
+						name: 'CompanySku',
+						value: 'companySku',
 					},
 					{
-						name: 'Backorder',
-						value: 'backorders',
+						name: 'CompanyUser',
+						value: 'companyUser',
 					},
 					{
 						name: 'Creditmemo',
@@ -104,8 +95,16 @@ export class Avanta implements INodeType {
 						value: 'orders',
 					},
 					{
+						name: 'Product',
+						value: 'product',
+					},
+					{
 						name: 'Reshipment',
 						value: 'reshipments',
+					},
+					{
+						name: 'SalesOrg',
+						value: 'salesOrg',
 					},
 					{
 						name: 'Shipment',

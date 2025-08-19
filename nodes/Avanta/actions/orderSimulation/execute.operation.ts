@@ -115,10 +115,10 @@ const properties: INodeProperties[] = [
                 name: 'condition',
                 displayName: 'Condition',
                 values: [
-                    {name: 'text', displayName: 'Text', type: 'string', default: ''},
-                    {name: 'value', displayName: 'Value', type: 'number', default: 0},
-                    {name: 'position', displayName: 'Position', type: 'number', default: 1},
-                    {name: 'css_class', displayName: 'CSS Class', type: 'string', default: 'discount'},
+                    {displayName: 'Text', name: 'text', type: 'string', default: ''},
+                    {displayName: 'Value', name: 'value', type: 'number', default: 0},
+                    {displayName: 'Position', name: 'position', type: 'number', default: 1},
+                    {displayName: 'CSS Class', name: 'css_class', type: 'string', default: 'discount'},
                 ],
             },
         ],
@@ -197,9 +197,9 @@ const properties: INodeProperties[] = [
                 name: 'schedule',
                 displayName: 'Schedule',
                 values: [
-                    {name: 'title', displayName: 'Title', type: 'string', default: ''},
-                    {name: 'delivery_date', displayName: 'Delivery Date', type: 'string', default: ''},
-                    {name: 'css_class', displayName: 'CSS Class', type: 'string', default: 'available'},
+                    {displayName: 'Title', name: 'title', type: 'string', default: ''},
+                    {displayName: 'Delivery Date', name: 'delivery_date', type: 'string', default: ''},
+                    {displayName: 'CSS Class', name: 'css_class', type: 'string', default: 'available'},
                 ],
             },
         ],
@@ -266,122 +266,165 @@ const properties: INodeProperties[] = [
                 name: 'item',
                 displayName: 'Item',
                 values: [
-                    {name: 'item_number', displayName: 'Item Number', type: 'number', default: 0},
-                    {name: 'sku', displayName: 'SKU', type: 'string', default: ''},
-                    {name: 'total', displayName: 'Total Price', type: 'number', default: 0},
-                    {name: 'tax', displayName: 'Tax', type: 'number', default: 0},
-                    {name: 'qty', displayName: 'Quantity', type: 'number', default: 1},
-                    {
-                        displayName: 'Condition Texts Source',
-                        name: 'condition_texts_source',
-                        type: 'options',
-                        options: [
-                            {
-                                name: 'Define in Node',
-                                value: 'defineHere',
-                                description: 'Define condition texts directly in this node',
-                            },
-                            {
-                                name: 'Input Data',
-                                value: 'inputData',
-                                description: 'Use data from input',
-                            },
-                        ],
-                        default: 'defineHere',
-                    },
-                    {
-                        displayName: 'Condition Texts',
-                        name: 'condition_texts',
-                        type: 'fixedCollection',
-                        typeOptions: {multipleValues: true},
-                        default: [],
-                        displayOptions: {
-                            show: {
-                                condition_texts_source: ['defineHere'],
-                            },
-                        },
-                        options: [
-                            {
-                                name: 'condition',
-                                displayName: 'Condition',
-                                values: [
-                                    {name: 'text', displayName: 'Text', type: 'string', default: ''},
-                                    {name: 'value', displayName: 'Value', type: 'number', default: 0},
-                                    {name: 'position', displayName: 'Position', type: 'number', default: 1},
-                                    {name: 'css_class', displayName: 'CSS Class', type: 'string', default: 'discount'},
-                                ],
-                            },
-                        ],
-                    },
-                    {
-                        displayName: 'Condition Texts (Input Field)',
-                        name: 'condition_texts_input',
-                        type: 'string',
-                        default: '',
-                        required: true,
-                        displayOptions: {
-                            show: {
-                                condition_texts_source: ['inputData'],
-                            },
-                        },
-                        description: 'The name of the input field containing the condition texts array',
-                    },
-                    {
-                        displayName: 'Schedule Data Source',
-                        name: 'schedule_data_source',
-                        type: 'options',
-                        options: [
-                            {
-                                name: 'Define in Node',
-                                value: 'defineHere',
-                                description: 'Define schedule data directly in this node',
-                            },
-                            {
-                                name: 'Input Data',
-                                value: 'inputData',
-                                description: 'Use data from input',
-                            },
-                        ],
-                        default: 'defineHere',
-                    },
-                    {
-                        displayName: 'Schedule Data',
-                        name: 'schedule_data',
-                        type: 'fixedCollection',
-                        typeOptions: {multipleValues: true},
-                        default: [],
-                        displayOptions: {
-                            show: {
-                                schedule_data_source: ['defineHere'],
-                            },
-                        },
-                        options: [
-                            {
-                                name: 'schedule',
-                                displayName: 'Schedule',
-                                values: [
-                                    {name: 'qty', displayName: 'Quantity', type: 'number', default: 0},
-                                    {name: 'unit', displayName: 'Unit', type: 'string', default: 'ST'},
-                                    {name: 'delivery_date', displayName: 'Delivery Date', type: 'string', default: ''},
-                                    {name: 'css_class', displayName: 'CSS Class', type: 'string', default: 'available'},
-                                ],
-                            },
-                        ],
-                    },
-                    {
-                        displayName: 'Schedule Data (Input Field)',
-                        name: 'schedule_data_input',
-                        type: 'string',
-                        default: '',
-                        required: true,
-                        displayOptions: {
-                            show: {
-                                schedule_data_source: ['inputData'],
-                            },
-                        },
-                        description: 'The name of the input field containing the schedule data array',
-                    },
-                ],
+													{
+														displayName: 'Condition Texts',
+														name: 'condition_texts',
+														type: 'fixedCollection',
+														default: [	],
+														options: [
+																	{
+																		name: 'condition',
+																		displayName: 'Condition',
+																			values:	[
+																			{
+																				displayName: 'Text',
+																				name: 'text',
+																				type: 'string',
+																				default: '',
+																			},
+																			{
+																				displayName: 'Value',
+																				name: 'value',
+																				type: 'number',
+																				default: 0
+																			},
+																			{
+																				displayName: 'Position',
+																				name: 'position',
+																				type: 'number',
+																				default: 1
+																			},
+																			{
+																				displayName: 'CSS Class',
+																				name: 'css_class',
+																				type: 'string',
+																				default: 'discount',
+																			},
+																			]
+																	},
+															]
+													},
+													{
+														displayName: 'Condition Texts (Input Field)',
+														name: 'condition_texts_input',
+														type: 'string',
+														default: '',
+															required:	true,
+														description: 'The name of the input field containing the condition texts array',
+													},
+													{
+														displayName: 'Condition Texts Source',
+														name: 'condition_texts_source',
+														type: 'options',
+														options: [
+																	{
+																		name: 'Define in Node',
+																		value: 'defineHere',
+																		description: 'Define condition texts directly in this node',
+																	},
+																	{
+																		name: 'Input Data',
+																		value: 'inputData',
+																		description: 'Use data from input',
+																	},
+															],
+														default: 'defineHere',
+													},
+													{
+														displayName: 'Item Number',
+														name: 'item_number',
+														type: 'number',
+														default: 0
+													},
+													{
+														displayName: 'Quantity',
+														name: 'qty',
+														type: 'number',
+														default: 1
+													},
+													{
+														displayName: 'Schedule Data',
+														name: 'schedule_data',
+														type: 'fixedCollection',
+														default: [],
+														options: [
+																	{
+																		name: 'schedule',
+																		displayName: 'Schedule',
+																			values:	[
+																			{
+																				displayName: 'Quantity',
+																				name: 'qty',
+																				type: 'number',
+																				default: 0
+																			},
+																			{
+																				displayName: 'Unit',
+																				name: 'unit',
+																				type: 'string',
+																				default: 'ST',
+																			},
+																			{
+																				displayName: 'Delivery Date',
+																				name: 'delivery_date',
+																				type: 'string',
+																				default: '',
+																			},
+																			{
+																				displayName: 'CSS Class',
+																				name: 'css_class',
+																				type: 'string',
+																				default: 'available',
+																			},
+																			]
+																	},
+															]
+													},
+													{
+														displayName: 'Schedule Data (Input Field)',
+														name: 'schedule_data_input',
+														type: 'string',
+														default: '',
+															required:	true,
+														description: 'The name of the input field containing the schedule data array',
+													},
+													{
+														displayName: 'Schedule Data Source',
+														name: 'schedule_data_source',
+														type: 'options',
+														options: [
+																	{
+																		name: 'Define in Node',
+																		value: 'defineHere',
+																		description: 'Define schedule data directly in this node',
+																	},
+																	{
+																		name: 'Input Data',
+																		value: 'inputData',
+																		description: 'Use data from input',
+																	},
+															],
+														default: 'defineHere',
+													},
+													{
+														displayName: 'SKU',
+														name: 'sku',
+														type: 'string',
+														default: '',
+													},
+													{
+														displayName: 'Tax',
+														name: 'tax',
+														type: 'number',
+														default: 0
+													},
+													{
+														displayName: 'Total Price',
+														name: 'total',
+														type: 'number',
+														default: 0
+													},
+													],
             },
         ],
     },
