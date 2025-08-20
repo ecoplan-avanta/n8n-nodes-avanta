@@ -73,7 +73,7 @@ export const description: INodeProperties[] = [
 		default: true,
 		displayOptions: {
 			show: {
-				operation: ['create'],
+				operation: ['create', 'createCategory', 'createItem'],
 			},
 		},
 	}

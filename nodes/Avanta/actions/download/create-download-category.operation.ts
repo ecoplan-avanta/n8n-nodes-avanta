@@ -9,7 +9,6 @@ import {formatExtensionAttributes, prepareErrorData} from "../../helpers/utils";
 import type {DownloadCategory} from "../../transport";
 import {createApiRequest} from "../../transport";
 
-
 const properties: INodeProperties[] = [
     {
         displayName: 'Store ID',
@@ -45,7 +44,7 @@ const properties: INodeProperties[] = [
         default: '',
         displayOptions: {
             show: {
-                resource: ['company'],
+                resource: ['download'],
                 operation: ['createCategory'],
             },
         }
@@ -58,20 +57,7 @@ const properties: INodeProperties[] = [
         default: '',
         displayOptions: {
             show: {
-                resource: ['company'],
-                operation: ['createCategory'],
-            },
-        }
-    },
-    {
-        displayName: 'Tree Path',
-        name: 'tree_path',
-        type: 'number',
-        required: true,
-        default: '',
-        displayOptions: {
-            show: {
-                resource: ['company'],
+                resource: ['download'],
                 operation: ['createCategory'],
             },
         }
@@ -84,8 +70,8 @@ const properties: INodeProperties[] = [
         default: {},
         displayOptions: {
             show: {
-                resource: ['company'],
-                operation: ['create'],
+                resource: ['download'],
+                operation: ['createCategory'],
             },
         },
         options: [
@@ -104,6 +90,12 @@ const properties: INodeProperties[] = [
             {
                 displayName: 'Sort Order',
                 name: 'order',
+                type: 'string',
+                default: '',
+            },
+            {
+                displayName: 'Tree Path',
+                name: 'tree_path',
                 type: 'string',
                 default: '',
             }
@@ -145,7 +137,6 @@ export async function execute(
                 status: this.getNodeParameter('status', i) as boolean,
                 title: this.getNodeParameter('title', i) as string,
                 level: this.getNodeParameter('level', i) as number,
-                tree_path: this.getNodeParameter('tree_path', i) as string
             };
             category.category = {...category.category, ...additionalFields};
 
