@@ -63,6 +63,19 @@ const properties: INodeProperties[] = [
         }
     },
     {
+        displayName: 'Tree Path',
+        name: 'tree_path',
+        type: 'string',
+        required: true,
+        default: '',
+        displayOptions: {
+            show: {
+                resource: ['download'],
+                operation: ['createCategory'],
+            },
+        }
+    },
+    {
         displayName: 'Additional Fields',
         name: 'additionalFields',
         type: 'collection',
@@ -90,12 +103,6 @@ const properties: INodeProperties[] = [
             {
                 displayName: 'Sort Order',
                 name: 'order',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Tree Path',
-                name: 'tree_path',
                 type: 'string',
                 default: '',
             }
@@ -137,6 +144,7 @@ export async function execute(
                 status: this.getNodeParameter('status', i) as boolean,
                 title: this.getNodeParameter('title', i) as string,
                 level: this.getNodeParameter('level', i) as number,
+                tree_path: this.getNodeParameter('tree_path', i) as string,
             };
             category.category = {...category.category, ...additionalFields};
 

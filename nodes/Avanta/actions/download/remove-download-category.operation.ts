@@ -39,7 +39,6 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
     const items = this.getInputData();
     const allExternalIds: string[] = [];
     const returnData: INodeExecutionData[] = [];
-
     for (let i = 0; i < items.length; i++) {
         try {
             const externalIdsInput = this.getNodeParameter('externalIds', i) as string;

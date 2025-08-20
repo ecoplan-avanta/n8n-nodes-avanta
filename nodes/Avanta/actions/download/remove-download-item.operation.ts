@@ -17,7 +17,7 @@ const properties: INodeProperties[] = [
         displayOptions: {
             show: {
                 resource: ['download'],
-                operation: ['removeDownloadItem'],
+                operation: ['removeItem'],
             },
         },
         description: 'Comma-separated IDs (e.g., EXT1,EXT2) or JSON array/single ID via expression (e.g., ["EXT1", "EXT2"] or EXT1)',
@@ -27,7 +27,7 @@ const properties: INodeProperties[] = [
 const displayOptions = {
     show: {
         resource: ['download'],
-        operation: ['removeDownloadItem'],
+        operation: ['removeItem'],
     },
 };
 
