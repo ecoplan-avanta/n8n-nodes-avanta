@@ -66,7 +66,7 @@ For Docker installations, you can install community nodes by:
 
 1. In n8n, go to **Credentials** and create new **Avanta API** credentials
 2. Fill in the required fields:
-   - **Host**: Your Avanta API base URL (e.g., `https://your-avanta-instance.com`)
+   - **Host**: Your Avanta API base URL including store scope (e.g., `https://your-avanta-instance.com/rest/STORE_CODE` or `https://your-avanta-instance.com/rest/all` for all stores)
    - **Access Token**: Your Avanta API access token
 
 ### Getting API Credentials
@@ -97,7 +97,7 @@ Set the appropriate access levels for each resource:
 1. Click **Generate Token**
 2. **Important**: Copy the generated access token immediately - it will only be displayed once
 3. Store the token securely (consider using a password manager)
-4. Note your API base URL (typically `https://your-domain.com` or `https://your-subdomain.avanta.com`)
+4. Note your API base URL including store scope (typically `https://your-domain.com/rest/STORE_CODE` or `https://your-domain.com/rest/all` for all stores)
 
 #### Authentication Method
 The Avanta API uses **Bearer Token Authentication**. All API requests must include the access token in the Authorization header:
@@ -224,10 +224,16 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
 
 ### Base URL
 
-All API endpoints are relative to your Avanta instance base URL:
+All API endpoints are relative to your Avanta instance base URL including store scope:
 
 ```
-https://your-avanta-instance.com/V1/proline-admin/
+https://your-avanta-instance.com/rest/STORE_CODE/V1/proline-admin/
+```
+
+Or for all stores:
+
+```
+https://your-avanta-instance.com/rest/all/V1/proline-admin/
 ```
 
 ### Common Parameters
