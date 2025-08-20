@@ -71,12 +71,54 @@ For Docker installations, you can install community nodes by:
 
 ### Getting API Credentials
 
-To obtain your Avanta API credentials:
+To obtain your Avanta API credentials, you'll need to generate an access token through the Avanta admin interface:
 
-1. Log into your Avanta system
-2. Navigate to API settings or contact your system administrator
-3. Generate an API access token
-4. Note your API base URL
+#### Step 1: Access the Admin Panel
+1. Log into your Avanta system with administrator privileges
+2. Navigate to **System > Integrations > API Tokens** in the admin menu
+
+#### Step 2: Create a New Integration Token
+1. Click **Add New Token** or **Create Integration**
+2. Provide a descriptive name for your integration (e.g., "n8n Workflow Integration")
+3. Select the appropriate **API Resources** and **Access Levels** based on your workflow needs:
+   - **Companies**: For managing B2B customer companies and relationships
+   - **Orders**: For order processing and management
+   - **Products**: For catalog and inventory operations
+   - **Reports**: For generating business analytics and reports
+   - **Users**: For customer user management
+
+#### Step 3: Configure Token Permissions
+Set the appropriate access levels for each resource:
+- **Read**: View existing data
+- **Write**: Create and update data
+- **Delete**: Remove data (use with caution)
+
+#### Step 4: Generate and Secure Your Token
+1. Click **Generate Token**
+2. **Important**: Copy the generated access token immediately - it will only be displayed once
+3. Store the token securely (consider using a password manager)
+4. Note your API base URL (typically `https://your-domain.com` or `https://your-subdomain.avanta.com`)
+
+#### Authentication Method
+The Avanta API uses **Bearer Token Authentication**. All API requests must include the access token in the Authorization header:
+
+```
+Authorization: Bearer YOUR_ACCESS_TOKEN
+```
+
+#### Token Security Best Practices
+- **Never share** your access token in public repositories or unsecured locations
+- **Rotate tokens regularly** for enhanced security
+- **Use separate tokens** for different environments (development, staging, production)
+- **Monitor token usage** through the admin panel's API logs
+- **Revoke unused tokens** to minimize security risks
+
+#### Troubleshooting Authentication
+If you encounter authentication issues:
+1. Verify the token hasn't expired or been revoked
+2. Check that the token has the necessary permissions for your operations
+3. Ensure your API base URL is correct and accessible
+4. Confirm your Avanta instance supports the API version being used
 
 ## Operations
 

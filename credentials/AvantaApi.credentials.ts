@@ -10,7 +10,7 @@ export class AvantaApi implements ICredentialType {
 
     displayName = 'Avanta API';
 
-    documentationUrl = 'https://developer.adobe.com/commerce/webapi/get-started/authentication/gs-authentication-token/';
+    documentationUrl = 'https://www.npmjs.com/package/n8n-nodes-avanta?activeTab=readme#api-reference';
 
     properties: INodeProperties[] = [
         {

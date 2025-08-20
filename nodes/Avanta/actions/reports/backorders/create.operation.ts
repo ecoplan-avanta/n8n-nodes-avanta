@@ -38,14 +38,6 @@ const properties: INodeProperties[] = [
         displayOptions: { show: { resource: ['backorders'], operation: ['create'] } },
         description: 'Order ID provided by the customer',
     },
-    {
-        displayName: 'Bulk',
-        name: 'bulk',
-        type: 'boolean',
-        default: false,
-        displayOptions: { show: { resource: ['backorders'], operation: ['create'] } },
-        description: 'Whether to process as bulk operation',
-    },
     // Backorder positions
     {
         displayName: 'Backorder Positions',
