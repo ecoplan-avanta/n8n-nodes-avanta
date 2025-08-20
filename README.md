@@ -2,10 +2,11 @@
 
 ![n8n.io - Workflow Automation](https://raw.githubusercontent.com/n8n-io/n8n/master/assets/n8n-logo.png)
 
-An n8n community node for integrating with the Avanta ERP system. This node allows you to interact with Avanta's API to manage companies, orders, reports, and other business operations directly from your n8n workflows.
+An n8n community node for integrating with the Avanta B2B E-Commerce platform. This node enables seamless integration with Avanta's comprehensive B2B commerce solution, allowing you to automate customer management, order processing, inventory tracking, and business reporting directly from your n8n workflows.
 
 ## Table of Contents
 
+- [About Avanta](#about-avanta)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Operations](#operations)
@@ -14,6 +15,20 @@ An n8n community node for integrating with the Avanta ERP system. This node allo
 - [Contributing](#contributing)
 - [License](#license)
 - [Support](#support)
+
+## About Avanta
+
+Avanta is a comprehensive B2B E-Commerce platform designed to streamline business-to-business transactions and relationships. The platform provides robust tools for managing customer companies, processing orders, handling complex pricing structures, and generating detailed business reports.
+
+Key features of Avanta include:
+
+- **Multi-Company Management**: Handle complex B2B customer hierarchies and relationships
+- **Advanced Order Processing**: Support for bulk orders, custom pricing, and delivery scheduling
+- **Comprehensive Reporting**: Detailed analytics for orders, shipments, invoices, and business performance
+- **Flexible Product Catalog**: Manage extensive product catalogs with custom attributes and pricing
+- **Integration Capabilities**: RESTful API for seamless integration with existing business systems
+
+This n8n node provides direct access to Avanta's powerful API, enabling you to automate your B2B E-Commerce workflows and integrate Avanta with your existing business processes.
 
 ## Installation
 
@@ -65,41 +80,41 @@ To obtain your Avanta API credentials:
 
 ## Operations
 
-The Avanta node supports the following resources and operations:
+The Avanta node supports comprehensive B2B E-Commerce operations across the following resources:
 
-### Companies
-- **Create**: Create new companies
-- **Update**: Update existing companies
-- **Delete**: Remove companies
+### Customer Companies
+- **Create**: Register new B2B customer companies
+- **Update**: Modify existing customer company profiles
+- **Delete**: Remove customer companies from the platform
 
 ### Company Addresses
-- **Create**: Add addresses to companies
-- **Update**: Modify company addresses
+- **Create**: Add billing and shipping addresses for B2B customers
+- **Update**: Modify existing company address information
 
 ### Company Contacts
-- **Create**: Add contacts to companies
-- **Update**: Modify company contacts
+- **Create**: Add contact persons for B2B customer companies
+- **Update**: Update contact information and roles
 
 ### Company Users
-- **Create**: Create company users
-- **Link**: Link users to companies
+- **Create**: Create user accounts for B2B customer access
+- **Link**: Associate users with their respective companies
 
-### Reports
-- **Backorders**: Create backorder reports
-- **Credit Memos**: Generate credit memo reports
-- **Invoices**: Create invoice reports
-- **Orders**: Generate order reports
-- **Reshipments**: Create reshipment reports
-- **Shipments**: Generate shipment reports
-- **Trackings**: Create tracking reports
+### Business Reports
+- **Backorders**: Generate reports for items on backorder
+- **Credit Memos**: Create credit memo documentation for returns
+- **Invoices**: Generate invoice reports for B2B transactions
+- **Orders**: Create comprehensive order reports and tracking
+- **Reshipments**: Document reshipment activities and logistics
+- **Shipments**: Track shipment status and delivery information
+- **Trackings**: Monitor package tracking and delivery updates
 
-### Products
-- **Create**: Add new products
-- **Update**: Modify existing products
+### Product Catalog
+- **Create**: Add new products to the B2B catalog
+- **Update**: Modify existing product information and pricing
 
 ### Sales Organizations
-- **Create**: Set up sales organizations
-- **Link**: Link companies to sales organizations
+- **Create**: Set up sales territories and organizational structures
+- **Link**: Associate companies with their designated sales organizations
 
 ## Usage Examples
 
@@ -193,20 +208,22 @@ The node includes comprehensive error handling:
 
 ### Required Fields
 
-Each operation has specific required fields. Common required fields include:
+Each B2B E-Commerce operation has specific required fields. Common required fields include:
 
-- **Company Operations**: `name`, `group_id`
-- **Report Operations**: `customer_id`, `company_id`
-- **Address Operations**: `company_customer_id`, `company_group_id`
+- **Customer Company Operations**: `name`, `group_id` for company registration
+- **Business Report Operations**: `customer_id`, `company_id` for transaction tracking
+- **Address Operations**: `company_customer_id`, `company_group_id` for shipping/billing setup
 
 ### Optional Fields
 
-Most operations support additional optional fields through the "Additional Fields" collection, allowing for:
+Most B2B operations support additional optional fields through the "Additional Fields" collection, enabling:
 
-- Custom dates and timestamps
-- Extension attributes
-- Document file attachments
-- Custom pricing and quantities
+- Custom business dates and delivery schedules
+- Extension attributes for custom B2B requirements
+- Document file attachments for compliance and documentation
+- Custom pricing structures and quantity breaks
+- Tax information and VAT handling
+- Multi-currency support for international B2B transactions
 
 ### Date Formatting
 
@@ -214,22 +231,33 @@ Date fields are automatically formatted to ISO 8601 format when sent to the API.
 
 ## Workflow Integration
 
+### B2B E-Commerce Use Cases
+
+The Avanta node is designed for comprehensive B2B E-Commerce automation:
+
+- **Customer Onboarding**: Automate new B2B customer registration and setup
+- **Order Processing**: Streamline order intake, validation, and fulfillment workflows
+- **Inventory Management**: Sync product catalogs and inventory levels
+- **Business Reporting**: Generate automated reports for sales, shipments, and analytics
+- **Multi-Company Management**: Handle complex B2B relationships and hierarchies
+
 ### Triggers
 
 This node works well with:
 
-- **Webhook triggers** for real-time data processing
-- **Schedule triggers** for batch operations
-- **Manual triggers** for on-demand execution
+- **Webhook triggers** for real-time order processing and customer updates
+- **Schedule triggers** for batch reporting and inventory synchronization
+- **Manual triggers** for on-demand B2B operations and testing
 
 ### Data Flow
 
 The node can be chained with:
 
-- **HTTP Request nodes** for additional API calls
-- **Set nodes** for data transformation
-- **IF nodes** for conditional logic
-- **Function nodes** for custom processing
+- **HTTP Request nodes** for additional API calls and third-party integrations
+- **Set nodes** for data transformation and B2B-specific formatting
+- **IF nodes** for conditional logic based on customer types or order values
+- **Function nodes** for custom B2B business logic and calculations
+- **Email nodes** for automated B2B communication and notifications
 
 ## Troubleshooting
 
