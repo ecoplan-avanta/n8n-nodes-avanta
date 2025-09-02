@@ -14,6 +14,7 @@ import * as company from './actions/company';
 import * as companyAddress from './actions/companyAddress';
 import * as companyContact from './actions/companyContact';
 import * as companyGroup from './actions/companyGroup';
+import * as companyRestrict from './actions/companyRestrict';
 import * as companyRole from './actions/companyRole';
 import * as companyUser from './actions/companyUser';
 import * as companySku from './actions/companySku';
@@ -71,6 +72,10 @@ export class Avanta implements INodeType {
 						value: 'companyGroup',
 					},
 					{
+						name: 'CompanyRestrict',
+						value: 'companyRestrict',
+					},
+					{
 						name: 'CompanyRole',
 						value: 'companyRole',
 					},
@@ -121,8 +126,8 @@ export class Avanta implements INodeType {
 			...company.description,
 			...companyAddress.description,
             ...companyContact.description,
-            ...companyUser.description,
 			...companyGroup.description,
+			...companyRestrict.description,
 			...companyRole.description,
 			...companyUser.description,
 			...companySku.description,
