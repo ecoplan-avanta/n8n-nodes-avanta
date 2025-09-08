@@ -236,6 +236,16 @@ export interface DownloadItem {
 	visibility?: number;
 	product_all?: number;
 	filename?: string;
+    description?: string;
+    short_description?: string;
+    company_ids?: number[];
+    category_ids?: number[];
+    company_group_ids?: string;
+    item_dir?: string;
+    preview?: string;
+    extracted_text?: string;
+    type?: string;
+    url?: string;
 	extension_attributes?: {
 		content?: string;
 		store_id?: number;
@@ -741,4 +751,15 @@ export interface CompanyRole {
 	parent_id: number;
 	role_name: string;
 	role_type?: string;
+}
+
+export interface DownloadCategory {
+    store_id: number;
+    status: boolean;
+    title: string;
+    level: number;
+    tree_path?: string;
+    parent_category_id?: number;
+    external_id?: string;
+    order?: number;
 }
