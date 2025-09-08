@@ -9,6 +9,7 @@ import {NodeOperationError} from 'n8n-workflow';
 
 import * as company from './company';
 import * as companyAddress from './companyAddress';
+import * as companyContact from './companyContact';
 import * as companyGroup from './companyGroup';
 import * as companyRole from './companyRole';
 import * as companySku from './companySku';
@@ -57,7 +58,7 @@ export const description: INodeProperties[] = [
 		displayName: 'Return to Webhook',
 		name: 'return',
 		type: 'boolean',
-		description: 'A \'Respond to Webhook\' node is required after this node to return the response.',
+		description: 'Whether to return the response to a webhook. A \'Respond to Webhook\' node is required after this node to return the response.',
 		default: false,
 		displayOptions: {
 			show: {
@@ -69,11 +70,11 @@ export const description: INodeProperties[] = [
 		displayName: 'Use Bulk API',
 		name: 'bulk',
 		type: 'boolean',
-		description: '',
+		description: 'Whether to use the bulk API for processing multiple items',
 		default: true,
 		displayOptions: {
 			show: {
-				operation: ['create', 'createCategory', 'createItem'],
+				operation: ['create', 'linkCompany', 'linkSalesorg', 'createCategory', 'createItem'],
 			},
 		},
 	}
@@ -103,6 +104,9 @@ export async function router(this: IExecuteFunctions) {
 		case 'companyRole':
 			returnData = await (companyRole as any)[operation].execute.call(this);
 			break;
+        case 'companyContact':
+            returnData = await (companyContact as any)[operation].execute.call(this);
+            break;
 		case 'companyUser':
 			returnData = await (companyUser as any)[operation].execute.call(this);
 			break;

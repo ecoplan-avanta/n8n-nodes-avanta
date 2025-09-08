@@ -8,9 +8,9 @@ import type {
 export class AvantaApi implements ICredentialType {
     name = 'avantaApi';
 
-    displayName = 'anvanta API';
+    displayName = 'Avanta API';
 
-    documentationUrl = 'magento2';
+    documentationUrl = 'https://www.npmjs.com/package/n8n-nodes-avanta?activeTab=readme#api-reference';
 
     properties: INodeProperties[] = [
         {

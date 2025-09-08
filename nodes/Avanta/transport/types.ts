@@ -271,6 +271,22 @@ export interface ProductAttribute {
 	attribute_code: string;
 }
 
+export interface CompanyContact {
+    firstname: string;
+    lastname: string;
+    email: string;
+    telephone?: string;
+    mobile?: string;
+    fax?: string;
+    skype?: string;
+    photo?: string;
+    job_title?: string;
+    contact_person?: number;
+    external_id?: string;
+    store_ids?: number[];
+    sort_order?: string;
+}
+
 export interface DocumentFile {
 	document_id?: string;
 	type?: string;

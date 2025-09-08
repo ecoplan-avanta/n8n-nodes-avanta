@@ -12,6 +12,7 @@ import {router} from './actions/router';
 import * as routerDescription from './actions/router';
 import * as company from './actions/company';
 import * as companyAddress from './actions/companyAddress';
+import * as companyContact from './actions/companyContact';
 import * as companyGroup from './actions/companyGroup';
 import * as companyRole from './actions/companyRole';
 import * as companyUser from './actions/companyUser';
@@ -22,10 +23,9 @@ import * as reports from './actions/reports';
 import * as download from './actions/download';
 import {loadOptions} from './methods';
 
-//import {companyAddressFields, companyAddressOperations} from "./descriptions/CompanyAddressesDescription";
 export class Avanta implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'avanta',
+		displayName: 'Avanta',
 		name: 'avanta',
 		icon: 'file:avanta.svg',
 		group: ['input'],
@@ -52,6 +52,10 @@ export class Avanta implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
+						name: 'Backorder',
+						value: 'backorders',
+					},
+					{
 						name: 'Company',
 						value: 'company',
 					},
@@ -60,16 +64,8 @@ export class Avanta implements INodeType {
 						value: 'companyAddress',
 					},
 					{
-						name: 'CompanyUser',
-						value: 'companyUser',
-					},
-					{
-						name: 'CompanySku',
-						value: 'companySku',
-					},
-					{
-						name: 'SalesOrg',
-						value: 'salesOrg',
+						name: 'CompanyContact',
+						value: 'companyContact',
 					},
 					{
 						name: 'CompanyGroup',
@@ -80,12 +76,12 @@ export class Avanta implements INodeType {
 						value: 'companyRole',
 					},
 					{
-						name: 'Product',
-						value: 'product',
+						name: 'CompanySku',
+						value: 'companySku',
 					},
 					{
-						name: 'Backorder',
-						value: 'backorders',
+						name: 'CompanyUser',
+						value: 'companyUser',
 					},
 					{
 						name: 'Creditmemo',
@@ -100,8 +96,16 @@ export class Avanta implements INodeType {
 						value: 'orders',
 					},
 					{
+						name: 'Product',
+						value: 'product',
+					},
+					{
 						name: 'Reshipment',
 						value: 'reshipments',
+					},
+					{
+						name: 'SalesOrg',
+						value: 'salesOrg',
 					},
 					{
 						name: 'Shipment',
@@ -121,6 +125,8 @@ export class Avanta implements INodeType {
 			...routerDescription.description,
 			...company.description,
 			...companyAddress.description,
+            ...companyContact.description,
+            ...companyUser.description,
 			...companyGroup.description,
 			...companyRole.description,
 			...companyUser.description,

@@ -10,7 +10,7 @@ import { createApiRequest } from '../../transport';
 
 const properties: INodeProperties[] = [
     {
-        displayName: 'Store Group ID',
+        displayName: 'Store Group Name or ID',
         name: 'group_id',
         type: 'options',
         typeOptions: {
@@ -23,7 +23,7 @@ const properties: INodeProperties[] = [
             },
         },
         default: '',
-        description: 'Store group ID (uses first item\'s value). Can use <a href="https://docs.n8n.io/code/expressions/">expressions</a>.',
+        description: 'Store group ID (uses first item\'s value). Can use <a href="https://docs.n8n.io/code/expressions/">expressions</a>. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
     },
     {
         displayName: 'External IDs',

@@ -17,7 +17,7 @@ export const description: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Order create',
+				name: 'Order Create',
 				value: 'orderCreate',
 				description: 'Run order create',
 				action: 'Run order create',
