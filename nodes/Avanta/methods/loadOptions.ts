@@ -48,12 +48,10 @@ export async function getStoreGroups(this: ILoadOptionsFunctions): Promise<INode
 	const returnData: INodePropertyOptions[] = [];
 
 	for (const store of stores) {
-		if (store.id > 0) {
-			returnData.push({
-				name: store.name,
-				value: store.id,
-			});
-		}
+		returnData.push({
+			name: store.name,
+			value: store.id,
+		});
 	}
 	returnData.sort(sort);
 	return returnData;
