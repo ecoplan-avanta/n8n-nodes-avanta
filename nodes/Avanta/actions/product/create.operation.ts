@@ -166,7 +166,7 @@ export async function execute(
             const status = this.getNodeParameter('status', i) as number;
             const typeId = this.getNodeParameter('type_id', i) as string;
             const price = this.getNodeParameter('price', i) as number;
-            const visibility = this.getNodeParameter('price', i, 4) as number;
+            const visibility = this.getNodeParameter('visibility', i, 4) as number;
             let additionalFields = this.getNodeParameter(
                 'additionalFields',
                 i,
@@ -287,12 +287,37 @@ export async function execute(
 
             // Handle product links if provided
             if (additionalFields.productLinks) {
-                let collection = ((additionalFields.productLinks as IDataObject).productLink  as IDataObject[]);
-                productData.product.product_links = collection.map((link: any): ProductLink => ({
-                    sku: sku,
-                    linked_product_sku: link.linked_product_sku,
-                    link_type: link.link_type
-                }));
+                let collection = ((additionalFields.productLinks as IDataObject).productLink as IDataObject[]);
+                const productLinks: ProductLink[] = [];
+                for (const link of collection) {
+                    // Ensure linked_product_sku and link_type are strings
+                    const linkedProductSku = String(link.linked_product_sku || '');
+                    const linkType = String(link.link_type || '');
+                    if (linkedProductSku && linkType) {
+                        if (linkedProductSku.includes(',')) {
+                            // Handle comma-separated linked product SKUs
+                            const linkedSkus = linkedProductSku
+                                .split(',')
+                                .map((sku: string) => sku.trim())
+                                .filter((sku: string) => sku !== '');
+                            linkedSkus.forEach((linkedSku: string) => {
+                                productLinks.push({
+                                    sku,
+                                    linked_product_sku: linkedSku,
+                                    link_type: linkType
+                                });
+                            });
+                        } else {
+                            // Handle single linked product SKU
+                            productLinks.push({
+                                sku,
+                                linked_product_sku: linkedProductSku,
+                                link_type: linkType
+                            });
+                        }
+                    }
+                }
+                productData.product.product_links = productLinks;
             }
 
             // Handle external category links if provided
@@ -300,10 +325,30 @@ export async function execute(
                 if (!productData.product.extension_attributes) {
                     productData.product.extension_attributes = {};
                 }
-                let collection = ((additionalFields.externalCategoryLinks as IDataObject).externalCategoryLink  as IDataObject[]);
-                productData.product.extension_attributes.external_category_links = collection.map((link: any) => ({
-                    external_category_id: link.external_category_id
-                }));
+                let collection = ((additionalFields.externalCategoryLinks as IDataObject).externalCategoryLink as IDataObject[]);
+                const externalCategoryLinks: { external_category_id: string }[] = [];
+                for (const link of collection) {
+                    if (typeof link.external_category_id === 'string') {
+                        if (link.external_category_id.includes(',')) {
+                            // Handle comma-separated category IDs
+                            const categoryIds = link.external_category_id
+                                .split(',')
+                                .map((id: string) => id.trim())
+                                .filter((id: string) => id !== '');
+                            categoryIds.forEach((id: string) => {
+                                externalCategoryLinks.push({
+                                    external_category_id: id
+                                });
+                            });
+                        } else {
+                            // Handle single category ID
+                            externalCategoryLinks.push({
+                                external_category_id: link.external_category_id
+                            });
+                        }
+                    }
+                }
+                productData.product.extension_attributes.external_category_links = externalCategoryLinks;
             }
 
             //console.log(JSON.stringify(productData, null, 2));
@@ -432,118 +477,118 @@ function getProductOptionalFields(): INodeProperties[] {
                     displayName: 'Media Gallery Entry',
                     name: 'mediaGalleryEntry',
                     values: [
-																	{
-																		displayName: 'Content',
-																		name: 'content',
-																		type: 'fixedCollection',
-																		default: {},
-																		options: [
-																			{
-																				displayName: 'Content Details',
-																				name: 'contentDetails',
-																					values:	[
-																							{
-																								displayName: 'Content',
-																								name: 'content',
-																								type: 'string',
-																								default: '',
-																								description: 'Content of the media (base64, file path, or URL)',
-																							},
-																							{
-																								displayName: 'Name',
-																								name: 'name',
-																								type: 'string',
-																								default: '',
-																								description: 'Name of the media file',
-																							},
-																						]
-																			},
-																			]
-																	},
-																	{
-																		displayName: 'Disabled',
-																		name: 'disabled',
-																		type: 'boolean',
-																		default: false,
-																		description: 'Whether the media is disabled',
-																	},
-																	{
-																		displayName: 'File',
-																		name: 'file',
-																		type: 'string',
-																		default: '',
-																		description: 'File name of the media',
-																	},
-																	{
-																		displayName: 'Label',
-																		name: 'label',
-																		type: 'string',
-																		default: '',
-																		description: 'Label of the media',
-																	},
-																	{
-																		displayName: 'Media Type',
-																		name: 'media_type',
-																		type: 'options',
-																		options: [
-																			{
-																				name: 'Image',
-																				value: 'image',
-																			},
-																			{
-																				name: 'Video',
-																				value: 'video',
-																			},
-																			],
-																		default: 'image',
-																		description: 'Type of the media',
-																	},
-																	{
-																		displayName: 'Position',
-																		name: 'position',
-																		type: 'number',
-																		default: 1,
-																		description: 'Position of the media in the gallery',
-																	},
-																	{
-																		displayName: 'Scope',
-																		name: 'scope',
-																		type: 'options',
-																		options: [
-																			{
-																				name: 'Stores',
-																				value: 'stores',
-																			},
-																			{
-																				name: 'Websites',
-																				value: 'websites',
-																			},
-																			],
-																		default: 'stores',
-																		description: 'Scope of the media',
-																	},
-																	{
-																		displayName: 'Types',
-																		name: 'types',
-																		type: 'multiOptions',
-																		options: [
-																			{
-																				name: 'Image',
-																				value: 'image',
-																			},
-																			{
-																				name: 'Small Image',
-																				value: 'small_image',
-																			},
-																			{
-																				name: 'Thumbnail',
-																				value: 'thumbnail',
-																			},
-																			],
-																		default: [],
-																		description: 'Types of the media',
-																	},
-															],
+                        {
+                            displayName: 'Content',
+                            name: 'content',
+                            type: 'fixedCollection',
+                            default: {},
+                            options: [
+                                {
+                                    displayName: 'Content Details',
+                                    name: 'contentDetails',
+                                    values: [
+                                        {
+                                            displayName: 'Content',
+                                            name: 'content',
+                                            type: 'string',
+                                            default: '',
+                                            description: 'Content of the media (base64, file path, or URL)',
+                                        },
+                                        {
+                                            displayName: 'Name',
+                                            name: 'name',
+                                            type: 'string',
+                                            default: '',
+                                            description: 'Name of the media file',
+                                        },
+                                    ]
+                                },
+                            ]
+                        },
+                        {
+                            displayName: 'Disabled',
+                            name: 'disabled',
+                            type: 'boolean',
+                            default: false,
+                            description: 'Whether the media is disabled',
+                        },
+                        {
+                            displayName: 'File',
+                            name: 'file',
+                            type: 'string',
+                            default: '',
+                            description: 'File name of the media',
+                        },
+                        {
+                            displayName: 'Label',
+                            name: 'label',
+                            type: 'string',
+                            default: '',
+                            description: 'Label of the media',
+                        },
+                        {
+                            displayName: 'Media Type',
+                            name: 'media_type',
+                            type: 'options',
+                            options: [
+                                {
+                                    name: 'Image',
+                                    value: 'image',
+                                },
+                                {
+                                    name: 'Video',
+                                    value: 'video',
+                                },
+                            ],
+                            default: 'image',
+                            description: 'Type of the media',
+                        },
+                        {
+                            displayName: 'Position',
+                            name: 'position',
+                            type: 'number',
+                            default: 1,
+                            description: 'Position of the media in the gallery',
+                        },
+                        {
+                            displayName: 'Scope',
+                            name: 'scope',
+                            type: 'options',
+                            options: [
+                                {
+                                    name: 'Stores',
+                                    value: 'stores',
+                                },
+                                {
+                                    name: 'Websites',
+                                    value: 'websites',
+                                },
+                            ],
+                            default: 'stores',
+                            description: 'Scope of the media',
+                        },
+                        {
+                            displayName: 'Types',
+                            name: 'types',
+                            type: 'multiOptions',
+                            options: [
+                                {
+                                    name: 'Image',
+                                    value: 'image',
+                                },
+                                {
+                                    name: 'Small Image',
+                                    value: 'small_image',
+                                },
+                                {
+                                    name: 'Thumbnail',
+                                    value: 'thumbnail',
+                                },
+                            ],
+                            default: [],
+                            description: 'Types of the media',
+                        },
+                    ],
                 },
             ],
         },
@@ -561,147 +606,147 @@ function getProductOptionalFields(): INodeProperties[] {
                     displayName: 'Download Item',
                     name: 'downloadItem',
                     values: [
-																	{
-																		displayName: 'Content',
-																		name: 'content',
-																		type: 'string',
-																		default: '',
-																		description: 'Content of the download item (URL)',
-																	},
-																	{
-																		displayName: 'External Category IDs',
-																		name: 'external_category_ids',
-																		type: 'string',
-																		default: '',
-																		description: 'External category IDs to link to the download item',
-																	},
-																	{
-																		displayName: 'External Company IDs',
-																		name: 'external_company_ids',
-																		type: 'string',
-																		default: '',
-																		description: 'External company IDs to link to the download item',
-																	},
-																	{
-																		displayName: 'External ID',
-																		name: 'external_id',
-																		type: 'string',
-																		default: '',
-																		description: 'External ID of the download item',
-																	},
-																	{
-																		displayName: 'Filename',
-																		name: 'filename',
-																		type: 'string',
-																		default: '',
-																		description: 'Filename of the download item',
-																	},
-																	{
-																		displayName: 'Product All',
-																		name: 'product_all',
-																		type: 'options',
-																		options: [
-																			{
-																				name: 'Yes',
-																				value: 1
-																			},
-																			{
-																				name: 'No',
-																				value: 0
-																			},
-																			],
-																		default: 0,
-																		description: 'Whether the download item is for all products',
-																	},
-																	{
-																		displayName: 'Show in Portal',
-																		name: 'show_in_portal',
-																		type: 'options',
-																		options: [
-																			{
-																				name: 'Yes',
-																				value: 1
-																			},
-																			{
-																				name: 'No',
-																				value: 0
-																			},
-																			],
-																		default: 0,
-																		description: 'Whether to show the download item in the portal',
-																	},
-																	{
-																		displayName: 'SKUs',
-																		name: 'skus',
-																		type: 'string',
-																		default: '',
-																		description: 'SKUs to link to the download item',
-																	},
-																	{
-																		displayName: 'Status',
-																		name: 'status',
-																		type: 'options',
-																		options: [
-																			{
-																				name: 'Enabled',
-																				value: 1
-																			},
-																			{
-																				name: 'Disabled',
-																				value: 2
-																			},
-																			],
-																		default: 1,
-																		description: 'Status of the download item',
-																	},
-																	{
-																		displayName: 'Store ID',
-																		name: 'store_id',
-																		type: 'number',
-																		default: 1,
-																		description: 'ID of the store',
-																	},
-																	{
-																		displayName: 'Title',
-																		name: 'title',
-																		type: 'string',
-																		default: '',
-																		description: 'Title of the download item',
-																	},
-																	{
-																		displayName: 'Visibility',
-																		name: 'visibility',
-																		type: 'options',
-																		options: [
-																			{
-																				name: 'Enterprise Users (B2B)',
-																				value: 1
-																			},
-																			{
-																				name: 'Consumers	/	Anonymous Visitors (B2C)',
-																				value: 2
-																			},
-																			{
-																				name: 'No Restriction',
-																				value: 3
-																			},
-																			{
-																				name: 'Selected Companies',
-																				value: 4
-																			},
-																			{
-																				name: 'Selected Company Groups',
-																				value: 5
-																			},
-																			{
-																				name: 'Enterprise Users and Consumers (B2B	/	B2C)',
-																				value: 6
-																			},
-																			],
-																		default: 3,
-																		description: 'Visibility of the download item',
-																	},
-															],
+                        {
+                            displayName: 'Content',
+                            name: 'content',
+                            type: 'string',
+                            default: '',
+                            description: 'Content of the download item (URL)',
+                        },
+                        {
+                            displayName: 'External Category IDs',
+                            name: 'external_category_ids',
+                            type: 'string',
+                            default: '',
+                            description: 'External category IDs to link to the download item',
+                        },
+                        {
+                            displayName: 'External Company IDs',
+                            name: 'external_company_ids',
+                            type: 'string',
+                            default: '',
+                            description: 'External company IDs to link to the download item',
+                        },
+                        {
+                            displayName: 'External ID',
+                            name: 'external_id',
+                            type: 'string',
+                            default: '',
+                            description: 'External ID of the download item',
+                        },
+                        {
+                            displayName: 'Filename',
+                            name: 'filename',
+                            type: 'string',
+                            default: '',
+                            description: 'Filename of the download item',
+                        },
+                        {
+                            displayName: 'Product All',
+                            name: 'product_all',
+                            type: 'options',
+                            options: [
+                                {
+                                    name: 'Yes',
+                                    value: 1
+                                },
+                                {
+                                    name: 'No',
+                                    value: 0
+                                },
+                            ],
+                            default: 0,
+                            description: 'Whether the download item is for all products',
+                        },
+                        {
+                            displayName: 'Show in Portal',
+                            name: 'show_in_portal',
+                            type: 'options',
+                            options: [
+                                {
+                                    name: 'Yes',
+                                    value: 1
+                                },
+                                {
+                                    name: 'No',
+                                    value: 0
+                                },
+                            ],
+                            default: 0,
+                            description: 'Whether to show the download item in the portal',
+                        },
+                        {
+                            displayName: 'SKUs',
+                            name: 'skus',
+                            type: 'string',
+                            default: '',
+                            description: 'SKUs to link to the download item',
+                        },
+                        {
+                            displayName: 'Status',
+                            name: 'status',
+                            type: 'options',
+                            options: [
+                                {
+                                    name: 'Enabled',
+                                    value: 1
+                                },
+                                {
+                                    name: 'Disabled',
+                                    value: 2
+                                },
+                            ],
+                            default: 1,
+                            description: 'Status of the download item',
+                        },
+                        {
+                            displayName: 'Store ID',
+                            name: 'store_id',
+                            type: 'number',
+                            default: 1,
+                            description: 'ID of the store',
+                        },
+                        {
+                            displayName: 'Title',
+                            name: 'title',
+                            type: 'string',
+                            default: '',
+                            description: 'Title of the download item',
+                        },
+                        {
+                            displayName: 'Visibility',
+                            name: 'visibility',
+                            type: 'options',
+                            options: [
+                                {
+                                    name: 'Enterprise Users (B2B)',
+                                    value: 1
+                                },
+                                {
+                                    name: 'Consumers / Anonymous Visitors (B2C)',
+                                    value: 2
+                                },
+                                {
+                                    name: 'No Restriction',
+                                    value: 3
+                                },
+                                {
+                                    name: 'Selected Companies',
+                                    value: 4
+                                },
+                                {
+                                    name: 'Selected Company Groups',
+                                    value: 5
+                                },
+                                {
+                                    name: 'Enterprise Users and Consumers (B2B / B2C)',
+                                    value: 6
+                                },
+                            ],
+                            default: 3,
+                            description: 'Visibility of the download item',
+                        },
+                    ],
                 },
             ],
         },
@@ -724,7 +769,7 @@ function getProductOptionalFields(): INodeProperties[] {
                             name: 'linked_product_sku',
                             type: 'string',
                             default: '',
-                            description: 'SKU of the linked product',
+                            description: 'SKU of the linked product, or a comma-separated list of SKUs (e.g., "sku1,sku2,sku3")',
                         },
                         {
                             displayName: 'Link Type Name or ID',
@@ -759,7 +804,7 @@ function getProductOptionalFields(): INodeProperties[] {
                             name: 'external_category_id',
                             type: 'string',
                             default: '',
-                            description: 'External ID of the category',
+                            description: 'External ID of the category, or a comma-separated list of IDs (e.g., "cat1,cat2,cat3")',
                         },
                     ],
                 },
