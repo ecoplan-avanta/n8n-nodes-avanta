@@ -186,8 +186,26 @@ export interface Product {
 	extension_attributes?: {
 		website_ids?: number[];
 		stock_item?: {
-			qty?: string;
-			is_in_stock?: number;
+			qty?: number;
+			is_in_stock?: boolean;
+			manage_stock?: boolean;
+			use_config_manage_stock?: boolean;
+			backorders?: number;
+			use_config_backorders?: boolean;
+			min_qty?: number;
+			use_config_min_qty?: boolean;
+			min_sale_qty?: number;
+			use_config_min_sale_qty?: boolean;
+			max_sale_qty?: number;
+			use_config_max_sale_qty?: boolean;
+			is_qty_decimal?: boolean;
+			qty_increments?: number;
+			use_config_qty_increments?: boolean;
+			enable_qty_increments?: boolean;
+			use_config_enable_qty_inc?: boolean;
+			low_stock_date?: string;
+			notify_stock_qty?: number;
+			use_config_notify_stock_qty?: boolean;
 		};
 		external_category_links?: {
 			external_category_id?: string;
