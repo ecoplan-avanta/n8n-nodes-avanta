@@ -23,7 +23,7 @@ export interface CompanyCustomerLink {
 }
 
 export type CompanyCustomer = {
-	company_customer_linkage: CompanyCustomerLink[],
+	companyCustomerLinkage: CompanyCustomerLink[],
 	user: Customer
 }
 

@@ -313,10 +313,10 @@ export async function execute(
 
             companyUser = {
                 'user': {} as Customer,
-                'company_customer_linkage': [] as CompanyCustomerLink[]
+                'companyCustomerLinkage': [] as CompanyCustomerLink[]
             }
 
-            companyUser.company_customer_linkage.push({
+            companyUser.companyCustomerLinkage.push({
                 'company_customer_id': company_customer_id,
                 'company_role_external_id': company_role_external_id
             } as CompanyCustomerLink);
