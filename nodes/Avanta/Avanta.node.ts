@@ -50,7 +50,7 @@ export class Avanta implements INodeType {
 				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 				options: [
 					{
-						name: 'Company -',
+						name: 'Company',
 						value: 'company',
 					},
 					{
