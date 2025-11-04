@@ -18,6 +18,7 @@ import * as companySku from './actions/companySku';
 import * as salesOrg from './actions/salesOrg';
 import * as product from './actions/product';
 import * as reports from './actions/reports';
+import * as download from './actions/download';
 import {loadOptions} from './methods';
 
 export class Avanta implements INodeType {
@@ -117,7 +118,11 @@ export class Avanta implements INodeType {
 					{
 						name: 'Servicecenter - Backorder',
 						value: 'backorders',
-					}
+					},
+                    {
+                        name: 'Download',
+                        value: 'download',
+                    }
 				]
 			},
 			...routerDescription.description,
@@ -131,8 +136,9 @@ export class Avanta implements INodeType {
 			...companySku.description,
 			...salesOrg.description,
 			...product.description,
-			...reports.description
-		],
+			...reports.description,
+            ...download.description
+        ],
 	};
 
 	methods = {

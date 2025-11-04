@@ -48,12 +48,10 @@ export async function getStoreGroups(this: ILoadOptionsFunctions): Promise<INode
 	const returnData: INodePropertyOptions[] = [];
 
 	for (const store of stores) {
-		if (store.id > 0) {
-			returnData.push({
-				name: store.name,
-				value: store.id,
-			});
-		}
+		returnData.push({
+			name: store.name,
+			value: store.id,
+		});
 	}
 	returnData.sort(sort);
 	return returnData;
@@ -345,8 +343,9 @@ export async function getExtensionAttributes(this: ILoadOptionsFunctions): Promi
 		backorders: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\BackorderHeadReportInterface',
 		invoices: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\InvoiceHeadReportInterface',
 		creditmemos: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\CreditmemoHeadReportInterface',
-		trackings: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\TrackingReportInterface'
-	};
+		trackings: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\TrackingReportInterface',
+        downloads: 'Ecoplan\\ProlineDownloadCenter\\Api\\Data\\ItemRepositoryInterface'
+    };
 
 	const body = {
 		interfaceName: resourceMapping[resource]
