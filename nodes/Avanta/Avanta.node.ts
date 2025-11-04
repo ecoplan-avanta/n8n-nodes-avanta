@@ -4,9 +4,6 @@ import type {
 	INodeType,
 	INodeTypeDescription
 } from 'n8n-workflow';
-import {
-	NodeConnectionType
-} from 'n8n-workflow';
 
 import {router} from './actions/router';
 import * as routerDescription from './actions/router';
@@ -26,7 +23,7 @@ import {loadOptions} from './methods';
 
 export class Avanta implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Avanta',
+		displayName: 'avanta',
 		name: 'avanta',
 		icon: 'file:avanta.svg',
 		group: ['input'],
@@ -37,8 +34,8 @@ export class Avanta implements INodeType {
 			name: 'avanta',
 		},
 		usableAsTool: true,
-		inputs: [NodeConnectionType.Main],
-		outputs: [NodeConnectionType.Main],
+		inputs: ['main'],
+		outputs: ['main'],
 		credentials: [
 			{
 				name: 'avantaApi',
@@ -50,82 +47,83 @@ export class Avanta implements INodeType {
 				displayName: 'Resource',
 				name: 'resource',
 				type: 'options',
+				default: 'company',
 				noDataExpression: true,
+				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 				options: [
-					{
-						name: 'Backorder',
-						value: 'backorders',
-					},
 					{
 						name: 'Company',
 						value: 'company',
 					},
 					{
-						name: 'CompanyAddress',
+						name: 'Company - Address',
 						value: 'companyAddress',
 					},
 					{
-						name: 'CompanyContact',
-						value: 'companyContact',
-					},
-					{
-						name: 'CompanyGroup',
-						value: 'companyGroup',
-					},
-					{
-						name: 'CompanyRestrict',
-						value: 'companyRestrict',
-					},
-					{
-						name: 'CompanyRole',
-						value: 'companyRole',
-					},
-					{
-						name: 'CompanySku',
-						value: 'companySku',
-					},
-					{
-						name: 'CompanyUser',
+						name: 'Company - User',
 						value: 'companyUser',
 					},
 					{
-						name: 'Creditmemo',
-						value: 'creditmemos',
+						name: 'Company - Contact',
+						value: 'companyContact',
 					},
 					{
-						name: 'Invoice',
-						value: 'invoices',
+						name: 'Company - Group',
+						value: 'companyGroup',
 					},
 					{
-						name: 'Order',
-						value: 'orders',
+						name: 'Company - Role',
+						value: 'companyRole',
+					},
+					{
+						name: 'Company - Sku',
+						value: 'companySku',
+					},
+					{
+						name: 'Company - Restrict',
+						value: 'companyRestrict',
+					},
+					{
+						name: 'Sales Organization',
+						value: 'salesOrg',
 					},
 					{
 						name: 'Product',
 						value: 'product',
 					},
 					{
-						name: 'Reshipment',
-						value: 'reshipments',
+						name: 'Servicecenter - Order',
+						value: 'orders',
 					},
 					{
-						name: 'SalesOrg',
-						value: 'salesOrg',
+						name: 'Servicecenter - Invoice',
+						value: 'invoices',
 					},
 					{
-						name: 'Shipment',
+						name: 'Servicecenter - Creditmemo',
+						value: 'creditmemos',
+					},
+					{
+						name: 'Servicecenter - Shipment',
 						value: 'shipments',
 					},
 					{
-						name: 'Tracking',
+						name: 'Servicecenter - Tracking',
 						value: 'trackings',
+					},
+					{
+						name: 'Servicecenter - Reshipment',
+						value: 'reshipments',
+					},
+					{
+						name: 'Servicecenter - Backorder',
+						value: 'backorders',
 					},
                     {
                         name: 'Download',
                         value: 'download',
                     }
-				],
-				default: 'company',
+				]
 			},
 			...routerDescription.description,
 			...company.description,
