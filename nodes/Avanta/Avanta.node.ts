@@ -44,8 +44,9 @@ export class Avanta implements INodeType {
 		properties: [
 			{
 				displayName: 'Resource',
-				default: 'company',
 				name: 'resource',
+				type: 'options',
+				default: 'company',
 				noDataExpression: true,
 				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
 				options: [
@@ -117,8 +118,7 @@ export class Avanta implements INodeType {
 						name: 'Servicecenter - Backorder',
 						value: 'backorders',
 					}
-				],
-				type: 'options',
+				]
 			},
 			...routerDescription.description,
 			...company.description,
