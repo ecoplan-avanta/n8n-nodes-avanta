@@ -80,6 +80,7 @@ const properties: INodeProperties[] = [
             { displayName: 'Tracking Date', name: 'tracking_date', type: 'dateTime', default: '', description: 'Date of the tracking' },
             { displayName: 'Tracking ID', name: 'tracking_id', type: 'number', default: 0, description: 'Internal tracking ID' },
             { displayName: 'Updated At', name: 'updated_at', type: 'dateTime', default: '', description: 'Last update date of the tracking' },
+            { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Current tracking status (e.g., shipped, delivered, pending)' },
         ],
     },
 ];
