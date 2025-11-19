@@ -477,6 +477,45 @@ export async function execute(
                 productData.product.extension_attributes.external_category_links = externalCategoryLinks;
             }
 
+            // Handle website IDs
+            if (additionalFields.websiteIds) {
+                const entries = (additionalFields.websiteIds as IDataObject)
+                    .websiteId as IDataObject[];
+
+                if (!productData.product.extension_attributes) {
+                    productData.product.extension_attributes = {};
+                }
+
+                let websiteIds: number[] = [];
+
+                for (const entry of entries) {
+                    // Dropdown ID
+                    if (entry.website_id) {
+                        const id = Number(entry.website_id);
+                        if (!isNaN(id)) {
+                            websiteIds.push(id);
+                        }
+                    }
+
+                    // Comma-separated IDs
+                    if (entry.website_ids_comma) {
+                        const extra = String(entry.website_ids_comma)
+                            .split(',')
+                            .map(v => Number(v.trim()))
+                            .filter(v => !isNaN(v));
+
+                        websiteIds.push(...extra);
+                    }
+                }
+
+                // Remove duplicates
+                websiteIds = [...new Set(websiteIds)];
+
+                if (websiteIds.length > 0) {
+                    productData.product.extension_attributes.website_ids = websiteIds;
+                }
+            }
+
             // Handle stock information if provided
             if (additionalFields.stockItem) {
                 const stockItem = additionalFields.stockItem as IDataObject;
@@ -610,6 +649,41 @@ function getProductOptionalFields(): INodeProperties[] {
                         '{ "attribute_code": "color", "value": "red" },<br>' +
                         '{ "attribute_code": "features", "value": [{"key": "EN", "value": "Hard"}] }<br>' +
                         ']</pre>',
+                },
+            ],
+        },
+        {
+            displayName: 'Website IDs',
+            name: 'websiteIds',
+            type: 'fixedCollection',
+            typeOptions: {
+                multipleValues: true,
+            },
+            default: {},
+            placeholder: 'Add Website ID',
+            options: [
+                {
+                    displayName: 'Website ID',
+                    name: 'websiteId',
+                    values: [
+                        {
+                            displayName: 'Website (Optional) ID Name or ID',
+                            name: 'website_id',
+                            type: 'options',
+                            typeOptions: {
+                                loadOptionsMethod: 'getWebsites',
+                            },
+                            default: '',
+                            description: 'Select a Magento website. Optional — leave empty if you want to use a comma-separated ID list. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+                        },
+                        {
+                            displayName: 'Website IDs (Comma Separated)',
+                            name: 'website_ids_comma',
+                            type: 'string',
+                            default: '',
+                            description: 'Comma-separated list of website IDs (e.g. "1,2,3"). Supports expressions.',
+                        },
+                    ],
                 },
             ],
         },
