@@ -5,7 +5,6 @@ import { createApiRequest, magentoApiRequest } from '../../../transport';
 import { prepareErrorData, validateJSON } from '../../../helpers/utils';
 
 const properties: INodeProperties[] = [
-  // Fields (top-level JSON removed; JSON only per section)
   {
     displayName: 'External ID',
     name: 'externalId',
@@ -130,7 +129,6 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
 
   for (let i = 0; i < items.length; i++) {
     try {
-      // Build from fields only (top-level JSON removed)
       const externalId = this.getNodeParameter('externalId', i) as string;
       const status = this.getNodeParameter('status', i) as number;
       const drawing = this.getNodeParameter('drawing', i, '') as string;
@@ -140,18 +138,14 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
         if (!parsedHs) throw new Error('Hotspots (JSON) must be valid JSON');
       }
 
-      // Product fields (simple inputs)
       const sku = this.getNodeParameter('productSku', i) as string;
       const websiteId = this.getNodeParameter('productWebsiteId', i) as number;
       if (!sku && sku !== '') {
-        // no-op, just to satisfy types; validation is handled by 'required: true'
       }
-      // Magento expects snake_case keys in WebAPI payloads
       const product = { sku, website_id: websiteId } as any;
 
-      // Items (collection or JSON) from nested fixedCollection
       const itemsFC = this.getNodeParameter('items', i, {}) as { items?: any };
-      // n8n returns for fixedCollection (multipleValues: false) either an object or an array with single object
+
       let itemsEntry: any = {};
       if (itemsFC && (itemsFC as any).items !== undefined) {
         const raw = (itemsFC as any).items;
@@ -163,7 +157,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
         const itemsJson = (itemsEntry.itemsJson || '') as string;
         const parsed = validateJSON(itemsJson);
         if (!parsed || !Array.isArray(parsed)) throw new Error('Items (JSON) must be a valid JSON array');
-        // Normalize keys to Magento's snake_case contract
+
         bomItems = parsed.map((it: any) => ({
           position_number: it.position_number ?? it.positionNumber,
           sku: it.sku,
