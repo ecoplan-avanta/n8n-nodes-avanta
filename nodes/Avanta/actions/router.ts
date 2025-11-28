@@ -25,6 +25,7 @@ import * as reshipments from './reports/reshipments';
 import * as shipments from './reports/shipments';
 import * as trackings from './reports/trackings';
 import * as download from './download';
+import * as bom from './bom';
 
 export const description: INodeProperties[] = [
 	{
@@ -75,7 +76,7 @@ export const description: INodeProperties[] = [
 		default: true,
 		displayOptions: {
 			show: {
-				operation: ['create', 'linkCompany', 'linkSalesorg', 'createCategory', 'createItem'],
+				operation: ['create', 'linkCompany', 'linkSalesorg', 'createCategory', 'createItem', 'headerCreate', 'itemCreate', 'importBom'],
 			},
 		},
 	}
@@ -146,6 +147,9 @@ export async function router(this: IExecuteFunctions) {
 			break;
         case 'download':
             returnData = await (download as any)[operation].execute.call(this);
+            break;
+        case 'bom':
+            returnData = await (bom as any)[operation].execute.call(this);
             break;
 		default:
 			throw new NodeOperationError(this.getNode(), `The resource "${resource}" is not known`);
