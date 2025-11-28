@@ -5,9 +5,9 @@ import {
     INodeProperties
 } from 'n8n-workflow';
 
-import {updateDisplayOptions} from '../../helpers/displayOptions';
-import {formatExtensionAttributes, prepareErrorData} from "../../helpers/utils";
-import {createApiRequest} from "../../transport";
+import { updateDisplayOptions } from '../../helpers/displayOptions';
+import { formatExtensionAttributes, prepareErrorData } from '../../helpers/utils';
+import { createApiRequest } from '../../transport';
 import type {
     Product,
     DynamicCustomAttribute,
@@ -15,7 +15,7 @@ import type {
     MediaGalleryEntry,
     DownloadItem,
     ProductLink
-} from "../../transport";
+} from '../../transport';
 
 const properties: INodeProperties[] = [
     {
@@ -197,7 +197,7 @@ export async function execute(
 
             // Handle custom attributes
             if (additionalFields.customAttributes) {
-                let collection = ((additionalFields.customAttributes as IDataObject).customAttribute  as IDataObject[]);
+                let collection = ((additionalFields.customAttributes as IDataObject).customAttribute as IDataObject[]);
                 productData.product.dynamic_custom_attributes = collection.map((attr: any) => {
                     return {
                         attribute_code: attr.attribute_code,
@@ -206,10 +206,32 @@ export async function execute(
                 });
             }
 
-            // Handle dynamic custom attributes if provided
+            // Handle dynamic custom attributes if provided (collection or JSON)
             if (additionalFields.dynamicCustomAttributes) {
-                let collection = ((additionalFields.dynamicCustomAttributes as IDataObject).dynamicCustomAttribute  as IDataObject[]);
-                productData.product.dynamic_custom_attributes = collection.map((attr: any): DynamicCustomAttribute => {
+                const dyn = additionalFields.dynamicCustomAttributes as IDataObject;
+
+                // JSON mode
+                if (dyn.inputMode === 'json' && dyn.dynamicCustomAttributesJson) {
+                    try {
+                        const parsed = JSON.parse(dyn.dynamicCustomAttributesJson as string);
+                        if (Array.isArray(parsed)) {
+                            productData.product.dynamic_custom_attributes = parsed.map((attr: any) => ({
+                                attribute_code: attr.attribute_code,
+                                value: attr.value,
+                            }));
+                        } else {
+                            throw new Error('Dynamic Custom Attributes JSON must be an array');
+                        }
+                    } catch (err) {
+                        throw new Error(`Invalid JSON in Dynamic Custom Attributes: ${(err as Error).message}`);
+                    }
+                }
+
+                // UI Collection mode
+                else if (dyn.dynamicCustomAttribute) {
+                    let collection = (dyn.dynamicCustomAttribute as IDataObject[]);
+
+                    productData.product.dynamic_custom_attributes = collection.map((attr: any): DynamicCustomAttribute => {
                         let value: any;
 
                         try {
@@ -224,6 +246,7 @@ export async function execute(
                             value
                         };
                     });
+                }
             }
 
             // Handle product symbols (supports UI collection or raw JSON)
@@ -454,6 +477,45 @@ export async function execute(
                 productData.product.extension_attributes.external_category_links = externalCategoryLinks;
             }
 
+            // Handle website IDs
+            if (additionalFields.websiteIds) {
+                const entries = (additionalFields.websiteIds as IDataObject)
+                    .websiteId as IDataObject[];
+
+                if (!productData.product.extension_attributes) {
+                    productData.product.extension_attributes = {};
+                }
+
+                let websiteIds: number[] = [];
+
+                for (const entry of entries) {
+                    // Dropdown ID
+                    if (entry.website_id) {
+                        const id = Number(entry.website_id);
+                        if (!isNaN(id)) {
+                            websiteIds.push(id);
+                        }
+                    }
+
+                    // Comma-separated IDs
+                    if (entry.website_ids_comma) {
+                        const extra = String(entry.website_ids_comma)
+                            .split(',')
+                            .map(v => Number(v.trim()))
+                            .filter(v => !isNaN(v));
+
+                        websiteIds.push(...extra);
+                    }
+                }
+
+                // Remove duplicates
+                websiteIds = [...new Set(websiteIds)];
+
+                if (websiteIds.length > 0) {
+                    productData.product.extension_attributes.website_ids = websiteIds;
+                }
+            }
+
             // Handle stock information if provided
             if (additionalFields.stockItem) {
                 const stockItem = additionalFields.stockItem as IDataObject;
@@ -516,33 +578,110 @@ function getProductOptionalFields(): INodeProperties[] {
         {
             displayName: 'Dynamic Custom Attributes',
             name: 'dynamicCustomAttributes',
+            type: 'collection',
+            default: {},
+            placeholder: 'Add Dynamic Custom Attributes',
+            options: [
+                {
+                    displayName: 'Input Mode',
+                    name: 'inputMode',
+                    type: 'options',
+                    options: [
+                        { name: 'UI Collection', value: 'collection' },
+                        { name: 'Raw JSON', value: 'json' },
+                    ],
+                    default: 'collection',
+                    description: 'Choose whether to provide dynamic custom attributes via the UI or as JSON',
+                },
+                {
+                    displayName: 'Dynamic Custom Attribute Collection',
+                    name: 'dynamicCustomAttribute',
+                    type: 'fixedCollection',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
+                    typeOptions: {
+                        multipleValues: true,
+                    },
+                    default: {},
+                    placeholder: 'Add Dynamic Custom Attribute',
+                    options: [
+                        {
+                            displayName: 'Dynamic Custom Attribute',
+                            name: 'dynamicCustomAttribute',
+                            values: [
+                                {
+                                    displayName: 'Attribute Code Name or ID',
+                                    name: 'attribute_code',
+                                    type: 'options',
+                                    typeOptions: {
+                                        loadOptionsMethod: 'getProductAttributes',
+                                    },
+                                    default: '',
+                                    description: 'Code of the attribute. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+                                },
+                                {
+                                    displayName: 'Value',
+                                    name: 'value',
+                                    type: 'json',
+                                    default: '',
+                                    description: 'Value of the attribute. Can be a string or an array in the format [{"key": "Admin Key", "value": "Translation"}].',
+                                },
+                            ],
+                        },
+                    ],
+                },
+                {
+                    displayName: 'Dynamic Custom Attributes JSON',
+                    name: 'dynamicCustomAttributesJson',
+                    type: 'json',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['json'],
+                        },
+                    },
+                    default: '[]',
+                    description:
+                        'Provide dynamic custom attributes as JSON. Example:<br>' +
+                        '<pre>[<br>' +
+                        '{ "attribute_code": "color", "value": "red" },<br>' +
+                        '{ "attribute_code": "features", "value": [{"key": "EN", "value": "Hard"}] }<br>' +
+                        ']</pre>',
+                },
+            ],
+        },
+        {
+            displayName: 'Website IDs',
+            name: 'websiteIds',
             type: 'fixedCollection',
             typeOptions: {
                 multipleValues: true,
             },
             default: {},
-            placeholder: 'Add Dynamic Custom Attribute',
+            placeholder: 'Add Website ID',
             options: [
                 {
-                    displayName: 'Dynamic Custom Attribute',
-                    name: 'dynamicCustomAttribute',
+                    displayName: 'Website ID',
+                    name: 'websiteId',
                     values: [
                         {
-                            displayName: 'Attribute Code Name or ID',
-                            name: 'attribute_code',
+                            displayName: 'Website (Optional) ID Name or ID',
+                            name: 'website_id',
                             type: 'options',
                             typeOptions: {
-                                loadOptionsMethod: 'getProductAttributes',
+                                loadOptionsMethod: 'getWebsites',
                             },
                             default: '',
-                            description: 'Code of the attribute. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+                            description: 'Select a Magento website. Optional — leave empty if you want to use a comma-separated ID list. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
                         },
                         {
-                            displayName: 'Value',
-                            name: 'value',
-                            type: 'json',
+                            displayName: 'Website IDs (Comma Separated)',
+                            name: 'website_ids_comma',
+                            type: 'string',
                             default: '',
-                            description: 'Value of the attribute. Can be a string or an array in the format [{"key": "Admin Key", "value": "Translation"}].',
+                            description: 'Comma-separated list of website IDs (e.g. "1,2,3"). Supports expressions.',
                         },
                     ],
                 },
