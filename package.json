@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-avanta",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "n8n avanta node to call avanta apis",
   "keywords": [
     "n8n",
