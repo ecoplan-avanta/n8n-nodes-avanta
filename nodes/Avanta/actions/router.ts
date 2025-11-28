@@ -76,7 +76,7 @@ export const description: INodeProperties[] = [
 		default: true,
 		displayOptions: {
 			show: {
-				operation: ['create', 'linkCompany', 'linkSalesorg', 'createCategory', 'createItem', 'headerCreate', 'itemCreate', 'importBom'],
+				operation: ['create', 'linkCompany', 'linkSalesorg', 'createCategory', 'createItem', 'importBom'],
 			},
 		},
 	}
