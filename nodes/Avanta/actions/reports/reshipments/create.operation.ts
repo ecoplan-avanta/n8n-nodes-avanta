@@ -40,12 +40,47 @@ const properties: INodeProperties[] = [
     },
     // Reshipment positions
     {
+        displayName: 'Reshipment Positions Type',
+        name: 'reshipment_positions_type',
+        type: 'options',
+        noDataExpression: true,
+        displayOptions: {
+            show: {
+                resource: ['reshipments'],
+                operation: ['create']
+            },
+        },
+        options: [
+            {
+                name: 'Fields below',
+                value: 'mapping',
+                description: 'Add reshipment positions using fields below',
+                action: 'Use fields below to add reshipment positions',
+            },
+            {
+                name: 'JSON',
+                value: 'json',
+                description: 'Use JSON to dynamically add reshipment positions',
+                action: 'Use raw JSON to add reshipment positions',
+            },
+        ],
+        default: 'mapping',
+    },
+    {
         displayName: 'Reshipment Positions',
         name: 'reshipment_positions',
         type: 'fixedCollection',
         typeOptions: { multipleValues: true },
         default: {},
-        displayOptions: { show: { resource: ['reshipments'], operation: ['create'] } },
+        displayOptions: {
+            hide: {
+                reshipment_positions_type: ['json']
+            },
+            show: {
+                resource: ['reshipments'],
+                operation: ['create']
+            }
+        },
         options: [
             {
                 name: 'position',
@@ -160,6 +195,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Extension Attributes',
 																		name: 'extension_attributes',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		placeholder: 'Add Extension Attribute',
 																		options: [
@@ -187,6 +223,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Item Document Files',
 																		name: 'item_document_files',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		options: [
 																			{
@@ -303,6 +340,22 @@ const properties: INodeProperties[] = [
             },
         ],
     },
+    {
+        displayName: 'Reshipment Positions JSON',
+        name: 'reshipment_positions_json',
+        type: 'json',
+        displayOptions: {
+            hide: {
+                reshipment_positions_type: ['mapping']
+            },
+            show: {
+                resource: ['reshipments'],
+                operation: ['create'],
+            }
+        },
+        description: 'Add reshipment positions via raw JSON',
+        default: '[]',
+    },
     // Head-level document files
     {
         displayName: 'Document Files',
@@ -374,6 +427,17 @@ const properties: INodeProperties[] = [
             },
             { displayName: 'Reshipment Date', name: 'reshipment_date', type: 'dateTime', default: '', description: 'Date of the reshipment' },
             { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the reshipment' },
+            { displayName: 'Grand Total', name: 'grand_total', type: 'number', default: 0, description: 'Grand total of the reshipment' },
+            { displayName: 'Tax Amount', name: 'tax_amount', type: 'number', default: 0, description: 'Tax amount of the reshipment' },
+            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External reshipment ID' },
+            { displayName: 'Billing City', name: 'billing_city', type: 'string', default: '', description: 'Reshipment billing city' },
+            { displayName: 'Billing Company', name: 'billing_company', type: 'string', default: '', description: 'Reshipment billing company' },
+            { displayName: 'Billing Country', name: 'billing_country', type: 'string', default: '', description: 'Reshipment billing country' },
+            { displayName: 'Billing Email', name: 'billing_email', type: 'string', default: '', description: 'Reshipment billing email' },
+            { displayName: 'Billing Name', name: 'billing_name', type: 'string', default: '', description: 'Reshipment billing name' },
+            { displayName: 'Billing Street', name: 'billing_street', type: 'string', default: '', description: 'Reshipment billing street' },
+            { displayName: 'Billing Telephone', name: 'billing_telephone', type: 'string', default: '', description: 'Reshipment billing telephone' },
+            { displayName: 'Billing Zip', name: 'billing_zip', type: 'string', default: '', description: 'Reshipment billing zip' },
         ],
     },
 ];
@@ -409,35 +473,41 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 reshipment_positions: [],
             };
 
-            const positionsCollection = this.getNodeParameter('reshipment_positions', i) as { position?: Array<Partial<ReshipmentItem> & { additionalFields?: Record<string, any> }> };
-            const positionsArray = positionsCollection?.position ?? [];
-            if (positionsArray.length > 0) {
-                report.reshipment_positions = positionsArray.map((p) => {
-                    const { additionalFields, ...rest } = p;
-                    const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
-                    const { item_document_files, extension_attributes, ...otherFields } = additionalFieldsProcessed;
+            if (this.getNodeParameter('reshipment_positions_type', i) == 'json') {
+                report.reshipment_positions = this.getNodeParameter('reshipment_positions_json', i) as Array<ReshipmentItem>;
+            } else {
+                const positionsCollection = this.getNodeParameter('reshipment_positions', i) as {
+                    position?: Array<Partial<ReshipmentItem> & { additionalFields?: Record<string, any> }>
+                };
+                const positionsArray = positionsCollection?.position ?? [];
+                if (positionsArray.length > 0) {
+                    report.reshipment_positions = positionsArray.map((p) => {
+                        const {additionalFields, ...rest} = p;
+                        const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
+                        const {item_document_files, extension_attributes, ...otherFields} = additionalFieldsProcessed;
 
-                    // Format date fields in additionalFields
-                    const formattedFields: Record<string, any> = { ...otherFields };
-                    itemDateFields.forEach((field) => {
-                        if (otherFields[field]) {
-                            formattedFields[field] = formatDate(otherFields[field] as string);
-                        }
+                        // Format date fields in additionalFields
+                        const formattedFields: Record<string, any> = {...otherFields};
+                        itemDateFields.forEach((field) => {
+                            if (otherFields[field]) {
+                                formattedFields[field] = formatDate(otherFields[field] as string);
+                            }
+                        });
+
+                        // Format date fields in item_document_files
+                        const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
+                            ...file,
+                            date: file.date ? formatDate(file.date) : undefined,
+                        }));
+
+                        return {
+                            ...rest,
+                            ...formattedFields,
+                            document_files: documentFiles,
+                            extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
+                        } as ReshipmentItem;
                     });
-
-                    // Format date fields in item_document_files
-                    const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
-                        ...file,
-                        date: file.date ? formatDate(file.date) : undefined,
-                    }));
-
-                    return {
-                        ...rest,
-                        ...formattedFields,
-                        document_files: documentFiles,
-                        extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
-                    } as ReshipmentItem;
-                });
+                }
             }
 
             // Map head document files
