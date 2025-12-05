@@ -38,14 +38,58 @@ const properties: INodeProperties[] = [
         displayOptions: { show: { resource: ['backorders'], operation: ['create'] } },
         description: 'Order ID provided by the customer',
     },
+    {
+        displayName: 'Customer Backorder ID',
+        name: 'customer_backorderid',
+        type: 'string',
+        required: true,
+        default: '',
+        displayOptions: { show: { resource: ['backorders'], operation: ['create'] } },
+        description: 'Backorder ID provided by the customer'
+    },
     // Backorder positions
+    {
+        displayName: 'Backorder Positions Type',
+        name: 'backorder_positions_type',
+        type: 'options',
+        noDataExpression: true,
+        displayOptions: {
+            show: {
+                resource: ['backorders'],
+                operation: ['create']
+            },
+        },
+        options: [
+            {
+                name: 'Fields below',
+                value: 'mapping',
+                description: 'Add backorder positions using fields below',
+                action: 'Use fields below to add backorder positions',
+            },
+            {
+                name: 'JSON',
+                value: 'json',
+                description: 'Use JSON to dynamically add backorder positions',
+                action: 'Use raw JSON to add backorder positions',
+            },
+        ],
+        default: 'mapping',
+    },
     {
         displayName: 'Backorder Positions',
         name: 'backorder_positions',
         type: 'fixedCollection',
         typeOptions: { multipleValues: true },
         default: {},
-        displayOptions: { show: { resource: ['backorders'], operation: ['create'] } },
+        displayOptions: {
+            hide: {
+                backorder_positions_type: ['json']
+            },
+            show: {
+                resource: ['backorders'],
+                operation: ['create']
+            }
+        },
         options: [
             {
                 name: 'position',
@@ -174,6 +218,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Extension Attributes',
 																		name: 'extension_attributes',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		placeholder: 'Add Extension Attribute',
 																		options: [
@@ -201,6 +246,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Item Document Files',
 																		name: 'item_document_files',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		options: [
 																			{
@@ -311,6 +357,22 @@ const properties: INodeProperties[] = [
             },
         ],
     },
+    {
+        displayName: 'Backorder Positions JSON',
+        name: 'backorder_positions_json',
+        type: 'json',
+        displayOptions: {
+            hide: {
+                backorder_positions_type: ['mapping']
+            },
+            show: {
+                resource: ['backorders'],
+                operation: ['create'],
+            }
+        },
+        description: 'Add backorder positions via raw JSON',
+        default: '[]',
+    },
     // Head-level document files
     {
         displayName: 'Document Files',
@@ -383,6 +445,23 @@ const properties: INodeProperties[] = [
                 ],
             },
             { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the backorder' },
+            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External backorder ID' },
+            { displayName: 'Billing City', name: 'billing_city', type: 'string', default: '', description: 'Backorder billing city' },
+            { displayName: 'Billing Company', name: 'billing_company', type: 'string', default: '', description: 'Backorder billing company' },
+            { displayName: 'Billing Country', name: 'billing_country', type: 'string', default: '', description: 'Backorder billing country' },
+            { displayName: 'Billing Email', name: 'billing_email', type: 'string', default: '', description: 'Backorder billing email' },
+            { displayName: 'Billing Name', name: 'billing_name', type: 'string', default: '', description: 'Backorder billing name' },
+            { displayName: 'Billing Street', name: 'billing_street', type: 'string', default: '', description: 'Backorder billing street' },
+            { displayName: 'Billing Telephone', name: 'billing_telephone', type: 'string', default: '', description: 'Backorder billing telephone' },
+            { displayName: 'Billing Zip', name: 'billing_zip', type: 'string', default: '', description: 'Backorder billing zip' },
+            { displayName: 'Shipping City', name: 'shipping_city', type: 'string', default: '', description: 'Backorder shipping city' },
+            { displayName: 'Shipping Company', name: 'shipping_company', type: 'string', default: '', description: 'Backorder shipping company' },
+            { displayName: 'Shipping Country', name: 'shipping_country', type: 'string', default: '', description: 'Backorder shipping country' },
+            { displayName: 'Shipping Email', name: 'shipping_email', type: 'string', default: '', description: 'Backorder shipping email' },
+            { displayName: 'Shipping Name', name: 'shipping_name', type: 'string', default: '', description: 'Backorder shipping name' },
+            { displayName: 'Shipping Street', name: 'shipping_street', type: 'string', default: '', description: 'Backorder shipping street' },
+            { displayName: 'Shipping Telephone', name: 'shipping_telephone', type: 'string', default: '', description: 'Backorder shipping telephone' },
+            { displayName: 'Shipping Zip', name: 'shipping_zip', type: 'string', default: '', description: 'Backorder shipping zip' },
         ],
     },
 ];
@@ -415,38 +494,45 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 customer_id: this.getNodeParameter('customer_id', i) as string,
                 company_id: this.getNodeParameter('company_id', i) as number,
                 customer_orderid: this.getNodeParameter('customer_orderid', i) as string,
+                customer_backorderid: this.getNodeParameter('customer_backorderid', i) as string,
                 backorder_positions: [],
             };
 
-            const positionsCollection = this.getNodeParameter('backorder_positions', i) as { position?: Array<Partial<BackorderItem> & { additionalFields?: Record<string, any> }> };
-            const positionsArray = positionsCollection?.position ?? [];
-            if (positionsArray.length > 0) {
-                report.backorder_positions = positionsArray.map((p) => {
-                    const { additionalFields, ...rest } = p;
-                    const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
-                    const { item_document_files, extension_attributes, ...otherFields } = additionalFieldsProcessed;
+            if (this.getNodeParameter('backorder_positions_type', i) == 'json') {
+                report.backorder_positions = this.getNodeParameter('backorder_positions_json', i) as Array<BackorderItem>;
+            } else {
+                const positionsCollection = this.getNodeParameter('backorder_positions', i) as {
+                    position?: Array<Partial<BackorderItem> & { additionalFields?: Record<string, any> }>
+                };
+                const positionsArray = positionsCollection?.position ?? [];
+                if (positionsArray.length > 0) {
+                    report.backorder_positions = positionsArray.map((p) => {
+                        const {additionalFields, ...rest} = p;
+                        const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
+                        const {item_document_files, extension_attributes, ...otherFields} = additionalFieldsProcessed;
 
-                    // Format date fields in additionalFields
-                    const formattedFields: Record<string, any> = { ...otherFields };
-                    itemDateFields.forEach((field) => {
-                        if (otherFields[field]) {
-                            formattedFields[field] = formatDate(otherFields[field] as string);
-                        }
+                        // Format date fields in additionalFields
+                        const formattedFields: Record<string, any> = {...otherFields};
+                        itemDateFields.forEach((field) => {
+                            if (otherFields[field]) {
+                                formattedFields[field] = formatDate(otherFields[field] as string);
+                            }
+                        });
+
+                        // Format date fields in item_document_files
+                        const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
+                            ...file,
+                            date: file.date ? formatDate(file.date) : undefined,
+                        }));
+
+                        return {
+                            ...rest,
+                            ...formattedFields,
+                            document_files: documentFiles,
+                            extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
+                        } as BackorderItem;
                     });
-
-                    // Format date fields in item_document_files
-                    const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
-                        ...file,
-                        date: file.date ? formatDate(file.date) : undefined,
-                    }));
-
-                    return {
-                        ...rest,
-                        ...formattedFields,
-                        document_files: documentFiles,
-                        extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
-                    } as BackorderItem;
-                });
+                }
             }
 
             // Map head document files

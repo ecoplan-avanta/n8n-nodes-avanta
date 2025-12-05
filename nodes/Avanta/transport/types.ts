@@ -554,6 +554,7 @@ export interface BackorderReport {
 	customer_id: string;
 	company_id: number;
 	customer_orderid: string;
+    customer_backorderid: string;
 	backorder_positions: BackorderItem[];
 	backorder_date?: string;
 	backorder_id?: number;

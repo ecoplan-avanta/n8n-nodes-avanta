@@ -40,12 +40,47 @@ const properties: INodeProperties[] = [
     },
     // Shipment positions
     {
+        displayName: 'Shipment Positions Type',
+        name: 'shipment_positions_type',
+        type: 'options',
+        noDataExpression: true,
+        displayOptions: {
+            show: {
+                resource: ['shipments'],
+                operation: ['create']
+            },
+        },
+        options: [
+            {
+                name: 'Fields below',
+                value: 'mapping',
+                description: 'Add shipment positions using fields below',
+                action: 'Use fields below to add shipment positions',
+            },
+            {
+                name: 'JSON',
+                value: 'json',
+                description: 'Use JSON to dynamically add shipment positions',
+                action: 'Use raw JSON to add shipment positions',
+            },
+        ],
+        default: 'mapping',
+    },
+    {
         displayName: 'Shipment Positions',
         name: 'shipment_positions',
         type: 'fixedCollection',
         typeOptions: { multipleValues: true },
         default: {},
-        displayOptions: { show: { resource: ['shipments'], operation: ['create'] } },
+        displayOptions: {
+            hide: {
+                shipment_positions_type: ['json']
+            },
+            show: {
+                resource: ['shipments'],
+                operation: ['create']
+            }
+        },
         options: [
             {
                 name: 'position',
@@ -160,6 +195,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Extension Attributes',
 																		name: 'extension_attributes',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		placeholder: 'Add Extension Attribute',
 																		options: [
@@ -187,6 +223,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Item Document Files',
 																		name: 'item_document_files',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		options: [
 																			{
@@ -303,6 +340,22 @@ const properties: INodeProperties[] = [
             },
         ],
     },
+    {
+        displayName: 'Shipment Positions JSON',
+        name: 'shipment_positions_json',
+        type: 'json',
+        displayOptions: {
+            hide: {
+                shipment_positions_type: ['mapping']
+            },
+            show: {
+                resource: ['shipments'],
+                operation: ['create'],
+            }
+        },
+        description: 'Add shipment positions via raw JSON',
+        default: '[]',
+    },
     // Head-level document files
     {
         displayName: 'Document Files',
@@ -375,6 +428,17 @@ const properties: INodeProperties[] = [
             { displayName: 'Order ID', name: 'order_id', type: 'number', default: 0, description: 'Internal order ID' },
             { displayName: 'Shipment Date', name: 'shipment_date', type: 'dateTime', default: '', description: 'Date of the shipment' },
             { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the shipment' },
+            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External shipment ID' },
+            { displayName: 'Grand Total', name: 'grand_total', type: 'number', default: 0, description: 'Grand total of the shipment' },
+            { displayName: 'Tax Amount', name: 'tax_amount', type: 'number', default: 0, description: 'Tax amount of the shipment' },
+            { displayName: 'Shipping City', name: 'shipping_city', type: 'string', default: '', description: 'Shipment shipping city' },
+            { displayName: 'Shipping Company', name: 'shipping_company', type: 'string', default: '', description: 'Shipment shipping company' },
+            { displayName: 'Shipping Country', name: 'shipping_country', type: 'string', default: '', description: 'Shipment shipping country' },
+            { displayName: 'Shipping Email', name: 'shipping_email', type: 'string', default: '', description: 'Shipment shipping email' },
+            { displayName: 'Shipping Name', name: 'shipping_name', type: 'string', default: '', description: 'Shipment shipping name' },
+            { displayName: 'Shipping Street', name: 'shipping_street', type: 'string', default: '', description: 'Shipment shipping street' },
+            { displayName: 'Shipping Telephone', name: 'shipping_telephone', type: 'string', default: '', description: 'Shipment shipping telephone' },
+            { displayName: 'Shipping Zip', name: 'shipping_zip', type: 'string', default: '', description: 'Shipment shipping zip' },
         ],
     },
 ];
@@ -410,35 +474,41 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 shipment_positions: [],
             };
 
-            const positionsCollection = this.getNodeParameter('shipment_positions', i) as { position?: Array<Partial<ShipmentItem> & { additionalFields?: Record<string, any> }> };
-            const positionsArray = positionsCollection?.position ?? [];
-            if (positionsArray.length > 0) {
-                report.shipment_positions = positionsArray.map((p) => {
-                    const { additionalFields, ...rest } = p;
-                    const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
-                    const { item_document_files, extension_attributes, ...otherFields } = additionalFieldsProcessed;
+            if (this.getNodeParameter('shipment_positions_type', i) == 'json') {
+                report.shipment_positions = this.getNodeParameter('shipment_positions_json', i) as Array<ShipmentItem>;
+            } else {
+                const positionsCollection = this.getNodeParameter('shipment_positions', i) as {
+                    position?: Array<Partial<ShipmentItem> & { additionalFields?: Record<string, any> }>
+                };
+                const positionsArray = positionsCollection?.position ?? [];
+                if (positionsArray.length > 0) {
+                    report.shipment_positions = positionsArray.map((p) => {
+                        const {additionalFields, ...rest} = p;
+                        const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
+                        const {item_document_files, extension_attributes, ...otherFields} = additionalFieldsProcessed;
 
-                    // Format date fields in additionalFields
-                    const formattedFields: Record<string, any> = { ...otherFields };
-                    itemDateFields.forEach((field) => {
-                        if (otherFields[field]) {
-                            formattedFields[field] = formatDate(otherFields[field] as string);
-                        }
+                        // Format date fields in additionalFields
+                        const formattedFields: Record<string, any> = {...otherFields};
+                        itemDateFields.forEach((field) => {
+                            if (otherFields[field]) {
+                                formattedFields[field] = formatDate(otherFields[field] as string);
+                            }
+                        });
+
+                        // Format date fields in item_document_files
+                        const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
+                            ...file,
+                            date: file.date ? formatDate(file.date) : undefined,
+                        }));
+
+                        return {
+                            ...rest,
+                            ...formattedFields,
+                            document_files: documentFiles,
+                            extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
+                        } as ShipmentItem;
                     });
-
-                    // Format date fields in item_document_files
-                    const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
-                        ...file,
-                        date: file.date ? formatDate(file.date) : undefined,
-                    }));
-
-                    return {
-                        ...rest,
-                        ...formattedFields,
-                        document_files: documentFiles,
-                        extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
-                    } as ShipmentItem;
-                });
+                }
             }
 
             // Map head document files

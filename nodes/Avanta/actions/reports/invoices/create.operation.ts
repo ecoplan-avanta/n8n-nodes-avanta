@@ -66,12 +66,47 @@ const properties: INodeProperties[] = [
     },
     // Invoice positions
     {
+        displayName: 'Invoice Positions Type',
+        name: 'invoice_positions_type',
+        type: 'options',
+        noDataExpression: true,
+        displayOptions: {
+            show: {
+                resource: ['invoices'],
+                operation: ['create']
+            },
+        },
+        options: [
+            {
+                name: 'Fields below',
+                value: 'mapping',
+                description: 'Add invoice positions using fields below',
+                action: 'Use fields below to add invoice positions',
+            },
+            {
+                name: 'JSON',
+                value: 'json',
+                description: 'Use JSON to dynamically add invoice positions',
+                action: 'Use raw JSON to add invoice positions',
+            },
+        ],
+        default: 'mapping',
+    },
+    {
         displayName: 'Invoice Positions',
         name: 'invoice_positions',
         type: 'fixedCollection',
         typeOptions: { multipleValues: true },
         default: {},
-        displayOptions: { show: { resource: ['invoices'], operation: ['create'] } },
+        displayOptions: {
+            hide: {
+                invoice_positions_type: ['json']
+            },
+            show: {
+                resource: ['invoices'],
+                operation: ['create']
+            }
+        },
         options: [
             {
                 name: 'position',
@@ -186,6 +221,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Extension Attributes',
 																		name: 'extension_attributes',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		placeholder: 'Add Extension Attribute',
 																		options: [
@@ -213,6 +249,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Item Document Files',
 																		name: 'item_document_files',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		options: [
 																			{
@@ -329,6 +366,22 @@ const properties: INodeProperties[] = [
             },
         ],
     },
+    {
+        displayName: 'Invoice Positions JSON',
+        name: 'invoice_positions_json',
+        type: 'json',
+        displayOptions: {
+            hide: {
+                invoice_positions_type: ['mapping']
+            },
+            show: {
+                resource: ['invoices'],
+                operation: ['create'],
+            }
+        },
+        description: 'Add invoice positions via raw JSON',
+        default: '[]',
+    },
     // Head-level document files
     {
         displayName: 'Document Files',
@@ -400,6 +453,23 @@ const properties: INodeProperties[] = [
             },
             { displayName: 'Invoice Date', name: 'invoice_date', type: 'dateTime', default: '', description: 'Date of the invoice' },
             { displayName: 'Invoice ID', name: 'invoice_id', type: 'number', default: 0, description: 'Internal invoice ID' },
+            { displayName: 'Grand Total', name: 'grand_total', type: 'number', default: 0, description: 'Grand total of the invoice' },
+            { displayName: 'Tax Amount', name: 'tax_amount', type: 'number', default: 0, description: 'Tax amount of the invoice' },
+            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External invoice ID' },
+            { displayName: 'Billing City', name: 'billing_city', type: 'string', default: '', description: 'Invoice billing city' },
+            { displayName: 'Billing Country', name: 'billing_country', type: 'string', default: '', description: 'Invoice billing country' },
+            { displayName: 'Billing Email', name: 'billing_email', type: 'string', default: '', description: 'Invoice billing email' },
+            { displayName: 'Billing Street', name: 'billing_street', type: 'string', default: '', description: 'Invoice billing street' },
+            { displayName: 'Billing Telephone', name: 'billing_telephone', type: 'string', default: '', description: 'Invoice billing telephone' },
+            { displayName: 'Billing Zip', name: 'billing_zip', type: 'string', default: '', description: 'Invoice billing zip' },
+            { displayName: 'Shipping City', name: 'shipping_city', type: 'string', default: '', description: 'Invoice shipping city' },
+            { displayName: 'Shipping Company', name: 'shipping_company', type: 'string', default: '', description: 'Invoice shipping company' },
+            { displayName: 'Shipping Country', name: 'shipping_country', type: 'string', default: '', description: 'Invoice shipping country' },
+            { displayName: 'Shipping Email', name: 'shipping_email', type: 'string', default: '', description: 'Invoice shipping email' },
+            { displayName: 'Shipping Name', name: 'shipping_name', type: 'string', default: '', description: 'Invoice shipping name' },
+            { displayName: 'Shipping Street', name: 'shipping_street', type: 'string', default: '', description: 'Invoice shipping street' },
+            { displayName: 'Shipping Telephone', name: 'shipping_telephone', type: 'string', default: '', description: 'Invoice shipping telephone' },
+            { displayName: 'Shipping Zip', name: 'shipping_zip', type: 'string', default: '', description: 'Invoice shipping zip' },
         ],
     },
 ];
@@ -438,36 +508,42 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 invoice_positions: [],
             };
 
-            const positionsCollection = this.getNodeParameter('invoice_positions', i) as { position?: Array<Partial<InvoiceItem> & { additionalFields?: Record<string, any> }> };
-            const positionsArray = positionsCollection?.position ?? [];
-            if (positionsArray.length > 0) {
-                report.invoice_positions = positionsArray.map((p) => {
-                    const { additionalFields, ...rest } = p; // Destructure to exclude additionalFields
-                    const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
-                    // Remove item_document_files and extension_attributes to avoid duplication
-                    const { item_document_files, extension_attributes, ...otherFields } = additionalFieldsProcessed;
+            if (this.getNodeParameter('invoice_positions_type', i) == 'json') {
+                report.invoice_positions = this.getNodeParameter('invoice_positions_json', i) as Array<InvoiceItem>;
+            } else {
+                const positionsCollection = this.getNodeParameter('invoice_positions', i) as {
+                    position?: Array<Partial<InvoiceItem> & { additionalFields?: Record<string, any> }>
+                };
+                const positionsArray = positionsCollection?.position ?? [];
+                if (positionsArray.length > 0) {
+                    report.invoice_positions = positionsArray.map((p) => {
+                        const {additionalFields, ...rest} = p; // Destructure to exclude additionalFields
+                        const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
+                        // Remove item_document_files and extension_attributes to avoid duplication
+                        const {item_document_files, extension_attributes, ...otherFields} = additionalFieldsProcessed;
 
-                    // Format date fields in additionalFields
-                    const formattedFields: Record<string, any> = { ...otherFields };
-                    itemDateFields.forEach((field) => {
-                        if (otherFields[field]) {
-                            formattedFields[field] = formatDate(otherFields[field] as string);
-                        }
+                        // Format date fields in additionalFields
+                        const formattedFields: Record<string, any> = {...otherFields};
+                        itemDateFields.forEach((field) => {
+                            if (otherFields[field]) {
+                                formattedFields[field] = formatDate(otherFields[field] as string);
+                            }
+                        });
+
+                        // Format date fields in item_document_files
+                        const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
+                            ...file,
+                            date: file.date ? formatDate(file.date) : undefined,
+                        }));
+
+                        return {
+                            ...rest,
+                            ...formattedFields,
+                            document_files: documentFiles,
+                            extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
+                        } as InvoiceItem;
                     });
-
-                    // Format date fields in item_document_files
-                    const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
-                        ...file,
-                        date: file.date ? formatDate(file.date) : undefined,
-                    }));
-
-                    return {
-                        ...rest,
-                        ...formattedFields,
-                        document_files: documentFiles,
-                        extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
-                    } as InvoiceItem;
-                });
+                }
             }
 
             // Map head document files
