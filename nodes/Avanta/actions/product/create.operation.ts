@@ -191,6 +191,16 @@ export async function execute(
                 product.price = price;
             }
 
+            // Map optional weight from Additional Fields if provided
+            if (additionalFields && (additionalFields as IDataObject).weight !== undefined &&
+                (additionalFields as IDataObject).weight !== null &&
+                (additionalFields as IDataObject).weight !== '') {
+                const w = Number((additionalFields as IDataObject).weight as any);
+                if (!Number.isNaN(w)) {
+                    product.weight = w;
+                }
+            }
+
             const productData = {
                 product
             };
@@ -651,6 +661,13 @@ function getProductOptionalFields(): INodeProperties[] {
                         ']</pre>',
                 },
             ],
+        },
+        {
+            displayName: 'Weight',
+            name: 'weight',
+            type: 'number',
+            default: 0,
+            description: 'Product weight'
         },
         {
             displayName: 'Website IDs',

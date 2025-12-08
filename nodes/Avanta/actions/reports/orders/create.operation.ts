@@ -40,12 +40,39 @@ const properties: INodeProperties[] = [
     },
     // Order positions
     {
+        displayName: 'Order Positions Type',
+        name: 'order_positions_type',
+        type: 'options',
+        noDataExpression: true,
+        displayOptions: {
+            show: {
+                resource: ['orders'],
+                operation: ['create']
+            },
+        },
+        options: [
+            {
+                name: 'Fields below',
+                value: 'mapping',
+                description: 'Add order positions using fields below',
+                action: 'Use fields below to add order positions',
+            },
+            {
+                name: 'JSON',
+                value: 'json',
+                description: 'Use JSON to dynamically add order positions',
+                action: 'Use raw JSON to add order positions',
+            },
+        ],
+        default: 'mapping',
+    },
+    {
         displayName: 'Order Positions',
         name: 'order_positions',
         type: 'fixedCollection',
         typeOptions: { multipleValues: true },
         default: {},
-        displayOptions: { show: { resource: ['orders'], operation: ['create'] } },
+        displayOptions: { hide: { order_positions_type: ['json'] }, show: {resource: ['orders'], operation: ['create'] } },
         options: [
             {
                 name: 'position',
@@ -160,6 +187,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Extension Attributes',
 																		name: 'extension_attributes',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		placeholder: 'Add Extension Attribute',
 																		options: [
@@ -187,6 +215,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Item Document Files',
 																		name: 'item_document_files',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		options: [
 																			{
@@ -303,6 +332,22 @@ const properties: INodeProperties[] = [
             },
         ],
     },
+    {
+        displayName: 'Order Positions JSON',
+        name: 'order_positions_json',
+        type: 'json',
+        displayOptions: {
+            hide: {
+                order_positions_type: ['mapping']
+            },
+            show: {
+                resource: ['orders'],
+                operation: ['create'],
+            }
+        },
+        description: 'Add order positions via raw JSON',
+        default: '[]',
+    },
     // Head-level document files
     {
         displayName: 'Document Files',
@@ -371,9 +416,34 @@ const properties: INodeProperties[] = [
                     },
                 ],
             },
+            { displayName: 'Grand Total', name: 'grand_total', type: 'number', default: 0, description: 'Grand total of the order' },
+            { displayName: 'Tax Amount', name: 'tax_amount', type: 'number', default: 0, description: 'Tax amount of the order' },
+            { displayName: 'Customer Comment', name: 'customer_comment', type: 'string', default: '', description: 'Order customer comment' },
             { displayName: 'Order Date', name: 'order_date', type: 'dateTime', default: '', description: 'Date of the order' },
             { displayName: 'Order ID', name: 'order_id', type: 'number', default: 0, description: 'Internal order ID' },
+            { displayName: 'Delivery Date', name: 'deliverydate', type: 'string', default: '', description: 'Delivery date of the order' },
+            { displayName: 'Desired Delivery Date', name: 'desired_deliverydate', type: 'string', default: '', description: 'Desired delivery date of the order' },
+            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External order ID' },
             { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the order' },
+            { displayName: 'Comment', name: 'comment', type: 'string', default: '', description: 'Order comment' },
+            { displayName: 'Purchaser', name: 'purchaser', type: 'string', default: '', description: 'Purchaser of the order' },
+            { displayName: 'Billing City', name: 'billing_city', type: 'string', default: '', description: 'Order billing city' },
+            { displayName: 'Billing Company', name: 'billing_company', type: 'string', default: '', description: 'Order billing company' },
+            { displayName: 'Billing Country', name: 'billing_country', type: 'string', default: '', description: 'Order billing country' },
+            { displayName: 'Billing Email', name: 'billing_email', type: 'string', default: '', description: 'Order billing email' },
+            { displayName: 'Billing Name', name: 'billing_name', type: 'string', default: '', description: 'Order billing name' },
+            { displayName: 'Billing Street', name: 'billing_street', type: 'string', default: '', description: 'Order billing street' },
+            { displayName: 'Billing Telephone', name: 'billing_telephone', type: 'string', default: '', description: 'Order billing telephone' },
+            { displayName: 'Billing Zip', name: 'billing_zip', type: 'string', default: '', description: 'Order billing zip' },
+            { displayName: 'Shipping City', name: 'shipping_city', type: 'string', default: '', description: 'Order shipping city' },
+            { displayName: 'Shipping Company', name: 'shipping_company', type: 'string', default: '', description: 'Order shipping company' },
+            { displayName: 'Shipping Country', name: 'shipping_country', type: 'string', default: '', description: 'Order shipping country' },
+            { displayName: 'Shipping Email', name: 'shipping_email', type: 'string', default: '', description: 'Order shipping email' },
+            { displayName: 'Shipping Name', name: 'shipping_name', type: 'string', default: '', description: 'Order shipping name' },
+            { displayName: 'Shipping Street', name: 'shipping_street', type: 'string', default: '', description: 'Order shipping street' },
+            { displayName: 'Shipping Telephone', name: 'shipping_telephone', type: 'string', default: '', description: 'Order shipping telephone' },
+            { displayName: 'Shipping Zip', name: 'shipping_zip', type: 'string', default: '', description: 'Order shipping zip' },
+            { displayName: 'Custom Order ID', name: 'custom_orderid', type: 'string', default: '', description: 'Custom Order ID' },
         ],
     },
 ];
@@ -409,35 +479,39 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 order_positions: [],
             };
 
-            const positionsCollection = this.getNodeParameter('order_positions', i) as { position?: Array<Partial<OrderItem> & { additionalFields?: Record<string, any> }> };
-            const positionsArray = positionsCollection?.position ?? [];
-            if (positionsArray.length > 0) {
-                report.order_positions = positionsArray.map((p) => {
-                    const { additionalFields, ...rest } = p;
-                    const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
-                    const { item_document_files, extension_attributes, ...otherFields } = additionalFieldsProcessed;
+            if (this.getNodeParameter('order_positions_type', i) == 'json') {
+                report.order_positions = this.getNodeParameter('order_positions_json', i) as Array<OrderItem>;
+            } else {
+                const positionsCollection = this.getNodeParameter('order_positions', i) as { position?: Array<Partial<OrderItem> & { additionalFields?: Record<string, any> }> };
+                const positionsArray = positionsCollection?.position ?? [];
+                if (positionsArray.length > 0) {
+                    report.order_positions = positionsArray.map((p) => {
+                        const { additionalFields, ...rest } = p;
+                        const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
+                        const { item_document_files, extension_attributes, ...otherFields } = additionalFieldsProcessed;
 
-                    // Format date fields in additionalFields
-                    const formattedFields: Record<string, any> = { ...otherFields };
-                    itemDateFields.forEach((field) => {
-                        if (otherFields[field]) {
-                            formattedFields[field] = formatDate(otherFields[field] as string);
-                        }
+                        // Format date fields in additionalFields
+                        const formattedFields: Record<string, any> = { ...otherFields };
+                        itemDateFields.forEach((field) => {
+                            if (otherFields[field]) {
+                                formattedFields[field] = formatDate(otherFields[field] as string);
+                            }
+                        });
+
+                        // Format date fields in item_document_files
+                        const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
+                            ...file,
+                            date: file.date ? formatDate(file.date) : undefined,
+                        }));
+
+                        return {
+                            ...rest,
+                            ...formattedFields,
+                            document_files: documentFiles,
+                            extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
+                        } as OrderItem;
                     });
-
-                    // Format date fields in item_document_files
-                    const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
-                        ...file,
-                        date: file.date ? formatDate(file.date) : undefined,
-                    }));
-
-                    return {
-                        ...rest,
-                        ...formattedFields,
-                        document_files: documentFiles,
-                        extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
-                    } as OrderItem;
-                });
+                }
             }
 
             // Map head document files

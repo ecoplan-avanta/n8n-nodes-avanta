@@ -65,12 +65,47 @@ const properties: INodeProperties[] = [
     },
     // Creditmemo positions
     {
+        displayName: 'Creditmemo Positions Type',
+        name: 'creditmemo_positions_type',
+        type: 'options',
+        noDataExpression: true,
+        displayOptions: {
+            show: {
+                resource: ['creditmemos'],
+                operation: ['create']
+            },
+        },
+        options: [
+            {
+                name: 'Fields below',
+                value: 'mapping',
+                description: 'Add creditmemo positions using fields below',
+                action: 'Use fields below to add creditmemo positions',
+            },
+            {
+                name: 'JSON',
+                value: 'json',
+                description: 'Use JSON to dynamically add creditmemo positions',
+                action: 'Use raw JSON to add creditmemo positions',
+            },
+        ],
+        default: 'mapping',
+    },
+    {
         displayName: 'Creditmemo Positions',
         name: 'creditmemo_positions',
         type: 'fixedCollection',
         typeOptions: { multipleValues: true },
         default: {},
-        displayOptions: { show: { resource: ['creditmemos'], operation: ['create'] } },
+        displayOptions: {
+            hide: {
+                creditmemo_positions_type: ['json']
+            },
+            show: {
+                resource: ['creditmemos'],
+                operation: ['create'],
+            }
+        },
         options: [
             {
                 name: 'position',
@@ -199,6 +234,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Extension Attributes',
 																		name: 'extension_attributes',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		placeholder: 'Add Extension Attribute',
 																		options: [
@@ -226,6 +262,7 @@ const properties: INodeProperties[] = [
 																		displayName: 'Item Document Files',
 																		name: 'item_document_files',
 																		type: 'fixedCollection',
+                                                                        typeOptions: { multipleValues: true },
 																		default: {},
 																		options: [
 																			{
@@ -328,6 +365,22 @@ const properties: INodeProperties[] = [
             },
         ],
     },
+    {
+        displayName: 'Creditmemo Positions JSON',
+        name: 'creditmemo_positions_json',
+        type: 'json',
+        displayOptions: {
+            hide: {
+                creditmemo_positions_type: ['mapping']
+            },
+            show: {
+                resource: ['creditmemos'],
+                operation: ['create'],
+            }
+        },
+        description: 'Add creditmemo positions via raw JSON',
+        default: '[]',
+    },
     // Head-level document files
     {
         displayName: 'Document Files',
@@ -399,6 +452,15 @@ const properties: INodeProperties[] = [
                     },
                 ],
             },
+            { displayName: 'Grand Total', name: 'grand_total', type: 'number', default: 0, description: 'Grand total of the creditmemo' },
+            { displayName: 'Tax Amount', name: 'tax_amount', type: 'number', default: 0, description: 'Tax amount of the creditmemo' },
+            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External Creditmemo ID' },
+            { displayName: 'Billing City', name: 'billing_city', type: 'string', default: '', description: 'Creditmemo billing city' },
+            { displayName: 'Billing Country', name: 'billing_country', type: 'string', default: '', description: 'Creditmemo billing country' },
+            { displayName: 'Billing Email', name: 'billing_email', type: 'string', default: '', description: 'Creditmemo billing email' },
+            { displayName: 'Billing Street', name: 'billing_street', type: 'string', default: '', description: 'Creditmemo billing street' },
+            { displayName: 'Billing Telephone', name: 'billing_telephone', type: 'string', default: '', description: 'Creditmemo billing telephone' },
+            { displayName: 'Billing Zip', name: 'billing_zip', type: 'string', default: '', description: 'Creditmemo billing zip' },
         ],
     },
 ];
@@ -437,35 +499,41 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 creditmemo_positions: [],
             };
 
-            const positionsCollection = this.getNodeParameter('creditmemo_positions', i) as { position?: Array<Partial<CreditmemoItem> & { additionalFields?: Record<string, any> }> };
-            const positionsArray = positionsCollection?.position ?? [];
-            if (positionsArray.length > 0) {
-                report.creditmemo_positions = positionsArray.map((p) => {
-                    const { additionalFields, ...rest } = p;
-                    const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
-                    const { item_document_files, extension_attributes, ...otherFields } = additionalFieldsProcessed;
+            if (this.getNodeParameter('creditmemo_positions_type', i) == 'json') {
+                report.creditmemo_positions = this.getNodeParameter('creditmemo_positions_json', i) as Array<CreditmemoItem>;
+            } else {
+                const positionsCollection = this.getNodeParameter('creditmemo_positions', i) as {
+                    position?: Array<Partial<CreditmemoItem> & { additionalFields?: Record<string, any> }>
+                };
+                const positionsArray = positionsCollection?.position ?? [];
+                if (positionsArray.length > 0) {
+                    report.creditmemo_positions = positionsArray.map((p) => {
+                        const {additionalFields, ...rest} = p;
+                        const additionalFieldsProcessed = formatExtensionAttributes.call(this, additionalFields ?? {});
+                        const {item_document_files, extension_attributes, ...otherFields} = additionalFieldsProcessed;
 
-                    // Format date fields in additionalFields
-                    const formattedFields: Record<string, any> = { ...otherFields };
-                    itemDateFields.forEach((field) => {
-                        if (otherFields[field]) {
-                            formattedFields[field] = formatDate(otherFields[field] as string);
-                        }
+                        // Format date fields in additionalFields
+                        const formattedFields: Record<string, any> = {...otherFields};
+                        itemDateFields.forEach((field) => {
+                            if (otherFields[field]) {
+                                formattedFields[field] = formatDate(otherFields[field] as string);
+                            }
+                        });
+
+                        // Format date fields in item_document_files
+                        const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
+                            ...file,
+                            date: file.date ? formatDate(file.date) : undefined,
+                        }));
+
+                        return {
+                            ...rest,
+                            ...formattedFields,
+                            document_files: documentFiles,
+                            extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
+                        } as CreditmemoItem;
                     });
-
-                    // Format date fields in item_document_files
-                    const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
-                        ...file,
-                        date: file.date ? formatDate(file.date) : undefined,
-                    }));
-
-                    return {
-                        ...rest,
-                        ...formattedFields,
-                        document_files: documentFiles,
-                        extension_attributes: additionalFields?.extension_attributes?.extension_attribute ?? [],
-                    } as CreditmemoItem;
-                });
+                }
             }
 
             // Map head document files
