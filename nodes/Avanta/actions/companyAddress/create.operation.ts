@@ -155,7 +155,7 @@ const properties: INodeProperties[] = [
             },
             {
                 displayName: 'Read Only',
-                name: 'read_only',
+                name: 'is_readonly',
                 type: 'options',
                 options: [
                     {
