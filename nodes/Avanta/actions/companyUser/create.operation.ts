@@ -309,6 +309,34 @@ export async function execute(
             );
 
             additionalFields = formatExtensionAttributes.call(this, additionalFields);
+
+            let customAttributesCleaned: Array<{ attribute_code: string; value: any }> | undefined;
+            if (additionalFields && (additionalFields as any).customAttributes) {
+                const ca: any = (additionalFields as any).customAttributes;
+                const raw = ca.customAttribute ?? ca;
+                if (Array.isArray(raw)) {
+                    const cleaned = raw
+                        .filter((attr: any) => {
+                            if (!attr) return false;
+                            const code = (attr.attribute_code ?? '').toString().trim();
+                            const value = (attr.value ?? '').toString().trim();
+                            return code !== '' && value !== '';
+                        })
+                        .map((attr: any) => ({
+                            attribute_code: (attr.attribute_code ?? '').toString().trim(),
+                            value: attr.value,
+                        }));
+                    if (cleaned.length > 0) {
+                        customAttributesCleaned = cleaned;
+                    }
+                }
+                delete (additionalFields as any).customAttributes;
+            }
+
+            if (additionalFields && (additionalFields as any).extension_attributes) {
+                delete (additionalFields as any).extension_attributes;
+            }
+
             let companyUser = {} as CompanyCustomer;
 
             companyUser = {
@@ -332,6 +360,10 @@ export async function execute(
 
             if (lastname && lastname.trim() !== '') {
                 companyUser.user.lastname = lastname;
+            }
+
+            if (customAttributesCleaned && customAttributesCleaned.length > 0) {
+                companyUser.user.custom_attributes = customAttributesCleaned;
             }
 
             companyUser.user = {...companyUser.user, ...additionalFields};
