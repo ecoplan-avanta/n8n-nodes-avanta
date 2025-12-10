@@ -421,39 +421,88 @@ export async function execute(
                 }
             }
 
-            // Handle product links if provided
+            // Handle product links if provided (collection or JSON)
             if (additionalFields.productLinks) {
-                let collection = ((additionalFields.productLinks as IDataObject).productLink as IDataObject[]);
+                const pl = additionalFields.productLinks as IDataObject;
                 const productLinks: ProductLink[] = [];
-                for (const link of collection) {
-                    // Ensure linked_product_sku and link_type are strings
-                    const linkedProductSku = String(link.linked_product_sku || '');
-                    const linkType = String(link.link_type || '');
-                    if (linkedProductSku && linkType) {
-                        if (linkedProductSku.includes(',')) {
-                            // Handle comma-separated linked product SKUs
-                            const linkedSkus = linkedProductSku
-                                .split(',')
-                                .map((sku: string) => sku.trim())
-                                .filter((sku: string) => sku !== '');
-                            linkedSkus.forEach((linkedSku: string) => {
+
+                // JSON mode
+                if (pl.inputMode === 'json' && pl.productLinksJson) {
+                    try {
+                        const parsed = JSON.parse(pl.productLinksJson as string);
+                        if (Array.isArray(parsed)) {
+                            for (const entry of parsed as any[]) {
+                                if (!entry) continue;
+                                const linkType = String(entry.link_type || '');
+                                let linked = entry.linked_product_sku;
+
+                                const pushLink = (linkedSku: string) => {
+                                    if (!linkedSku || !linkType) return;
+                                    productLinks.push({
+                                        sku,
+                                        linked_product_sku: String(linkedSku),
+                                        link_type: linkType,
+                                    });
+                                };
+
+                                if (Array.isArray(linked)) {
+                                    (linked as any[])
+                                        .map(v => String(v).trim())
+                                        .filter(v => v !== '')
+                                        .forEach(pushLink);
+                                } else if (typeof linked === 'string') {
+                                    const s = String(linked);
+                                    if (s.includes(',')) {
+                                        s.split(',')
+                                            .map(v => v.trim())
+                                            .filter(v => v !== '')
+                                            .forEach(pushLink);
+                                    } else {
+                                        pushLink(s);
+                                    }
+                                }
+                            }
+                        } else {
+                            throw new Error('Product Links JSON must be an array');
+                        }
+                    } catch (err) {
+                        throw new Error(`Invalid JSON in Product Links: ${(err as Error).message}`);
+                    }
+                }
+
+                // UI Collection mode (backward compatible)
+                else if (pl.productLink) {
+                    const collection = pl.productLink as IDataObject[];
+                    for (const link of collection) {
+                        const linkedProductSku = String(link.linked_product_sku || '');
+                        const linkType = String(link.link_type || '');
+                        if (linkedProductSku && linkType) {
+                            if (linkedProductSku.includes(',')) {
+                                const linkedSkus = linkedProductSku
+                                    .split(',')
+                                    .map((s: string) => s.trim())
+                                    .filter((s: string) => s !== '');
+                                linkedSkus.forEach((linkedSku: string) => {
+                                    productLinks.push({
+                                        sku,
+                                        linked_product_sku: linkedSku,
+                                        link_type: linkType,
+                                    });
+                                });
+                            } else {
                                 productLinks.push({
                                     sku,
-                                    linked_product_sku: linkedSku,
-                                    link_type: linkType
+                                    linked_product_sku: linkedProductSku,
+                                    link_type: linkType,
                                 });
-                            });
-                        } else {
-                            // Handle single linked product SKU
-                            productLinks.push({
-                                sku,
-                                linked_product_sku: linkedProductSku,
-                                link_type: linkType
-                            });
+                            }
                         }
                     }
                 }
-                productData.product.product_links = productLinks;
+
+                if (productLinks.length > 0) {
+                    productData.product.product_links = productLinks;
+                }
             }
 
             // Handle external category links if provided
@@ -1129,35 +1178,79 @@ function getProductOptionalFields(): INodeProperties[] {
         {
             displayName: 'Product Links',
             name: 'productLinks',
-            type: 'fixedCollection',
-            typeOptions: {
-                multipleValues: true,
-            },
+            type: 'collection',
             default: {},
-            placeholder: 'Add Product Link',
+            placeholder: 'Add Product Links',
+            description: 'Create links between this product and other products. You can add them manually or provide a JSON array.',
             options: [
                 {
-                    displayName: 'Product Link',
+                    displayName: 'Input Mode',
+                    name: 'inputMode',
+                    type: 'options',
+                    options: [
+                        { name: 'UI Collection', value: 'collection' },
+                        { name: 'Raw JSON', value: 'json' },
+                    ],
+                    default: 'collection',
+                    description: 'Choose whether to provide product links via the UI or as JSON',
+                },
+                {
+                    displayName: 'Product Link Collection',
                     name: 'productLink',
-                    values: [
-                        {
-                            displayName: 'Linked Product SKU',
-                            name: 'linked_product_sku',
-                            type: 'string',
-                            default: '',
-                            description: 'SKU of the linked product, or a comma-separated list of SKUs (e.g., "sku1,sku2,sku3")',
+                    type: 'fixedCollection',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
                         },
+                    },
+                    typeOptions: {
+                        multipleValues: true,
+                    },
+                    default: {},
+                    placeholder: 'Add Product Link',
+                    options: [
                         {
-                            displayName: 'Link Type Name or ID',
-                            name: 'link_type',
-                            type: 'options',
-                            typeOptions: {
-                                loadOptionsMethod: 'getProductLinkTypes',
-                            },
-                            description: 'Type of the product link. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
-                            default: ''
+                            displayName: 'Product Link',
+                            name: 'productLink',
+                            values: [
+                                {
+                                    displayName: 'Linked Product SKU',
+                                    name: 'linked_product_sku',
+                                    type: 'string',
+                                    default: '',
+                                    description: 'SKU of the linked product, or a comma-separated list of SKUs (e.g., "sku1,sku2,sku3")',
+                                },
+                                {
+                                    displayName: 'Link Type Name or ID',
+                                    name: 'link_type',
+                                    type: 'options',
+                                    typeOptions: {
+                                        loadOptionsMethod: 'getProductLinkTypes',
+                                    },
+                                    description: 'Type of the product link. Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>.',
+                                    default: ''
+                                },
+                            ],
                         },
                     ],
+                },
+                {
+                    displayName: 'Product Links JSON',
+                    name: 'productLinksJson',
+                    type: 'json',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['json'],
+                        },
+                    },
+                    default: '[]',
+                    description:
+                        'Provide product links as JSON. Each item must include link_type and linked_product_sku (string, comma-separated string, or array). Example:<br>' +
+                        '<pre>[<br>' +
+                        '{ "link_type": "related", "linked_product_sku": "SKU-1" },<br>' +
+                        '{ "link_type": "upsell", "linked_product_sku": ["SKU-2","SKU-3"] },<br>' +
+                        '{ "link_type": "crosssell", "linked_product_sku": "SKU-4,SKU-5" }<br>' +
+                        ']</pre>',
                 },
             ],
         },
