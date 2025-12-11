@@ -26,6 +26,7 @@ import * as shipments from './reports/shipments';
 import * as trackings from './reports/trackings';
 import * as download from './download';
 import * as bom from './bom';
+import * as category from './category';
 
 export const description: INodeProperties[] = [
 	{
@@ -93,10 +94,10 @@ export async function router(this: IExecuteFunctions) {
 		returnToWebhook = this.getNodeParameter('return', 0) as boolean;
 	}
 
-	switch (resource) {
-		case 'company':
-			returnData = await (company as any)[operation].execute.call(this);
-			break;
+		switch (resource) {
+			case 'company':
+				returnData = await (company as any)[operation].execute.call(this);
+				break;
 		case 'companyAddress':
 			returnData = await (companyAddress as any)[operation].execute.call(this);
 			break;
@@ -121,9 +122,12 @@ export async function router(this: IExecuteFunctions) {
 		case 'salesOrg':
 			returnData = await (salesOrg as any)[operation].execute.call(this);
 			break;
-		case 'product':
-			returnData = await (product as any)[operation].execute.call(this);
-			break;
+			case 'product':
+				returnData = await (product as any)[operation].execute.call(this);
+				break;
+			case 'category':
+				returnData = await (category as any)[operation].execute.call(this);
+				break;
 		case 'backorders':
 			returnData = await (backorders as any)[operation].execute.call(this);
 			break;
