@@ -17,6 +17,7 @@ import * as companySku from './companySku';
 import * as companyUser from './companyUser';
 import * as salesOrg from './salesOrg';
 import * as product from './product';
+import * as category from './category';
 import * as backorders from './reports/backorders';
 import * as creditmemos from './reports/creditmemos';
 import * as invoices from './reports/invoices';
@@ -26,7 +27,6 @@ import * as shipments from './reports/shipments';
 import * as trackings from './reports/trackings';
 import * as download from './download';
 import * as bom from './bom';
-import * as category from './category';
 
 export const description: INodeProperties[] = [
 	{
@@ -122,12 +122,12 @@ export async function router(this: IExecuteFunctions) {
 		case 'salesOrg':
 			returnData = await (salesOrg as any)[operation].execute.call(this);
 			break;
-			case 'product':
-				returnData = await (product as any)[operation].execute.call(this);
-				break;
-			case 'category':
-				returnData = await (category as any)[operation].execute.call(this);
-				break;
+		case 'product':
+			returnData = await (product as any)[operation].execute.call(this);
+			break;
+		case 'category':
+			returnData = await (category as any)[operation].execute.call(this);
+			break;
 		case 'backorders':
 			returnData = await (backorders as any)[operation].execute.call(this);
 			break;

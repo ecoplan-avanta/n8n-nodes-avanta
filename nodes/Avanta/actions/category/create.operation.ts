@@ -1,247 +1,273 @@
-import {
-    IExecuteFunctions,
-    INodeExecutionData,
-    INodeProperties
+import type {
+  IExecuteFunctions,
+  INodeExecutionData,
+  INodeProperties,
 } from 'n8n-workflow';
 
 import { updateDisplayOptions } from '../../helpers/displayOptions';
-import { prepareErrorData } from '../../helpers/utils';
 import { createApiRequest } from '../../transport';
+import { prepareErrorData } from '../../helpers/utils';
 
 const properties: INodeProperties[] = [
-    {
-        displayName: 'Name',
-        name: 'name',
-        type: 'string',
-        required: true,
-        default: '',
-        displayOptions: {
-            show: {
-                resource: ['category'],
-                operation: ['create'],
-            },
-        },
-        description: 'Category name',
-    },
-    {
-        displayName: 'Is Active',
-        name: 'is_active',
-        type: 'boolean',
-        required: true,
-        default: true,
-        displayOptions: {
-            show: {
-                resource: ['category'],
-                operation: ['create'],
-            },
-        },
-        description: 'Whether the category is active',
-    },
-    {
-        displayName: 'External ID',
-        name: 'proline_external_id',
-        type: 'string',
-        default: '',
-        displayOptions: {
-            show: {
-                resource: ['category'],
-                operation: ['create'],
-            },
-        },
-        description: 'External category identifier used for upsert',
-    },
-    {
-        displayName: 'External Parent ID',
-        name: 'external_parent_id',
-        type: 'string',
-        default: '',
-        displayOptions: {
-            show: {
-                resource: ['category'],
-                operation: ['create'],
-            },
-        },
-        description: 'External identifier of the parent category',
-    },
-    {
-        displayName: 'ID',
-        name: 'id',
-        type: 'number',
-        default: 0,
-        displayOptions: {
-            show: {
-                resource: ['category'],
-                operation: ['create'],
-            },
-        },
-        description: 'Existing category ID (alternative to External ID)',
-    },
-    {
-        displayName: 'Parent ID',
-        name: 'parent_id',
-        type: 'number',
-        default: 0,
-        displayOptions: {
-            show: {
-                resource: ['category'],
-                operation: ['create'],
-            },
-        },
-        description: 'Numeric parent ID (used if External Parent ID is empty)',
-    },
-    {
+  {
+    displayName: 'Name',
+    name: 'name',
+    type: 'string',
+    required: true,
+    default: '',
+    displayOptions: { show: { resource: ['category'], operation: ['create'] } },
+  },
+  {
+    displayName: 'Is Active',
+    name: 'is_active',
+    type: 'boolean',
+    required: true,
+    default: true,
+    displayOptions: { show: { resource: ['category'], operation: ['create'] } },
+  },
+  {
+    displayName: 'External ID',
+    name: 'external_id',
+    type: 'string',
+    required: false,
+    default: '',
+    displayOptions: { show: { resource: ['category'], operation: ['create'] } },
+    description: 'Maps to Ecoplan CategoryInterface::getExternalId() (snake_case key required)',
+  },
+  {
+    displayName: 'External Parent ID',
+    name: 'external_parent_id',
+    type: 'string',
+    required: false,
+    default: '',
+    displayOptions: { show: { resource: ['category'], operation: ['create'] } },
+    description: 'Maps to Ecoplan CategoryInterface::getExternalParentId() (snake_case key required)',
+  },
+  {
+    displayName: 'ID',
+    name: 'id',
+    type: 'number',
+    required: false,
+    default: '',
+    displayOptions: { show: { resource: ['category'], operation: ['create'] } },
+  },
+  {
+    displayName: 'Parent ID',
+    name: 'parent_id',
+    type: 'number',
+    required: false,
+    default: '',
+    displayOptions: { show: { resource: ['category'], operation: ['create'] } },
+  },
+  {
         displayName: 'Additional Fields',
         name: 'additionalFields',
         type: 'collection',
         placeholder: 'Add Field',
         default: {},
-        displayOptions: {
-            show: {
-                resource: ['category'],
-                operation: ['create'],
-            },
-        },
+        displayOptions: { show: { resource: ['category'], operation: ['create'] } },
         options: [
-            {
-                displayName: 'URL Key',
-                name: 'url_key',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Include in Menu',
-                name: 'include_in_menu',
-                type: 'boolean',
-                default: true,
-            },
-            {
-                displayName: 'Position',
-                name: 'position',
-                type: 'number',
-                default: 0,
-            },
-            {
+          { displayName: 'URL Key', name: 'url_key', type: 'string', default: '' },
+          { displayName: 'Include in Menu', name: 'include_in_menu', type: 'boolean', default: true },
+          { displayName: 'Position', name: 'position', type: 'number', default: '' },
+          // Flexible Custom Attributes (JSON or UI collection)
+          {
+            displayName: 'Custom Attributes (Flexible)',
+            name: 'customAttributes',
+            type: 'fixedCollection',
+            typeOptions: { multipleValues: false },
+            default: {},
+            options: [
+              {
+                name: 'customAttribute',
                 displayName: 'Custom Attributes',
-                name: 'custom_attributes',
-                type: 'fixedCollection',
-                typeOptions: { multipleValues: true },
-                placeholder: 'Add Attribute',
-                default: {},
-                options: [
-                    {
-                        name: 'custom_attribute',
-                        displayName: 'Custom Attribute',
+                values: [
+                  {
+                    displayName: 'Select Input Mode',
+                    name: 'inputMode',
+                    type: 'options',
+                    options: [
+                      { name: 'Collection', value: 'collection' },
+                      { name: 'Raw JSON', value: 'json' },
+                    ],
+                    default: 'collection',
+                  },
+                  {
+                    displayName: 'Attributes',
+                    name: 'attributes',
+                    type: 'fixedCollection',
+                    typeOptions: { multipleValues: true },
+                    default: {},
+                    displayOptions: { show: { inputMode: ['collection'] } },
+                    options: [
+                      {
+                        name: 'attribute',
+                        displayName: 'Attribute',
                         values: [
-                            {
-                                displayName: 'Attribute Code',
-                                name: 'attribute_code',
-                                type: 'string',
-                                default: '',
-                                description: 'e.g. proline_visibility_group',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
+                          { displayName: 'Attribute Code', name: 'attribute_code', type: 'string', required: true, default: '' },
+                          { displayName: 'Value', name: 'value', type: 'string', required: true, default: '' },
                         ],
-                    },
+                      },
+                    ],
+                  },
+                  {
+                    displayName: 'Attributes (JSON)',
+                    name: 'customAttributesJson',
+                    type: 'string',
+                    typeOptions: { rows: 6 },
+                    default: '',
+                    displayOptions: { show: { inputMode: ['json'] } },
+                    description: 'Provide an array: [{"attribute_code":"proline_visibility_group","value":"0"}]',
+                  },
                 ],
-            },
+              },
+            ],
+          },
         ],
-    },
+      },
 ];
 
 const displayOptions = {
-    show: {
-        resource: ['category'],
-        operation: ['create'],
-    },
+  show: {
+    resource: ['category'],
+    operation: ['create'],
+  },
 };
 
 export const description = updateDisplayOptions(displayOptions, properties);
 
 const restUrl = '/V1/proline-admin/connector/category';
 
-export async function execute(
-    this: IExecuteFunctions
-): Promise<INodeExecutionData[]> {
-    const bulk = this.getNodeParameter('bulk', 0) as boolean;
-    const items = this.getInputData();
-    const data: any[] = [];
-    const returnData: INodeExecutionData[] = [];
+function normalizeCategoryPayload(category: any) {
+  // Map common synonyms to Magento‑expected snake_case keys
+  const synonyms: Record<string, string> = {
+    externalId: 'external_id',
+    ExternalId: 'external_id',
+    ProlineExternalId: 'external_id',
+    proline_external_id: 'external_id',
+    externalParentId: 'external_parent_id',
+    ExternalParentId: 'external_parent_id',
+    proline_external_parent_id: 'external_parent_id',
+  };
 
-    for (let i = 0; i < items.length; i++) {
-        try {
-            const name = this.getNodeParameter('name', i) as string;
-            const is_active = this.getNodeParameter('is_active', i) as boolean;
+  const allowedTopLevel = new Set([
+    'name',
+    'is_active',
+    'external_id',
+    'external_parent_id',
+    'id',
+    'parent_id',
+    'url_key',
+    'include_in_menu',
+    'position',
+    'custom_attributes',
+  ]);
 
-            const category: any = {
-                name,
-                is_active,
-            };
-
-            const proline_external_id = this.getNodeParameter('proline_external_id', i, '') as string;
-            if (proline_external_id) category.proline_external_id = proline_external_id;
-
-            const external_parent_id = this.getNodeParameter('external_parent_id', i, '') as string;
-            if (external_parent_id) category.external_parent_id = external_parent_id;
-
-            const id = this.getNodeParameter('id', i, 0) as number;
-            if (id) category.id = id;
-
-            const parent_id = this.getNodeParameter('parent_id', i, 0) as number;
-            if (parent_id) category.parent_id = parent_id;
-
-            // Additional fields
-            const additionalFields = this.getNodeParameter('additionalFields', i, {}) as any;
-            if (additionalFields) {
-                if (additionalFields.url_key) category.url_key = additionalFields.url_key;
-                if (typeof additionalFields.include_in_menu === 'boolean') category.include_in_menu = additionalFields.include_in_menu;
-                if (additionalFields.position) category.position = additionalFields.position;
-
-                if (additionalFields.custom_attributes) {
-                    const caRaw = additionalFields.custom_attributes as { custom_attribute?: any[] };
-                    const list = Array.isArray(caRaw.custom_attribute) ? caRaw.custom_attribute : [];
-                    if (list.length) {
-                        category.custom_attributes = list.map((a: any) => ({
-                            attribute_code: a.attribute_code,
-                            value: a.value,
-                        }));
-                    }
-                }
-            }
-
-            const payload = { category };
-
-            if (!bulk) {
-                const executionData = await createApiRequest.call(this, payload, restUrl, false, i);
-                returnData.push(...executionData);
-            } else {
-                data.push(payload);
-            }
-        } catch (error) {
-            if (this.continueOnFail()) {
-                returnData.push(...prepareErrorData.call(this, error, i));
-                continue;
-            }
-            throw error;
-        }
+  const result: any = {};
+  for (const [key, value] of Object.entries(category)) {
+    const mapped = synonyms[key] ?? key;
+    if (allowedTopLevel.has(mapped)) {
+      result[mapped] = value;
     }
+  }
+  return result;
+}
 
-    if (bulk && data.length) {
-        try {
-            const executionData = await createApiRequest.call(this, data, restUrl);
-            returnData.push(...executionData);
-        } catch (error) {
-            if (this.continueOnFail()) {
-                returnData.push(...prepareErrorData.call(this, error, 0));
-            } else {
-                throw error;
-            }
+export async function execute(this: IExecuteFunctions): Promise<INodeExecutionData[]> {
+  const bulk = this.getNodeParameter('bulk', 0) as boolean;
+  const inputItems = this.getInputData();
+  const data: any[] = [];
+  const returnData: INodeExecutionData[] = [];
+
+  for (let i = 0; i < inputItems.length; i++) {
+    try {
+      const additionalFields = (this.getNodeParameter('additionalFields', i, {}) as any) || {};
+
+      // Custom attributes: support flexible (JSON or UI collection) and legacy collection
+      let customAttributes: any[] = [];
+
+      // 1) Flexible block
+      if (additionalFields.customAttributes) {
+        const caWrap = additionalFields.customAttributes as any;
+        const entry = Array.isArray(caWrap?.customAttribute)
+          ? caWrap.customAttribute[0]
+          : caWrap.customAttribute || caWrap; // tolerate either shape
+
+        if (entry?.inputMode === 'json' && entry.customAttributesJson) {
+          try {
+            const parsed = JSON.parse(entry.customAttributesJson as string);
+            if (!Array.isArray(parsed)) throw new Error('Custom Attributes JSON must be an array');
+            customAttributes = parsed.map((attr: any) => ({
+              attribute_code: attr.attribute_code ?? attr.attributeCode,
+              value: attr.value,
+            }));
+          } catch (err) {
+            throw new Error(`Invalid JSON in Custom Attributes: ${(err as Error).message}`);
+          }
+        } else if (entry?.attributes) {
+          const attrs = entry.attributes as any;
+          const rows = Array.isArray(attrs) ? attrs : attrs.attribute;
+          if (Array.isArray(rows)) {
+            customAttributes = rows.map((r: any) => ({
+              attribute_code: r.attribute_code,
+              value: r.value,
+            }));
+          }
         }
-    }
+      }
 
-    return returnData;
+      const categoryRaw: any = {
+        name: this.getNodeParameter('name', i) as string,
+        is_active: this.getNodeParameter('is_active', i) as boolean,
+      };
+
+      // Optional identifiers
+      const externalId = this.getNodeParameter('external_id', i, '') as string;
+      const externalParentId = this.getNodeParameter('external_parent_id', i, '') as string;
+      const id = this.getNodeParameter('id', i, '') as number | '';
+      const parentId = this.getNodeParameter('parent_id', i, '') as number | '';
+      if (externalId !== '') categoryRaw.external_id = externalId;
+      if (externalParentId !== '') categoryRaw.external_parent_id = externalParentId;
+      if (id !== '') categoryRaw.id = id;
+      if (parentId !== '') categoryRaw.parent_id = parentId;
+
+      // Additional simple fields
+      if (additionalFields.url_key) categoryRaw.url_key = additionalFields.url_key;
+      if (typeof additionalFields.include_in_menu === 'boolean') categoryRaw.include_in_menu = additionalFields.include_in_menu;
+      if (additionalFields.position !== undefined && additionalFields.position !== '') categoryRaw.position = additionalFields.position;
+      if (customAttributes.length > 0) categoryRaw.custom_attributes = customAttributes;
+
+      const category = normalizeCategoryPayload(categoryRaw);
+
+      const payload = { category };
+
+      if (!bulk) {
+        const executionData = await createApiRequest.call(this, payload, restUrl, false, i);
+        returnData.push(...executionData);
+      } else {
+        data.push(payload);
+      }
+    } catch (error) {
+      if (this.continueOnFail()) {
+        returnData.push(...prepareErrorData.call(this, error, i));
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  if (bulk && data.length > 0) {
+    try {
+      const executionData = await createApiRequest.call(this, data, restUrl, true, 0);
+      returnData.push(...executionData);
+    } catch (error) {
+      if (this.continueOnFail()) {
+        returnData.push(...prepareErrorData.call(this, error, 0));
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  return returnData;
 }
