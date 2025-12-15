@@ -20,6 +20,7 @@ import * as product from './actions/product';
 import * as reports from './actions/reports';
 import * as download from './actions/download';
 import * as bom from './actions/bom';
+import * as category from './actions/category';
 import {loadOptions} from './methods';
 
 export class Avanta implements INodeType {
@@ -93,6 +94,10 @@ export class Avanta implements INodeType {
 						value: 'product',
 					},
 					{
+						name: 'Category',
+						value: 'category',
+					},
+					{
 						name: 'Servicecenter - Order',
 						value: 'orders',
 					},
@@ -142,9 +147,10 @@ export class Avanta implements INodeType {
 			...salesOrg.description,
 			...product.description,
 			...reports.description,
-            ...download.description,
-            ...bom.description
-        ],
+			            ...download.description,
+			            ...bom.description
+						, ...category.description
+			        ],
 	};
 
 	methods = {
