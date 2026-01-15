@@ -19,6 +19,19 @@ import type {
 
 const properties: INodeProperties[] = [
     {
+        displayName: 'Ignore Hashing',
+        name: 'ignoreHashing',
+        type: 'boolean',
+        default: false,
+        displayOptions: {
+            show: {
+                resource: ['product'],
+                operation: ['create'],
+            },
+        },
+        description: 'Skip product hashing checks in the backend and force save/update',
+    },
+    {
         displayName: 'SKU',
         name: 'sku',
         type: 'string',
@@ -204,6 +217,15 @@ export async function execute(
             const productData = {
                 product
             };
+
+            // Pass through repository flag to ignore hashing if requested (top-level toggle preferred)
+            const ignoreHashingTopLevel = this.getNodeParameter('ignoreHashing', i, undefined) as boolean | undefined;
+            if (ignoreHashingTopLevel === true) {
+                (productData as IDataObject).ignoreHashing = true;
+            } else if ((additionalFields as IDataObject) && (additionalFields as IDataObject).ignoreHashing === true) {
+                // Fallback: support legacy placement under Additional Fields if present
+                (productData as IDataObject).ignoreHashing = true;
+            }
 
             // Handle custom attributes
             if (additionalFields.customAttributes) {
