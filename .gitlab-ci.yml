@@ -1,0 +1,7 @@
+variables:
+  CI_TEMPLATES_REF: "release/v1.0"
+
+include:
+  - project: 'epdev/gitlab-ci-templates'
+    ref: 'release/v1.0'
+    file: '/avanta/module_npm.yml'
