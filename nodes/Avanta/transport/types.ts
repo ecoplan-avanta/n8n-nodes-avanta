@@ -770,6 +770,15 @@ export interface CompanyRole {
 	parent_id: number;
 	role_name: string;
 	role_type?: string;
+    company_rules?: CompanyRule[];
+}
+
+export interface CompanyRule {
+    role_id?: number
+    external_role_id?: string;
+    resource_id: string;
+    previleges?: string;
+    permission: string;
 }
 
 export interface DownloadCategory {
