@@ -261,23 +261,26 @@ export async function execute(
 
                 // UI Collection mode
                 else if (dyn.dynamicCustomAttribute) {
-                    let collection = (dyn.dynamicCustomAttribute as IDataObject[]);
+                    const wrapper = dyn.dynamicCustomAttribute as Record<string, any>;
+                    const attributeSource = wrapper.dynamicCustomAttribute;
 
-                    productData.product.dynamic_custom_attributes = collection.map((attr: any): DynamicCustomAttribute => {
-                        let value: any;
+                    if (Array.isArray(attributeSource)) {
+                        productData.product.dynamic_custom_attributes = attributeSource.map((attr: any): DynamicCustomAttribute => {
+                            let value: any;
 
-                        try {
-                            const parsed = JSON.parse(attr.value);
-                            value = typeof parsed === 'object' && parsed !== null ? parsed : attr.value;
-                        } catch {
-                            value = attr.value;
-                        }
+                            try {
+                                const parsed = JSON.parse(attr.value);
+                                value = typeof parsed === 'object' && parsed !== null ? parsed : attr.value;
+                            } catch {
+                                value = attr.value;
+                            }
 
-                        return {
-                            attribute_code: attr.attribute_code,
-                            value
-                        };
-                    });
+                            return {
+                                attribute_code: attr.attribute_code,
+                                value
+                            };
+                        });
+                    }
                 }
             }
 
