@@ -184,7 +184,7 @@ export async function executeGetAll(
 				? await magentoApiRequestAllItems.call(this, 'items', 'GET', endpoint, {}, qs as IDataObject)
 				: await magentoApiRequest.call(this, 'GET', endpoint, {}, qs as IDataObject);
 
-			const responseData = Array.isArray(response.items) ? response.items : [response];
+			const responseData = Array.isArray(response.items) ? response.items : (Array.isArray(response) ? response : [response]);
 
 			returnData.push(
 				...this.helpers.constructExecutionMetaData(
