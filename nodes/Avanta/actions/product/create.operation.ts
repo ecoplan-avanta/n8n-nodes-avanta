@@ -19,6 +19,19 @@ import type {
 
 const properties: INodeProperties[] = [
     {
+        displayName: 'Ignore Hashing',
+        name: 'ignoreHashing',
+        type: 'boolean',
+        default: false,
+        displayOptions: {
+            show: {
+                resource: ['product'],
+                operation: ['create'],
+            },
+        },
+        description: 'Skip product hashing checks in the backend and force save/update',
+    },
+    {
         displayName: 'SKU',
         name: 'sku',
         type: 'string',
@@ -205,6 +218,15 @@ export async function execute(
                 product
             };
 
+            // Pass through repository flag to ignore hashing if requested (top-level toggle preferred)
+            const ignoreHashingTopLevel = this.getNodeParameter('ignoreHashing', i, undefined) as boolean | undefined;
+            if (ignoreHashingTopLevel === true) {
+                (productData as IDataObject).ignoreHashing = true;
+            } else if ((additionalFields as IDataObject) && (additionalFields as IDataObject).ignoreHashing === true) {
+                // Fallback: support legacy placement under Additional Fields if present
+                (productData as IDataObject).ignoreHashing = true;
+            }
+
             // Handle custom attributes
             if (additionalFields.customAttributes) {
                 let collection = ((additionalFields.customAttributes as IDataObject).customAttribute as IDataObject[]);
@@ -239,23 +261,26 @@ export async function execute(
 
                 // UI Collection mode
                 else if (dyn.dynamicCustomAttribute) {
-                    let collection = (dyn.dynamicCustomAttribute as IDataObject[]);
+                    const wrapper = dyn.dynamicCustomAttribute as Record<string, any>;
+                    const attributeSource = wrapper.dynamicCustomAttribute;
 
-                    productData.product.dynamic_custom_attributes = collection.map((attr: any): DynamicCustomAttribute => {
-                        let value: any;
+                    if (Array.isArray(attributeSource)) {
+                        productData.product.dynamic_custom_attributes = attributeSource.map((attr: any): DynamicCustomAttribute => {
+                            let value: any;
 
-                        try {
-                            const parsed = JSON.parse(attr.value);
-                            value = typeof parsed === 'object' && parsed !== null ? parsed : attr.value;
-                        } catch {
-                            value = attr.value;
-                        }
+                            try {
+                                const parsed = JSON.parse(attr.value);
+                                value = typeof parsed === 'object' && parsed !== null ? parsed : attr.value;
+                            } catch {
+                                value = attr.value;
+                            }
 
-                        return {
-                            attribute_code: attr.attribute_code,
-                            value
-                        };
-                    });
+                            return {
+                                attribute_code: attr.attribute_code,
+                                value
+                            };
+                        });
+                    }
                 }
             }
 
