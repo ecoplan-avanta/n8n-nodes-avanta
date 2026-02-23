@@ -11,8 +11,22 @@ import { createApiRequest } from '../../transport';
 
 const properties: INodeProperties[] = [
     {
-        displayName: 'Company ID',
-        name: 'company_id',
+        displayName: 'Company Customer ID',
+        name: 'customer_id',
+        type: 'string',
+        required: true,
+        default: '',
+        displayOptions: {
+            show: {
+                resource: ['companyRole'],
+                operation: ['create'],
+            },
+        },
+        description: 'Customer ID of the company',
+    },
+    {
+        displayName: 'Store Group ID',
+        name: 'store_group_id',
         type: 'number',
         required: true,
         default: '',
@@ -22,7 +36,7 @@ const properties: INodeProperties[] = [
                 operation: ['create'],
             },
         },
-        description: 'Company ID for the company role',
+        description: 'Store Group ID of the company',
     },
     {
         displayName: 'Is System',
@@ -39,9 +53,9 @@ const properties: INodeProperties[] = [
         description: 'Whether the company role is a system role',
     },
     {
-        displayName: 'Parent ID',
-        name: 'parent_id',
-        type: 'number',
+        displayName: 'External Parent ID',
+        name: 'external_parent_id',
+        type: 'string',
         required: true,
         default: '',
         displayOptions: {
@@ -50,7 +64,7 @@ const properties: INodeProperties[] = [
                 operation: ['create'],
             },
         },
-        description: 'Parent ID of the company role',
+        description: 'External ID of the parent company role',
     },
     {
         displayName: 'Role Name',
@@ -219,18 +233,20 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
 
     for (let i = 0; i < items.length; i++) {
         try {
-            const company_id = this.getNodeParameter('company_id', i) as string;
+            const customer_id = this.getNodeParameter('customer_id', i) as string;
+            const store_group_id = this.getNodeParameter('store_group_id', i) as string;
             const is_system = this.getNodeParameter('is_system', i) as boolean;
-            const parent_id = this.getNodeParameter('parent_id', i) as number;
+            const external_parent_id = this.getNodeParameter('external_parent_id', i) as string;
             const role_name = this.getNodeParameter('role_name', i) as string;
             const external_id = this.getNodeParameter('external_id', i) as string;
             const role_type = this.getNodeParameter('role_type', i) as string;
 
             const companyRole = {
                 companyRole: {
-                    company_id: company_id ? parseInt(company_id, 10) : undefined,
+                    customer_id,
+                    store_group_id: store_group_id ? parseInt(store_group_id, 10) : undefined,
                     is_system: is_system ? 1 : 0,
-                    parent_id,
+                    external_parent_id,
                     role_name,
                     external_id: external_id || undefined,
                     role_type: role_type || undefined,
