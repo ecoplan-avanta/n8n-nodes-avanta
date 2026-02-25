@@ -21,8 +21,8 @@ export const description: INodeProperties[] = [
 			{
 				name: 'Create/Update',
 				value: 'create',
-				description: 'Create or update a company role',
-				action: 'Create or update a company role',
+				description: '(avanta v3.6) Create or update a company role',
+				action: '(avanta v3.6) Create or update a company role',
 			},
 			{
 				name: 'Delete',
