@@ -29,14 +29,14 @@ export const description: INodeProperties[] = [
             {
                 name: 'Create/Update',
                 value: 'create',
-                description: '(avanta v3.6) Create or update a company rule',
-                action: '(avanta v3.6) Create or update a company rule',
+                description: 'Create or update a company rule  (available from avanta v3.6)',
+                action: 'Create or update a company rule  (available from avanta v3.6)',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: '(avanta v3.6) Get many company rules',
-                action: '(avanta v3.6) Get many company rules',
+                description: 'Get many company rules  (available from avanta v3.6)',
+                action: 'Get many company rules  (available from avanta v3.6)',
             },
         ],
         default: 'create',
