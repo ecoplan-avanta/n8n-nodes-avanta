@@ -31,10 +31,12 @@ export async function magentoApiRequest(
 	const credentials = await this.getCredentials('avantaApi');
 	const {
 		timeout = 10000,
-		allowUnauthorizedCerts = false
+		allowUnauthorizedCerts = false,
+		debugMode = false
 	} = this.getNodeParameter('request_options', 0, {}) as {
 		timeout?: number;
 		allowUnauthorizedCerts?: boolean;
+		debugMode?: boolean;
 	};
 
 	let options: IRequestOptions = {
@@ -52,7 +54,24 @@ export async function magentoApiRequest(
 		if (Object.keys(body as IDataObject).length === 0) {
 			delete options.body;
 		}
-		return await this.helpers.requestWithAuthentication.call(this, 'avantaApi', options);
+		const response = await this.helpers.requestWithAuthentication.call(this, 'avantaApi', options);
+
+		if (debugMode && typeof response === 'object' && response !== null) {
+			// Add debug info to response
+			return {
+				_debug: {
+					request: {
+						method: options.method,
+						uri: options.uri,
+						body: options.body,
+						qs: options.qs,
+					},
+				},
+				...response
+			};
+		}
+
+		return response;
 	} catch (error) {
 		throw new NodeApiError(this.getNode(), error as JsonObject);
 	}
