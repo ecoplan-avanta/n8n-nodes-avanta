@@ -37,6 +37,14 @@ export const description: INodeProperties[] = [
 		default: {},
 		options: [
 			{
+				displayName: 'Debug Mode',
+				name: 'debugMode',
+				type: 'boolean',
+				noDataExpression: true,
+				default: false,
+				description: 'Whether to include API request details (method, URL, body) in the response for debugging purposes',
+			},
+			{
 				displayName: 'Ignore SSL Issues (Insecure)',
 				name: 'allowUnauthorizedCerts',
 				type: 'boolean',
