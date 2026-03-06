@@ -764,12 +764,24 @@ export interface CompanyGroup {
 }
 
 export interface CompanyRole {
-	company_id: number;
+	company_id?: number;
+    customer_id: string;
+    store_group_id: number;
 	external_id?: string;
 	is_system: number;
-	parent_id: number;
+    parent_id?: number;
+	external_parent_id: string;
 	role_name: string;
 	role_type?: string;
+    company_rules?: CompanyRule[];
+}
+
+export interface CompanyRule {
+    role_id?: number
+    external_role_id?: string;
+    resource_id: string;
+    previleges?: string;
+    permission: string;
 }
 
 export interface DownloadCategory {
