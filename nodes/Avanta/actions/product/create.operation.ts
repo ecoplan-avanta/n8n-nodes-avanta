@@ -396,6 +396,8 @@ export async function execute(
                                 visibility: Number(item.visibility ?? 3),
                                 product_all: Number(item.product_all ?? 0),
                                 filename: item.filename || '',
+                                type: item.type || '',
+                                url: item.url || '',
                                 extension_attributes: {
                                     content: item.extension_attributes?.content || '',
                                     store_id: Number(item.extension_attributes?.store_id ?? 1),
@@ -413,32 +415,36 @@ export async function execute(
                         throw new Error(`Invalid JSON in Download Items: ${(err as Error).message}`);
                     }
                 } else if (downloadConfig.downloadItem) {
-                    const collectionItems = downloadConfig.downloadItem as IDataObject[];
-                    collection = collectionItems.map((item: any): DownloadItem => ({
-                        status: Number(item.status ?? 1),
-                        show_in_portal: item.show_in_portal ? 1 : 0,
-                        title: item.title || '',
-                        external_id: item.external_id || '',
-                        visibility: Number(item.visibility ?? 3),
-                        product_all: item.product_all ? 1 : 0,
-                        filename: item.filename || '',
-                        extension_attributes: {
-                            content: item.content || '',
-                            store_id: Number(item.store_id ?? 1),
-                            external_category_ids: (item.external_category_ids || '')
-                                .split(',')
-                                .map((v: string) => v.trim())
-                                .filter((v: string) => v !== ''),
-                            external_company_ids: (item.external_company_ids || '')
-                                .split(',')
-                                .map((v: string) => v.trim())
-                                .filter((v: string) => v !== ''),
-                            skus: (item.skus || '')
-                                .split(',')
-                                .map((v: string) => v.trim())
-                                .filter((v: string) => v !== ''),
-                        },
-                    }));
+                    const collectionItems = (downloadConfig.downloadItem as any).downloadItem as IDataObject[];
+                    if (Array.isArray(collectionItems)) {
+                        collection = collectionItems.map((item: any): DownloadItem => ({
+                            status: Number(item.status ?? 1),
+                            show_in_portal: item.show_in_portal ? 1 : 0,
+                            title: item.title || '',
+                            external_id: item.external_id || '',
+                            visibility: Number(item.visibility ?? 3),
+                            product_all: item.product_all ? 1 : 0,
+                            filename: item.filename || '',
+                            type: item.type || '',
+                            url: item.url || '',
+                            extension_attributes: {
+                                content: item.content || '',
+                                store_id: Number(item.store_id ?? 1),
+                                external_category_ids: (item.external_category_ids || '')
+                                    .split(',')
+                                    .map((v: string) => v.trim())
+                                    .filter((v: string) => v !== ''),
+                                external_company_ids: (item.external_company_ids || '')
+                                    .split(',')
+                                    .map((v: string) => v.trim())
+                                    .filter((v: string) => v !== ''),
+                                skus: (item.skus || '')
+                                    .split(',')
+                                    .map((v: string) => v.trim())
+                                    .filter((v: string) => v !== ''),
+                            },
+                        }));
+                    }
                 }
 
                 if (collection.length > 0) {
@@ -1070,13 +1076,42 @@ function getProductOptionalFields(): INodeProperties[] {
                         {
                             displayName: 'Download Item',
                             name: 'downloadItem',
+                            // eslint-disable-next-line n8n-nodes-base/node-param-fixed-collection-type-unsorted-items
                             values: [
+                                {
+                                    displayName: 'Type',
+                                    name: 'type',
+                                    type: 'options',
+                                    options: [
+                                        { name: 'URL', value: 'url' },
+                                        { name: 'Other', value: 'other' },
+                                    ],
+                                    default: 'other',
+                                    description: 'The type of the download item',
+                                },
                                 {
                                     displayName: 'Content (URL or Base64)',
                                     name: 'content',
                                     type: 'string',
+                                    displayOptions: {
+                                        show: {
+                                            type: ['other'],
+                                        },
+                                    },
                                     default: '',
                                     description: 'The downloadable file content or URL',
+                                },
+                                {
+                                    displayName: 'URL',
+                                    name: 'url',
+                                    type: 'string',
+                                    displayOptions: {
+                                        show: {
+                                            type: ['url'],
+                                        },
+                                    },
+                                    default: '',
+                                    description: 'The URL for the download item (required if Type is URL)',
                                 },
                                 {
                                     displayName: 'External Category IDs (Comma Separated)',
@@ -1103,6 +1138,11 @@ function getProductOptionalFields(): INodeProperties[] {
                                     displayName: 'Filename',
                                     name: 'filename',
                                     type: 'string',
+                                    displayOptions: {
+                                        show: {
+                                            type: ['other'],
+                                        },
+                                    },
                                     default: '',
                                     description: 'The name of the file (e.g., "manual.pdf")',
                                 },
@@ -1182,19 +1222,18 @@ function getProductOptionalFields(): INodeProperties[] {
                     },
                     default: '[]',
                     description:
-                        'Provide download items as JSON. Example:<br>' +
+                        'Provide download items as JSON. Default type is "other" (requires "content"). Use type "url" for direct links.<br>' +
                         '<pre>[<br>' +
                         '{<br>' +
                         '  "title": "Manual",<br>' +
+                        '  "type": "other",<br>' +
                         '  "filename": "manual.pdf",<br>' +
-                        '  "status": 1,<br>' +
-                        '  "store_id": 1,<br>' +
-                        '  "extension_attributes": { "content": "https://example.com/manual.pdf" }<br>' +
+                        '  "extension_attributes": { "content": "BASE64_OR_URL_TO_FILE" }<br>' +
                         '},<br>' +
                         '{<br>' +
-                        '  "title": "Specs",<br>' +
-                        '  "filename": "specs.pdf",<br>' +
-                        '  "product_all": true<br>' +
+                        '  "title": "External Link",<br>' +
+                        '  "type": "url",<br>' +
+                        '  "url": "https://example.com/manual.pdf"<br>' +
                         '}<br>' +
                         ']</pre>',
                 },
