@@ -49,6 +49,8 @@ export async function magentoApiRequest(
 		timeout: timeout
 	};
 
+	const isLoadOptions = (this.constructor.name === 'LoadOptionsContext') || (this as any).loadOptionsMethod !== undefined;
+
 	try {
 		options = Object.assign({}, options, option);
 		if (Object.keys(body as IDataObject).length === 0) {
@@ -56,7 +58,7 @@ export async function magentoApiRequest(
 		}
 		const response = await this.helpers.requestWithAuthentication.call(this, 'avantaApi', options);
 
-		if (debugMode && typeof response === 'object' && response !== null) {
+		if (debugMode && !isLoadOptions && typeof response === 'object' && response !== null) {
 			// Add debug info to response
 			return {
 				_debug: {
@@ -73,6 +75,25 @@ export async function magentoApiRequest(
 
 		return response;
 	} catch (error) {
+		if (debugMode && !isLoadOptions) {
+			const errorResponse = (error && typeof error === 'object') ? JSON.parse(JSON.stringify(error)) : { message: error };
+			const debugInfo = { _debug: { request: { method: options.method, uri: options.uri, body: options.body, qs: options.qs } } };
+			
+			// Ensure we have a message
+			errorResponse.message = errorResponse.message || (error as any).message || 'An error occurred';
+
+			// Format description with debug info
+			let description = errorResponse.description;
+			try {
+				const parsed = (typeof description === 'string') ? JSON.parse(description) : description;
+				description = JSON.stringify({ ...debugInfo, ...(typeof parsed === 'object' ? parsed : { original: parsed }) }, null, 2);
+			} catch {
+				description = JSON.stringify({ ...debugInfo, original: description }, null, 2);
+			}
+			errorResponse.description = description;
+			
+			throw new NodeApiError(this.getNode(), errorResponse as JsonObject);
+		}
 		throw new NodeApiError(this.getNode(), error as JsonObject);
 	}
 }
