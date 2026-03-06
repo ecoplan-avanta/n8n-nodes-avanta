@@ -13,6 +13,7 @@ import * as companyContact from './companyContact';
 import * as companyGroup from './companyGroup';
 import * as companyRestrict from './companyRestrict';
 import * as companyRole from './companyRole';
+import * as companyRule from './companyRule';
 import * as companySku from './companySku';
 import * as companyUser from './companyUser';
 import * as salesOrg from './salesOrg';
@@ -115,6 +116,9 @@ export async function router(this: IExecuteFunctions) {
 		case 'companyRole':
 			returnData = await (companyRole as any)[operation].execute.call(this);
 			break;
+        case 'companyRule':
+            returnData = await (companyRule as any)[operation].execute.call(this);
+            break;
         case 'companyContact':
             returnData = await (companyContact as any)[operation].execute.call(this);
             break;
