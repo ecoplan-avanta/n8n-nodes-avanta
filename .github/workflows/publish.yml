@@ -41,5 +41,10 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Check npm whoami
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: unused
+
       - name: Publish
         run: npm publish --provenance --access public
