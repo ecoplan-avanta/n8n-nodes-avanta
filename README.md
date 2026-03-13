@@ -125,21 +125,63 @@ If you encounter authentication issues:
 The Avanta node supports comprehensive B2B E-Commerce operations across the following resources:
 
 ### Customer Companies
-- **Create**: Register new B2B customer companies
-- **Update**: Modify existing customer company profiles
+- **Create/Update**: Register new B2B customer companies or modify existing profiles
+- **Deactivate**: Deactivate customer companies
 - **Delete**: Remove customer companies from the platform
+- **Get Many**: Retrieve multiple customer companies
 
 ### Company Addresses
-- **Create**: Add billing and shipping addresses for B2B customers
-- **Update**: Modify existing company address information
+- **Create/Update**: Add or modify billing and shipping addresses for B2B customers
+- **Deactivate**: Deactivate company addresses
+- **Get Many**: Retrieve multiple company addresses
 
 ### Company Contacts
 - **Create**: Add contact persons for B2B customer companies
-- **Update**: Update contact information and roles
+- **Get Many**: Retrieve multiple company contacts
+- **Link to Companies**: Associate contacts with their respective companies
+- **Link to Sales Organization**: Associate contacts with sales organizations
+- **Remove**: Remove company contacts
+
+### Company Groups
+- **Create/Update**: Create or modify company groups for organizing B2B customers
+- **Delete**: Remove company groups
+- **Get Many**: Retrieve multiple company groups
+
+### Company Restrictions
+- **Create/Update**: Set up product or category restrictions for companies
+- **Delete**: Remove company restrictions
+
+### Company Roles *(available from Avanta v3.6)*
+- **Create/Update**: Define roles and permissions for company users
+- **Delete**: Remove company roles
+- **Get Many**: Retrieve multiple company roles
+
+### Company Rules *(available from Avanta v3.6)*
+- **Create/Update**: Configure business rules for companies
+- **Get Many**: Retrieve multiple company rules
+
+### Company SKUs
+- **Create/Update**: Assign custom SKU mappings for companies
+- **Delete**: Remove company SKU assignments
 
 ### Company Users
 - **Create**: Create user accounts for B2B customer access
-- **Link**: Associate users with their respective companies
+
+### Bill of Materials (BOM)
+- **Import**: Create or update Bill of Materials for products
+
+### Categories
+- **Create/Update**: Create or modify product categories
+
+### Downloads
+- **Create Category**: Create or update download categories
+- **Remove Category**: Remove download categories
+- **Create Item**: Create or update downloadable items
+- **Remove Item**: Remove downloadable items
+
+### Order Management
+- **Order Create**: Create new orders programmatically
+- **Order Simulation**: Execute order simulations for testing and validation
 
 ### Business Reports
 - **Backorders**: Generate reports for items on backorder
@@ -151,12 +193,14 @@ The Avanta node supports comprehensive B2B E-Commerce operations across the foll
 - **Trackings**: Monitor package tracking and delivery updates
 
 ### Product Catalog
-- **Create**: Add new products to the B2B catalog
-- **Update**: Modify existing product information and pricing
+- **Create/Update**: Add new products or modify existing product information and pricing
+- **Get Many**: Retrieve multiple products
+- **Remove**: Delete products from the catalog
 
 ### Sales Organizations
 - **Create**: Set up sales territories and organizational structures
-- **Link**: Associate companies with their designated sales organizations
+- **Get Many**: Retrieve multiple sales organizations
+- **Remove**: Delete sales organizations
 
 ## Usage Examples
 
