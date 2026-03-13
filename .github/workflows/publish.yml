@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version (ohne v, z.B. 0.1.46)'
+        description: 'Version (ohne v, z.B. 0.1.50)'
         required: true
 
 jobs:
@@ -40,6 +40,15 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Debug OIDC
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Repo: ${{ github.repository }}"
+          curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=npm:registry.npmjs.org" | \
+            python3 -c "import sys,json; t=json.load(sys.stdin)['value']; import base64; print(json.loads(base64.b64decode(t.split('.')[1]+'==').decode()))"
 
       - name: Publish
         run: npm publish --provenance --access public
