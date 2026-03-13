@@ -3,25 +3,28 @@ name: Publish to NPM
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v*'
   workflow_dispatch:
     inputs:
       version:
         description: 'Version (ohne v, z.B. 0.1.51)'
         required: true
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
 
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Extract version
         run: |
@@ -32,7 +35,7 @@ jobs:
           fi
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund --quiet
+        run: npm ci
 
       - name: Set version
         run: npm version ${{ env.VERSION }} --no-git-tag-version
@@ -40,7 +43,4 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Publish
-        run: |
-          npm config set registry https://registry.npmjs.org/
-          npm publish --provenance --access public
+      - run: npm publish --access public
