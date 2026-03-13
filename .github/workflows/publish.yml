@@ -41,8 +41,5 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Check npm whoami
-        run: npm whoami
-
       - name: Publish
         run: npm publish --provenance --access public
