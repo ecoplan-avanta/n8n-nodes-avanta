@@ -12,6 +12,7 @@ An n8n community node for integrating with the Avanta B2B E-Commerce platform. T
 - [Operations](#operations)
 - [Usage Examples](#usage-examples)
 - [API Reference](#api-reference)
+- [Changelog](#changelog)
 - [Contributing](#contributing)
 - [License](#license)
 - [Support](#support)
@@ -449,22 +450,19 @@ For commercial support and custom development:
 
 ## Changelog
 
-### Version 0.1.9
-- Fixed ESLint compliance issues
-- Improved error handling
-- Added comprehensive field validation
-- Enhanced documentation
+For a detailed list of changes and version history, see the [CHANGELOG.md](CHANGELOG.md) file.
 
-### Version 0.1.8
-- Added support for bulk operations
-- Improved API response handling
-- Fixed authentication issues
+**Latest Version**: 0.1.57
 
-### Version 0.1.7
-- Initial release
-- Basic CRUD operations for companies
-- Report generation functionality
-- Address and contact management
+**Highlights of recent releases**:
+- Migrated publishing from GitLab to GitHub
+- AVANTAN8N-26: Permission management for n8n-node
+- E3N-72: Fixed product node download import as URL type
+- Debug mode for API requests
+- AVANTAN8N-48: Fixed Dynamic Custom Attributes UI Collection error
+- AVANTAN8N-47: Fixed company deactivation functionality
+- Category synchronization support
+- Bill of Materials (BOM) synchronization
 
 ---
 
