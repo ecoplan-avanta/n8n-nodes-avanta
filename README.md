@@ -452,6 +452,11 @@ For commercial support and custom development:
 
 For a detailed list of changes and version history, see the [CHANGELOG.md](CHANGELOG.md) file.
 
+> **Note**: The changelog is automatically generated from git commits when pushing to a release branch. Commits are categorized based on their message prefixes:
+> - `feat`, `add`, `AVANTAN8N-*`, `AVANTA-*` → **Added**
+> - `fix`, `bugfix`, `hotfix` → **Fixed**
+> - Other commits → **Changed**
+
 **Latest Version**: 0.1.59
 
 **Highlights of recent releases**:
