@@ -452,12 +452,14 @@ For commercial support and custom development:
 
 For a detailed list of changes and version history, see the [CHANGELOG.md](CHANGELOG.md) file.
 
-**Latest Version**: 0.1.57
+**Latest Version**: 0.1.59
 
 **Highlights of recent releases**:
+- Added CHANGELOG.md and README.md to npm package
+- Version publishing workflow improvements
 - Migrated publishing from GitLab to GitHub
 - AVANTAN8N-26: Permission management for n8n-node
-- E3N-72: Fixed product node download import as URL type
+- Fixed product node download import as URL type
 - Debug mode for API requests
 - AVANTAN8N-48: Fixed Dynamic Custom Attributes UI Collection error
 - AVANTAN8N-47: Fixed company deactivation functionality

@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_No unreleased changes_
+### Changed
+- Added CHANGELOG.md and README.md to npm package files array
+
+## [0.1.59] - 2026-03-16
+
+### Changed
+- Version publishing workflow improvements
+
+## [0.1.58] - 2026-03-16
+
+### Added
+- Added CHANGELOG.md to document version history
+- Updated README.md with changelog reference
 
 ## [0.1.57] - 2026-03-13
 

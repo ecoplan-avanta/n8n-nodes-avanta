@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-avanta",
-  "version": "0.1.57",
+  "version": "0.1.59",
   "description": "n8n avanta node to call avanta apis",
   "keywords": [
     "n8n",
@@ -33,7 +33,9 @@
     "prepublishOnly": "npm run build"
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md",
+    "README.md"
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
