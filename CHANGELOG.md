@@ -83,7 +83,7 @@ _No unreleased changes_
 ## [0.1.43] - 2026-03-03
 
 ### Fixed
-- E3N-72: Product node - Import of download as URL type now possible
+- Product node - Import of download as URL type now possible
 
 ## [0.1.42] - 2026-02-25
 
