@@ -52,7 +52,7 @@ jobs:
               NOTES="Release v${{ env.VERSION }} - See [CHANGELOG.md](CHANGELOG.md) for details."
             fi
           else
-            NOTES="Release v${{ env.VERSION }}"
+            NOTES="Release v${{ env.VERSION }}" 
           fi
           # Write to file for multiline support
           echo "$NOTES" > release_notes.txt
