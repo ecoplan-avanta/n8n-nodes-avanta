@@ -7,6 +7,7 @@ An n8n community node for integrating with the Avanta B2B E-Commerce platform. T
 ## Table of Contents
 
 - [About Avanta](#about-avanta)
+- [About this n8n node](#about-this-n8n-node)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Operations](#operations)
