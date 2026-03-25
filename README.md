@@ -17,19 +17,21 @@ An n8n community node for integrating with the Avanta B2B E-Commerce platform. T
 - [License](#license)
 - [Support](#support)
 
-## About Avanta
+## About avanta: ERP-First B2B Commerce Platform
+avanta is an ERP-first B2B commerce platform for manufacturers, industrial companies, and wholesalers.
 
-Avanta is a comprehensive B2B E-Commerce platform designed to streamline business-to-business transactions and relationships. The platform provides robust tools for managing customer companies, processing orders, handling complex pricing structures, and generating detailed business reports.
+The platform is specifically designed for complex B2B processes and connects digital sales, service, and after-sales channels directly with the ERP system.
 
-Key features of Avanta include:
+Unlike traditional e-commerce systems, avanta offers a comprehensive B2B feature set out of the box. Companies can digitalize key sales and customer service processes without extensive custom development.
 
-- **Multi-Company Management**: Handle complex B2B customer hierarchies and relationships
-- **Advanced Order Processing**: Support for bulk orders, custom pricing, and delivery scheduling
-- **Comprehensive Reporting**: Detailed analytics for orders, shipments, invoices, and business performance
-- **Flexible Product Catalog**: Manage extensive product catalogs with custom attributes and pricing
-- **Integration Capabilities**: RESTful API for seamless integration with existing business systems
+The platform is open source and can be deployed as SaaS, in the cloud, or on-premise.
 
-This n8n node provides direct access to Avanta's powerful API, enabling you to automate your B2B E-Commerce workflows and integrate Avanta with your existing business processes.
+avanta is primarily used by mid-market and enterprise companies, particularly in industries such as mechanical engineering, plant engineering, tooling, chemicals, industrial components, and packaging.
+
+The platform includes features such as B2B online shops, customer and service portals, PunchOut integrations (OCI / cXML), spare parts solutions, mobile apps, IoT automation, and integrated AI capabilities and bots.
+
+## About this n8n node:
+This n8n node provides direct access to avanta's powerful API, enabling you to automate your workflows and integrate avanta with your existing business processes.
 
 ## Installation
 
@@ -65,17 +67,17 @@ For Docker installations, you can install community nodes by:
 
 ### Credentials Setup
 
-1. In n8n, go to **Credentials** and create new **Avanta API** credentials
+1. In n8n, go to **Credentials** and create new **avanta API** credentials
 2. Fill in the required fields:
-   - **Host**: Your Avanta API base URL including store scope (e.g., `https://your-avanta-instance.com/rest/STORE_CODE` or `https://your-avanta-instance.com/rest/all` for all stores)
-   - **Access Token**: Your Avanta API access token
+   - **Host**: Your avanta API base URL including store scope (e.g., `https://your-avanta-instance.com/rest/STORE_CODE` or `https://your-avanta-instance.com/rest/all` for all stores)
+   - **Access Token**: Your avanta API access token
 
 ### Getting API Credentials
 
-To obtain your Avanta API credentials, you'll need to generate an access token through the Avanta admin interface:
+To obtain your avanta API credentials, you'll need to generate an access token through the avanta admin interface:
 
 #### Step 1: Access the Admin Panel
-1. Log into your Avanta system with administrator privileges
+1. Log into your avanta system with administrator privileges
 2. Navigate to **System > Integrations > API Tokens** in the admin menu
 
 #### Step 2: Create a New Integration Token
@@ -101,7 +103,7 @@ Set the appropriate access levels for each resource:
 4. Note your API base URL including store scope (typically `https://your-domain.com/rest/STORE_CODE` or `https://your-domain.com/rest/all` for all stores)
 
 #### Authentication Method
-The Avanta API uses **Bearer Token Authentication**. All API requests must include the access token in the Authorization header:
+The avanta API uses **Bearer Token Authentication**. All API requests must include the access token in the Authorization header:
 
 ```
 Authorization: Bearer YOUR_ACCESS_TOKEN
@@ -119,11 +121,11 @@ If you encounter authentication issues:
 1. Verify the token hasn't expired or been revoked
 2. Check that the token has the necessary permissions for your operations
 3. Ensure your API base URL is correct and accessible
-4. Confirm your Avanta instance supports the API version being used
+4. Confirm your avanta instance supports the API version being used
 
 ## Operations
 
-The Avanta node supports comprehensive B2B E-Commerce operations across the following resources:
+The avanta node supports comprehensive B2B E-Commerce operations across the following resources:
 
 ### Customer Companies
 - **Create/Update**: Register new B2B customer companies or modify existing profiles
@@ -152,12 +154,12 @@ The Avanta node supports comprehensive B2B E-Commerce operations across the foll
 - **Create/Update**: Set up product or category restrictions for companies
 - **Delete**: Remove company restrictions
 
-### Company Roles *(available from Avanta v3.6)*
+### Company Roles *(available from avanta v3.6)*
 - **Create/Update**: Define roles and permissions for company users
 - **Delete**: Remove company roles
 - **Get Many**: Retrieve multiple company roles
 
-### Company Rules *(available from Avanta v3.6)*
+### Company Rules *(available from avanta v3.6)*
 - **Create/Update**: Configure business rules for companies
 - **Get Many**: Retrieve multiple company rules
 
@@ -269,7 +271,7 @@ Authorization: Bearer YOUR_ACCESS_TOKEN
 
 ### Base URL
 
-All API endpoints are relative to your Avanta instance base URL including store scope:
+All API endpoints are relative to your avanta instance base URL including store scope:
 
 ```
 https://your-avanta-instance.com/rest/STORE_CODE/V1/proline-admin/
@@ -326,7 +328,7 @@ Date fields are automatically formatted to ISO 8601 format when sent to the API.
 
 ### B2B E-Commerce Use Cases
 
-The Avanta node is designed for comprehensive B2B E-Commerce automation:
+The avanta node is designed for comprehensive B2B E-Commerce automation:
 
 - **Customer Onboarding**: Automate new B2B customer registration and setup
 - **Order Processing**: Streamline order intake, validation, and fulfillment workflows
@@ -367,7 +369,7 @@ The node can be chained with:
    - Review field length limitations
 
 3. **Connection Issues**
-   - Verify network connectivity to your Avanta instance
+   - Verify network connectivity to your avanta instance
    - Check firewall settings
    - Confirm SSL/TLS configuration
 
@@ -433,7 +435,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Documentation
 
 - [n8n Documentation](https://docs.n8n.io/)
-- [Avanta API Documentation](https://docs.avanta.com/api)
+- [avanta API Documentation](https://docs.avanta.com/api)
 - [Node Development Guide](https://docs.n8n.io/integrations/creating-nodes/)
 
 ### Community
@@ -477,4 +479,4 @@ You can also view the releases on [GitHub Releases](https://github.com/ecoplan-a
 
 ---
 
-**Note**: This is a community-maintained node. For issues specific to the Avanta API itself, please contact Avanta support directly.
+**Note**: This is a community-maintained node. For issues specific to the avanta API itself, please contact avanta support directly.
