@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.64] - 2026-03-27
+
+### Added
+- AVANTAN8N-52 ServiceCenter Node: document_files als JSON
+
 ## [0.1.63] - 2026-03-25
 
 ### Changed
