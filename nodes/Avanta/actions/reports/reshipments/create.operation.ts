@@ -1,4 +1,5 @@
 import type {
+    IDataObject,
     IExecuteFunctions,
     INodeExecutionData,
     INodeProperties,
@@ -222,41 +223,61 @@ const properties: INodeProperties[] = [
 																	{
 																		displayName: 'Item Document Files',
 																		name: 'item_document_files',
-																		type: 'fixedCollection',
-                                                                        typeOptions: { multipleValues: true },
+																		type: 'collection',
 																		default: {},
+																		placeholder: 'Add Item Document Files',
 																		options: [
 																			{
-																				name: 'file',
-																				displayName: 'File',
-																					values:	[
-																							{
-																								displayName: 'Document ID',
-																								name: 'document_id',
-																								type: 'string',
-																								default: '',
-																							},
-																							{
-																								displayName: 'Type',
-																								name: 'type',
-																								type: 'string',
-																								default: '',
-																							},
-																							{
-																								displayName: 'File',
-																								name: 'file',
-																								type: 'string',
-																								default: '',
-																							},
-																							{
-																								displayName: 'Date',
-																								name: 'date',
-																								type: 'dateTime',
-																								default: '',
-																							},
-																						]
+																				displayName: 'Input Mode',
+																				name: 'inputMode',
+																				type: 'options',
+																				options: [
+																					{ name: 'UI Collection', value: 'collection' },
+																					{ name: 'Raw JSON', value: 'json' },
+																				],
+																				default: 'collection',
+																				description: 'Choose whether to provide document files via the UI or as JSON',
 																			},
-																			]
+																			{
+																				displayName: 'Item Document File Collection',
+																				name: 'file',
+																				type: 'fixedCollection',
+																				displayOptions: {
+																					show: {
+																						inputMode: ['collection'],
+																					},
+																				},
+																				typeOptions: {
+																					multipleValues: true,
+																				},
+																				default: {},
+																				placeholder: 'Add Document File',
+																				options: [
+																					{
+																						name: 'file',
+																						displayName: 'File',
+																						values: [
+																							{ displayName: 'Document ID', name: 'document_id', type: 'string', default: '' },
+																							{ displayName: 'Type', name: 'type', type: 'string', default: '' },
+																							{ displayName: 'File', name: 'file', type: 'string', default: '' },
+																							{ displayName: 'Date', name: 'date', type: 'dateTime', default: '' },
+																						],
+																					},
+																				],
+																			},
+																			{
+																				displayName: 'Item Document Files JSON',
+																				name: 'itemDocumentFilesJson',
+																				type: 'json',
+																				displayOptions: {
+																					show: {
+																						inputMode: ['json'],
+																					},
+																				},
+																				default: '[]',
+																				description: 'Provide item document files as JSON array.',
+																			},
+																		],
 																	},
 																	{
 																		displayName: 'Packaging Unit',
@@ -360,20 +381,61 @@ const properties: INodeProperties[] = [
     {
         displayName: 'Document Files',
         name: 'document_files',
-        type: 'fixedCollection',
-        typeOptions: { multipleValues: true },
+        type: 'collection',
         default: {},
+        placeholder: 'Add Document Files',
+        description: 'Reshipment document files. You can add them manually or provide a JSON array.',
         displayOptions: { show: { resource: ['reshipments'], operation: ['create'] } },
         options: [
             {
-                name: 'file',
-                displayName: 'File',
-                values: [
-                    { displayName: 'Document ID', name: 'document_id', type: 'string', default: '' },
-                    { displayName: 'Type', name: 'type', type: 'string', default: '' },
-                    { displayName: 'File', name: 'file', type: 'string', default: '' },
-                    { displayName: 'Date', name: 'date', type: 'dateTime', default: '' },
+                displayName: 'Input Mode',
+                name: 'inputMode',
+                type: 'options',
+                options: [
+                    { name: 'UI Collection', value: 'collection' },
+                    { name: 'Raw JSON', value: 'json' },
                 ],
+                default: 'collection',
+                description: 'Choose whether to provide document files via the UI or as JSON',
+            },
+            {
+                displayName: 'Document File Collection',
+                name: 'file',
+                type: 'fixedCollection',
+                displayOptions: {
+                    show: {
+                        inputMode: ['collection'],
+                    },
+                },
+                typeOptions: {
+                    multipleValues: true,
+                },
+                default: {},
+                placeholder: 'Add Document File',
+                options: [
+                    {
+                        name: 'file',
+                        displayName: 'File',
+                        values: [
+                            { displayName: 'Document ID', name: 'document_id', type: 'string', default: '' },
+                            { displayName: 'Type', name: 'type', type: 'string', default: '' },
+                            { displayName: 'File', name: 'file', type: 'string', default: '' },
+                            { displayName: 'Date', name: 'date', type: 'dateTime', default: '' },
+                        ],
+                    },
+                ],
+            },
+            {
+                displayName: 'Document Files JSON',
+                name: 'documentFilesJson',
+                type: 'json',
+                displayOptions: {
+                    show: {
+                        inputMode: ['json'],
+                    },
+                },
+                default: '[]',
+                description: 'Provide document files as JSON array.',
             },
         ],
     },
@@ -495,10 +557,31 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                         });
 
                         // Format date fields in item_document_files
-                        const documentFiles = (additionalFields?.item_document_files?.file ?? []).map((file: DocumentFile) => ({
-                            ...file,
-                            date: file.date ? formatDate(file.date) : undefined,
-                        }));
+                        let documentFiles: DocumentFile[] = [];
+                        const itemFilesConfig = additionalFields?.item_document_files as IDataObject;
+                        if (itemFilesConfig) {
+                            if (itemFilesConfig.inputMode === 'json' && itemFilesConfig.itemDocumentFilesJson) {
+                                try {
+                                    const parsed = JSON.parse(itemFilesConfig.itemDocumentFilesJson as string);
+                                    if (Array.isArray(parsed)) {
+                                        documentFiles = parsed.map((file: any) => ({
+                                            ...file,
+                                            date: file.date ? formatDate(file.date) : undefined,
+                                        }));
+                                    }
+                                } catch (e) {
+                                    throw new Error(`Invalid JSON in Item Document Files: ${(e as Error).message}`);
+                                }
+                            } else if (itemFilesConfig.file) {
+                                const collection = (itemFilesConfig.file as any).file as DocumentFile[];
+                                if (Array.isArray(collection)) {
+                                    documentFiles = collection.map((file) => ({
+                                        ...file,
+                                        date: file.date ? formatDate(file.date) : undefined,
+                                    }));
+                                }
+                            }
+                        }
 
                         return {
                             ...rest,
@@ -511,11 +594,32 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
             }
 
             // Map head document files
-            const filesCollection = this.getNodeParameter('document_files', i) as { file?: DocumentFile[] };
-            const filesArray = (filesCollection?.file ?? []).map((file) => ({
-                ...file,
-                date: file.date ? formatDate(file.date) : undefined,
-            }));
+            const filesConfig = this.getNodeParameter('document_files', i) as IDataObject;
+            let filesArray: DocumentFile[] = [];
+
+            if (filesConfig.inputMode === 'json' && filesConfig.documentFilesJson) {
+                try {
+                    const parsed = JSON.parse(filesConfig.documentFilesJson as string);
+                    if (Array.isArray(parsed)) {
+                        filesArray = parsed.map((file: any) => ({
+                            ...file,
+                            date: file.date ? formatDate(file.date) : undefined,
+                        }));
+                    } else {
+                        throw new Error('Document Files JSON must be an array');
+                    }
+                } catch (err) {
+                    throw new Error(`Invalid JSON in Document Files: ${(err as Error).message}`);
+                }
+            } else if (filesConfig.file) {
+                const collection = (filesConfig.file as any).file as DocumentFile[];
+                if (Array.isArray(collection)) {
+                    filesArray = collection.map((file) => ({
+                        ...file,
+                        date: file.date ? formatDate(file.date) : undefined,
+                    }));
+                }
+            }
             if (filesArray.length > 0) {
                 report.document_files = filesArray;
             }
