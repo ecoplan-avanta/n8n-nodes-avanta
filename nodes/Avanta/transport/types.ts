@@ -794,3 +794,102 @@ export interface DownloadCategory {
     external_id?: string;
     order?: number;
 }
+
+export interface InquiryReport {
+    inquiry_id?: number;
+    customer_inquiryid?: string;
+    user_id?: number;
+    customer?: string;
+    customer_email?: string;
+    telephone?: string;
+    company_id?: number;
+    customer_id?: string;
+    company_name?: string;
+    street?: string;
+    city?: string;
+    postcode?: string;
+    country_id?: string;
+    store_id?: number;
+    website_id?: number;
+    content?: string;
+    inquiry_type: string;
+    status?: string;
+    inquiry_positions: InquiryItem[];
+    external_id?: string;
+    offer_number?: string;
+    document_files?: DocumentFile[];
+    extension_attributes?: any;
+}
+
+export interface InquiryItem {
+    inquiry_item_id?: number;
+    parent_item_id?: number;
+    product_sku: string;
+    product_name: string;
+    type_id: string;
+    qty: number;
+    proline_productunit?: string;
+    buy_request?: string;
+}
+
+export interface RetoureReport {
+    retoure_id?: number;
+    customer_id: string;
+    store_id?: number;
+    retoure_number?: string;
+    status?: string;
+    user_id?: number;
+    company_id?: number;
+    company_name?: string;
+    retoure_shipping_method: string;
+    dimensions?: string;
+    address_id?: number;
+    address_firstname?: string;
+    address_lastname?: string;
+    address_company?: string;
+    address_street?: string;
+    address_city?: string;
+    address_postcode?: string;
+    address_country_id?: string;
+    address_telephone?: string;
+    address_email?: string;
+    comment?: string;
+    crypt_key?: string;
+    retoure_positions: RetoureItem[];
+    external_id?: string;
+    document_files?: DocumentFile[];
+    extension_attributes?: any;
+}
+
+export interface RetoureItem {
+    retoure_item_id?: number;
+    retoure_id?: number;
+    product_id?: number;
+    sku: string;
+    shipment_number: string;
+    qty: string;
+    packaging_unit?: string;
+    return_reason?: string;
+    comment?: string;
+    file?: string;
+    document_files?: DocumentFile[];
+    extension_attributes?: any;
+}
+
+export interface TicketReport {
+    ticket_id?: number;
+    company_id?: number;
+    customer_id?: string;
+    website_id: number;
+    subject: string;
+    comments: string;
+    watchers?: string;
+    status?: string;
+    external_id?: string;
+    ticket_number?: string;
+    user_id?: number;
+    customer?: string;
+    customer_email?: string;
+    store_id: number;
+    extension_attributes?: any;
+}
