@@ -344,6 +344,10 @@ export async function getExtensionAttributes(this: ILoadOptionsFunctions): Promi
 		invoices: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\InvoiceHeadReportInterface',
 		creditmemos: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\CreditmemoHeadReportInterface',
 		trackings: 'Ecoplan\\ProlineServiceCenter\\Api\\Data\\TrackingReportInterface',
+		tickets: 'Ecoplan\\ProlineOffer\\Api\\Data\\TicketInterface',
+		inquiries: 'Ecoplan\\ProlineOffer\\Api\\Data\\InquiryInterface',
+		returns: 'Ecoplan\\Retoure\\Api\\Data\\RetoureHeadInterface',
+		returnItems: 'Ecoplan\\Retoure\\Api\\Data\\RetoureItemInterface',
         downloads: 'Ecoplan\\ProlineDownloadCenter\\Api\\Data\\ItemRepositoryInterface'
     };
 

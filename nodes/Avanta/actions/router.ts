@@ -26,6 +26,9 @@ import * as orders from './reports/orders';
 import * as reshipments from './reports/reshipments';
 import * as shipments from './reports/shipments';
 import * as trackings from './reports/trackings';
+import * as tickets from './reports/tickets';
+import * as inquiries from './reports/inquiries';
+import * as returns from './reports/returns';
 import * as download from './download';
 import * as bom from './bom';
 
@@ -160,6 +163,15 @@ export async function router(this: IExecuteFunctions) {
 			break;
 		case 'trackings':
 			returnData = await (trackings as any)[operation].execute.call(this);
+			break;
+        case 'tickets':
+			returnData = await (tickets as any)[operation].execute.call(this);
+			break;
+        case 'returns':
+			returnData = await (returns as any)[operation].execute.call(this);
+			break;
+        case 'inquiries':
+			returnData = await (inquiries as any)[operation].execute.call(this);
 			break;
         case 'download':
             returnData = await (download as any)[operation].execute.call(this);

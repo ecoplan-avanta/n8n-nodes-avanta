@@ -131,6 +131,18 @@ export class Avanta implements INodeType {
 						value: 'backorders',
 					},
                     {
+						name: 'Requests - Inquiries',
+						value: 'inquiries',
+					},
+                    {
+						name: 'Requests - Tickets',
+						value: 'tickets',
+					},
+                    {
+						name: 'Requests - Return registration',
+						value: 'returns',
+					},
+                    {
                         name: 'Download',
                         value: 'download',
                     },
