@@ -29,14 +29,14 @@ export const description: INodeProperties[] = [
             {
                 name: 'Create/Update',
                 value: 'create',
-                description: 'Create or update an inquiry (available from avanta v3.6)',
-                action: 'Create or update an inquiry (available from avanta v3.6)',
+                description: 'Create or update an inquiry (available from avanta v3.7)',
+                action: 'Create or update an inquiry (available from avanta v3.7)',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many inquiries (available from avanta v3.6)',
-                action: 'Get many inquiries (available from avanta v3.6)',
+                description: 'Get many inquiries (available from avanta v3.7)',
+                action: 'Get many inquiries (available from avanta v3.7)',
             },
         ],
         default: 'create',
