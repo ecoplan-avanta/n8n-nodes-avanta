@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.66] - 2026-04-22
+
+### Added
+- AVANTAN8N-40 Node Erweiterung - create/update und getAll Aktionen für die Berichtstypen Angebotsanfragen, Retouren und Tickets
+
 ## [0.1.65] - 2026-04-21
 
 ### Added
