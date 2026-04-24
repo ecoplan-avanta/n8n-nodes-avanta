@@ -92,6 +92,19 @@ export const description: INodeProperties[] = [
 				operation: ['create', 'linkCompany', 'linkSalesorg', 'createCategory', 'createItem', 'importBom'],
 			},
 		},
+	},
+	{
+		displayName: 'Dataflow ID',
+		name: 'dataflowId',
+		type: 'number',
+		default: null,
+		description: 'Optional override for the dataflow ID. If not set, the ID is automatically read from the webhook input data (body.basic.entity_id) when the workflow is triggered via a dataflow profile.',
+		displayOptions: {
+			show: {
+				bulk: [true],
+				operation: ['create', 'linkCompany', 'linkSalesorg', 'createCategory', 'createItem', 'importBom'],
+			},
+		},
 	}
 ];
 

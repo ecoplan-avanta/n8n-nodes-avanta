@@ -8,10 +8,28 @@ import {
 } from "n8n-workflow";
 
 export async function createApiRequest(this: IExecuteFunctions, data: any, url: string, async: boolean = true, i: number = 0) {
+	const qs: IDataObject = {};
 	if (async) {
 		url = '/async/bulk' + url;
+		let dataflowId = this.getNodeParameter('dataflowId', 0, null) as number | null;
+		if (!dataflowId) {
+			try {
+				const inputData = this.getInputData();
+				const json = inputData?.[0]?.json as IDataObject | undefined;
+				const body = json?.body as IDataObject | undefined;
+				const basic = (body?.basic ?? json?.basic ?? json?.data) as IDataObject | undefined;
+				if (basic?.type === 'dataflow' && basic?.entity_id) {
+					dataflowId = basic.entity_id as number;
+				}
+			} catch {
+				// Input-Daten nicht verfügbar — kein Fehler
+			}
+		}
+		if (dataflowId) {
+			qs.dataflowId = dataflowId;
+		}
 	}
-	let responseData = await magentoApiRequest.call(this, 'POST', url, data);
+	let responseData = await magentoApiRequest.call(this, 'POST', url, data, qs);
 	return this.helpers.constructExecutionMetaData(
 		this.helpers.returnJsonArray(responseData as IDataObject[]),
 		{itemData: {item: i}},
