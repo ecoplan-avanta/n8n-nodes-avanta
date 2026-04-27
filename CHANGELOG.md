@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.69] - 2026-04-27
+
+### Added
+- AVANTAN8N-53 Product Node: Stockitem als JSON
+
 ## [0.1.68] - 2026-04-24
 
 ### Fixed
