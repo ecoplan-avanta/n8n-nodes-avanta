@@ -609,17 +609,26 @@ export async function execute(
             // Handle stock information if provided
             if (additionalFields.stockItem) {
                 const stockItem = additionalFields.stockItem as IDataObject;
+                let cleanedStockItem: Record<string, any> = {};
 
-                // Nur definierte Werte in ein sauberes Objekt übernehmen
-                const cleanedStockItem: Record<string, any> = {};
-                for (const [key, value] of Object.entries(stockItem)) {
-                    if (value !== undefined && value !== null && value !== '') {
-                        if (typeof value === 'string' && !isNaN(Number(value))) {
-                            cleanedStockItem[key] = Number(value);
-                        } else if (value === 'true' || value === 'false') {
-                            cleanedStockItem[key] = value === 'true';
-                        } else {
-                            cleanedStockItem[key] = value;
+                if (stockItem.inputMode === 'json' && stockItem.stockItemJson) {
+                    try {
+                        cleanedStockItem = JSON.parse(stockItem.stockItemJson as string);
+                    } catch (err) {
+                        throw new Error(`Invalid JSON in Stock Item: ${(err as Error).message}`);
+                    }
+                } else {
+                    // Nur definierte Werte in ein sauberes Objekt übernehmen
+                    for (const [key, value] of Object.entries(stockItem)) {
+                        if (key === 'inputMode' || key === 'stockItemJson') continue;
+                        if (value !== undefined && value !== null && value !== '') {
+                            if (typeof value === 'string' && !isNaN(Number(value))) {
+                                cleanedStockItem[key] = Number(value);
+                            } else if (value === 'true' || value === 'false') {
+                                cleanedStockItem[key] = value === 'true';
+                            } else {
+                                cleanedStockItem[key] = value;
+                            }
                         }
                     }
                 }
@@ -1353,8 +1362,36 @@ function getProductOptionalFields(): INodeProperties[] {
                 'Inventory management settings for this product. Only filled fields are sent to Magento.',
             options: [
                 {
+                    displayName: 'Input Mode',
+                    name: 'inputMode',
+                    type: 'options',
+                    options: [
+                        { name: 'UI Collection', value: 'collection' },
+                        { name: 'Raw JSON', value: 'json' },
+                    ],
+                    default: 'collection',
+                    description: 'Choose whether to provide stock information via the UI or as JSON',
+                },
+                {
+                    displayName: 'Stock Item JSON',
+                    name: 'stockItemJson',
+                    type: 'json',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['json'],
+                        },
+                    },
+                    default: '{}',
+                    description: 'Provide stock information as JSON object',
+                },
+                {
                     displayName: 'Backorders',
                     name: 'backorders',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'options',
                     options: [
                         { name: 'No Backorders', value: 0 },
@@ -1366,78 +1403,143 @@ function getProductOptionalFields(): INodeProperties[] {
                 {
                     displayName: 'Enable Qty Increments',
                     name: 'enable_qty_increments',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'boolean',
                     default: false,
                 },
                 {
                     displayName: 'Is In Stock',
                     name: 'is_in_stock',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'boolean',
                     default: true,
                 },
                 {
                     displayName: 'Is Qty Decimal',
                     name: 'is_qty_decimal',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'boolean',
                     default: false,
                 },
                 {
                     displayName: 'Manage Stock',
                     name: 'manage_stock',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'boolean',
                     default: true,
                 },
                 {
                     displayName: 'Max Sale Qty',
                     name: 'max_sale_qty',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'number',
                     default: 9999,
                 },
                 {
                     displayName: 'Min Qty',
                     name: 'min_qty',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'number',
                     default: 0,
                 },
                 {
                     displayName: 'Min Sale Qty',
                     name: 'min_sale_qty',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'number',
                     default: 1,
                 },
                 {
                     displayName: 'Notify Stock Qty',
                     name: 'notify_stock_qty',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'number',
                     default: 0,
                 },
                 {
                     displayName: 'Qty Increments',
                     name: 'qty_increments',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'number',
                     default: 1,
                 },
                 {
                     displayName: 'Quantity',
                     name: 'qty',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'number',
                     default: 0,
                 },
                 {
                     displayName: 'Use Config Backorders',
                     name: 'use_config_backorders',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'boolean',
                     default: true,
                 },
                 {
                     displayName: 'Use Config Manage Stock',
                     name: 'use_config_manage_stock',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'boolean',
                     default: true,
                 },
                 {
                     displayName: 'Use Config Min Qty',
                     name: 'use_config_min_qty',
+                    displayOptions: {
+                        show: {
+                            inputMode: ['collection'],
+                        },
+                    },
                     type: 'boolean',
                     default: true,
                 },
