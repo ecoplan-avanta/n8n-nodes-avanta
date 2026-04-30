@@ -29,14 +29,14 @@ export const description: INodeProperties[] = [
             {
                 name: 'Create/Update',
                 value: 'create',
-                description: 'Create or update a return registration (available from avanta v3.7)',
-                action: 'Create or update a return registration (available from avanta v3.7)',
+                description: 'Create or update a return registration (available from avanta v3.6)',
+                action: 'Create or update a return registration (available from avanta v3.6)',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many return registrations (available from avanta v3.7)',
-                action: 'Get many return registrations (available from avanta v3.7)',
+                description: 'Get many return registrations (available from avanta v3.6)',
+                action: 'Get many return registrations (available from avanta v3.6)',
             },
         ],
         default: 'create',
