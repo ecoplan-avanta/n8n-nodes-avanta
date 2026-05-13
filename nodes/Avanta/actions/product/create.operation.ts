@@ -341,7 +341,7 @@ export async function execute(
                                 disabled: Boolean(entry.disabled ?? false),
                                 file: entry.file || '',
                                 scope: entry.scope || 'stores',
-                                types: entry.types || ['image', 'small_image', 'thumbnail'],
+                                types: entry.types || [],
                                 content: entry.content
                                     ? {
                                         content: entry.content.content || '',
@@ -364,7 +364,7 @@ export async function execute(
                         disabled: Boolean(entry.disabled ?? false),
                         file: entry.file || '',
                         scope: entry.scope || 'stores',
-                        types: entry.types || ['image', 'small_image', 'thumbnail'],
+                        types: entry.types || [],
                         content: entry.content?.contentDetails
                             ? {
                                 content: entry.content.contentDetails.content || '',
