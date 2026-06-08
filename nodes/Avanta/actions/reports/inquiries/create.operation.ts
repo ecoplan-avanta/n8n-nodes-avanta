@@ -34,7 +34,6 @@ const properties: INodeProperties[] = [
         displayName: 'Company ID',
         name: 'company_id',
         type: 'number',
-        required: false,
         default: 0,
         displayOptions: { show: { resource: ['inquiries'], operation: ['create'] } },
         description: 'Internal ID of the company',
@@ -54,7 +53,6 @@ const properties: INodeProperties[] = [
         type: 'options',
         required: true,
         displayOptions: { show: { resource: ['inquiries'], operation: ['create'] } },
-        description: 'Inquiry Type',
         options: [
             {
                 name: 'Offer',
@@ -88,7 +86,7 @@ const properties: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Fields below',
+                name: 'Fields Below',
                 value: 'mapping',
                 description: 'Add inquiry positions using fields below',
                 action: 'Use fields below to add inquiry positions',
@@ -120,6 +118,7 @@ const properties: INodeProperties[] = [
                         type: 'collection',
                         default: {},
                         placeholder: 'Add Field',
+                        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
                         options: [
                             {
                                 displayName: 'Inquiry Item ID',
@@ -147,7 +146,6 @@ const properties: INodeProperties[] = [
                                 name: 'proline_productunit',
                                 type: 'string',
                                 default: '',
-                                description: 'Packaging Unit',
                             },
                             {
                                 displayName: 'Info BuyRequest',
@@ -272,7 +270,7 @@ const properties: INodeProperties[] = [
                     },
                 },
                 default: '[]',
-                description: 'Provide document files as JSON array.',
+                description: 'Provide document files as JSON array',
             },
         ],
     },
@@ -284,6 +282,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['inquiries'], operation: ['create'] } },
+        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
         options: [
             {
                 displayName: 'Extension Attributes',
@@ -317,22 +316,22 @@ const properties: INodeProperties[] = [
                     },
                 ],
             },
-            { displayName: 'Store ID', name: 'store_id', type: 'number', default: 0, description: 'Store ID' },
-            { displayName: 'Website ID', name: 'website_id', type: 'number', default: 0, description: 'Website ID' },
+            { displayName: 'Store ID', name: 'store_id', type: 'number', default: 0 },
+            { displayName: 'Website ID', name: 'website_id', type: 'number', default: 0 },
             { displayName: 'Inquiry ID', name: 'inquiry_id', type: 'number', default: 0, description: 'Internal inquiry ID' },
             { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External inquiry ID' },
             { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the inquiry (e.g. open, processing, finished)' },
             { displayName: 'Content', name: 'content', type: 'string', default: '', description: 'Inquiry content' },
             { displayName: 'City', name: 'city', type: 'string', default: '', description: 'Inquiry city' },
-            { displayName: 'Company name', name: 'company_name', type: 'string', default: '', description: 'Inquiry company name' },
+            { displayName: 'Company Name', name: 'company_name', type: 'string', default: '', description: 'Inquiry company name' },
             { displayName: 'Country ID', name: 'country_id', type: 'string', default: '', description: 'Inquiry country ID' },
             { displayName: 'Street', name: 'street', type: 'string', default: '', description: 'Inquiry street' },
             { displayName: 'Telephone', name: 'telephone', type: 'string', default: '', description: 'Inquiry telephone' },
             { displayName: 'Postcode', name: 'postcode', type: 'string', default: '', description: 'Inquiry postcode' },
-            { displayName: 'Offer number', name: 'offer_number', type: 'string', default: '', description: 'Assigned Offer number of inquiry' },
+            { displayName: 'Offer Number', name: 'offer_number', type: 'string', default: '', description: 'Assigned Offer number of inquiry' },
             { displayName: 'User ID', name: 'user_id', type: 'number', default: 0, description: 'Internal ID of User' },
-            { displayName: 'Customer Name', name: 'customer', type: 'string', default: '', description: 'Customer Name' },
-            { displayName: 'Customer Email', name: 'customer_email', type: 'string', default: '', description: 'Customer Email' },
+            { displayName: 'Customer Name', name: 'customer', type: 'string', default: '' },
+            { displayName: 'Customer Email', name: 'customer_email', type: 'string', default: '' },
         ],
     },
 ];

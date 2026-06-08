@@ -19,8 +19,8 @@ export const description: INodeProperties[] = [
             {
                 name: 'Execute',
                 value: 'execute',
-                description: 'Execute order simulation',
-                action: 'Execute order simulation',
+                description: 'Simulate an order to validate pricing and availability',
+                action: 'Execute an order simulation',
             }
         ],
         default: 'execute',

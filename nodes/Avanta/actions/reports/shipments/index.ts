@@ -18,16 +18,16 @@ export const description: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create/Update',
+                name: 'Create or Update',
                 value: 'create',
-                description: 'Create or update a shipment',
+                description: 'Create a new shipment, or update it if it already exists',
                 action: 'Create or update a shipment',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many shipments',
-                action: 'Get many shipments',
+                description: 'Retrieve a list of shipments',
+                action: 'Retrieve a list of shipments',
             },
         ],
         default: 'create',

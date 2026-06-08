@@ -18,16 +18,16 @@ export const description: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create/Update',
+                name: 'Create or Update',
                 value: 'create',
-                description: 'Create or update a order',
-                action: 'Create or update a order',
+                description: 'Create a new order report, or update it if it already exists',
+                action: 'Create or update an order report',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many orders',
-                action: 'Get many orders',
+                description: 'Retrieve a list of order reports',
+                action: 'Retrieve a list of order reports',
             },
         ],
         default: 'create',

@@ -1,7 +1,17 @@
 {
-  "node": "n8n-nodes-avanta",
+  "node": "n8n-nodes-avanta.avanta",
   "nodeVersion": "1.0",
   "codexVersion": "1.0",
+  "categories": ["Sales"],
+  "subcategories": {
+    "Sales": ["Commerce"]
+  },
   "resources": {
-  }
+    "primaryDocumentation": [
+      {
+        "url": "https://github.com/ecoplan-avanta/n8n-nodes-avanta#readme"
+      }
+    ]
+  },
+  "alias": ["avanta", "ecoplan", "b2b", "magento", "ecommerce", "B2B Commerce", "ERP"]
 }

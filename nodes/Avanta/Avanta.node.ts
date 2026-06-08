@@ -111,7 +111,7 @@ export class Avanta implements INodeType {
 						value: 'invoices',
 					},
 					{
-						name: 'Servicecenter - Creditmemo',
+						name: 'Servicecenter - Credit Memo',
 						value: 'creditmemos',
 					},
 					{
@@ -131,15 +131,15 @@ export class Avanta implements INodeType {
 						value: 'backorders',
 					},
                     {
-						name: 'Requests - Inquiries',
+						name: 'Requests - Inquiry',
 						value: 'inquiries',
 					},
                     {
-						name: 'Requests - Tickets',
+						name: 'Requests - Ticket',
 						value: 'tickets',
 					},
                     {
-						name: 'Requests - Return registration',
+						name: 'Requests - Return Registration',
 						value: 'returns',
 					},
                     {
@@ -147,7 +147,7 @@ export class Avanta implements INodeType {
                         value: 'download',
                     },
                     {
-                        name: 'BOM',
+                        name: 'Bill of Material',
                         value: 'bom',
                     }
 				]

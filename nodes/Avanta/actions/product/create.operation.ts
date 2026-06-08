@@ -29,7 +29,7 @@ const properties: INodeProperties[] = [
                 operation: ['create'],
             },
         },
-        description: 'Skip product hashing checks in the backend and force save/update',
+        description: 'Whether to skip product hashing checks in the backend and force save/update',
     },
     {
         displayName: 'SKU',
@@ -1360,6 +1360,7 @@ function getProductOptionalFields(): INodeProperties[] {
             placeholder: 'Add Stock Information',
             description:
                 'Inventory management settings for this product. Only filled fields are sent to Magento.',
+            // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
             options: [
                 {
                     displayName: 'Input Mode',

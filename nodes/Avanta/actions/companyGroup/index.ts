@@ -19,9 +19,9 @@ export const description: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Create/Update',
+				name: 'Create or Update',
 				value: 'create',
-				description: 'Create or update a company group',
+				description: 'Create a new company group, or update it if it already exists',
 				action: 'Create or update a company group',
 			},
 			{
@@ -33,8 +33,8 @@ export const description: INodeProperties[] = [
 			{
 				name: 'Get Many',
 				value: 'getAll',
-				description: 'Get many company groups',
-				action: 'Get many company groups',
+				description: 'Retrieve a list of company groups',
+				action: 'Retrieve a list of company groups',
 			},
 		],
 		default: 'create',

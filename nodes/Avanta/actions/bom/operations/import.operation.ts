@@ -24,7 +24,6 @@ const properties: INodeProperties[] = [
     displayName: 'Drawing',
     name: 'drawing',
     type: 'string',
-    required: false,
     default: '',
     displayOptions: { show: { resource: ['bom'], operation: ['importBom'] } },
     description: 'Path or identifier to the drawing (stored as string)'
@@ -33,7 +32,6 @@ const properties: INodeProperties[] = [
     displayName: 'Hotspots (JSON)',
     name: 'hotspots',
     type: 'string',
-    required: false,
     default: '',
     typeOptions: { rows: 6 },
     displayOptions: { show: { resource: ['bom'], operation: ['importBom'] } },
@@ -48,7 +46,7 @@ const properties: INodeProperties[] = [
     displayOptions: { show: { resource: ['bom'], operation: ['importBom'] } },
   },
   {
-    displayName: 'Produkt Website Id',
+    displayName: 'Produkt Website ID',
     name: 'productWebsiteId',
     type: 'number',
     required: true,

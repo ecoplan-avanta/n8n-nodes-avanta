@@ -62,7 +62,7 @@ const properties: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Fields below',
+                name: 'Fields Below',
                 value: 'mapping',
                 description: 'Add backorder positions using fields below',
                 action: 'Use fields below to add backorder positions',
@@ -298,7 +298,7 @@ const properties: INodeProperties[] = [
 																					},
 																				},
 																				default: '[]',
-																				description: 'Provide item document files as JSON array.',
+																				description: 'Provide item document files as JSON array',
 																			},
 																		],
 																	},
@@ -452,7 +452,7 @@ const properties: INodeProperties[] = [
                     },
                 },
                 default: '[]',
-                description: 'Provide document files as JSON array.',
+                description: 'Provide document files as JSON array',
             },
         ],
     },
@@ -464,6 +464,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['backorders'], operation: ['create'] } },
+        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
         options: [
             { displayName: 'Backorder Date', name: 'backorder_date', type: 'dateTime', default: '', description: 'Date of the backorder' },
             { displayName: 'Backorder ID', name: 'backorder_id', type: 'number', default: 0, description: 'Internal backorder ID' },

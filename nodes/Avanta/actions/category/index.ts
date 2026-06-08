@@ -17,9 +17,9 @@ export const description: INodeProperties[] = [
     },
     options: [
       {
-        name: 'Create/Update',
+        name: 'Create or Update',
         value: 'create',
-        description: 'Create or update a category',
+        description: 'Create a new category, or update it if it already exists',
         action: 'Create or update a category',
       },
     ],

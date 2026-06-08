@@ -464,7 +464,7 @@ You can also view the releases on [GitHub Releases](https://github.com/ecoplan-a
 >
 > GitHub Releases are automatically created after npm publish via GitHub Actions.
 
-**Latest Version**: 0.1.59
+**Latest Version**: 0.1.71
 
 **Highlights of recent releases**:
 - Added CHANGELOG.md and README.md to npm package

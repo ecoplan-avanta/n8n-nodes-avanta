@@ -16,7 +16,7 @@ export const description: INodeProperties[] = [
       },
     },
     options: [
-      { name: 'Create or update a BOM', value: 'importBom', description: 'Create or update a BOM', action: 'Create or update a BOM' },
+      { name: 'Create or Update', value: 'importBom', description: 'Create a new bill of materials, or update it if it already exists', action: 'Create or update a bill of materials' },
     ],
     default: 'importBom',
   },

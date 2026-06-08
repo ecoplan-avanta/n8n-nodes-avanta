@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-avanta",
   "version": "0.1.71",
-  "description": "n8n avanta node to call avanta apis",
+  "description": "n8n community node for avanta – the ERP-first B2B commerce platform for manufacturers, wholesalers, and industrial companies",
   "keywords": [
     "n8n",
     "n8n-community-node-package",
@@ -38,7 +38,8 @@
     "README.md"
   ],
   "n8n": {
-    "n8nNodesApiVersion": 1,
+    "n8nNodesApiVersion": 2,
+    "strict": true,
     "credentials": [
       "dist/credentials/AvantaApi.credentials.js"
     ],

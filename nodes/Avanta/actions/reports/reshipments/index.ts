@@ -18,16 +18,16 @@ export const description: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create/Update',
+                name: 'Create or Update',
                 value: 'create',
-                description: 'Create or update a reshipment',
+                description: 'Create a new reshipment, or update it if it already exists',
                 action: 'Create or update a reshipment',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many reshipments',
-                action: 'Get many reshipments',
+                description: 'Retrieve a list of reshipments',
+                action: 'Retrieve a list of reshipments',
             },
         ],
         default: 'create',

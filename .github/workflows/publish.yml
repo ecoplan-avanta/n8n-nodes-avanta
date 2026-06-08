@@ -40,7 +40,7 @@ jobs:
         run: npm run build
 
       - name: Publish to NPM
-        run: npm publish
+        run: npm publish --provenance
 
       - name: Extract Release Notes
         id: release_notes

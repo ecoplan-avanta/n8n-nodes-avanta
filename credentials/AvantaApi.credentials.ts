@@ -10,7 +10,7 @@ export class AvantaApi implements ICredentialType {
 
     displayName = 'Avanta API';
 
-    documentationUrl = 'https://www.npmjs.com/package/n8n-nodes-avanta?activeTab=readme#api-reference';
+    documentationUrl = 'https://github.com/ecoplan-avanta/n8n-nodes-avanta#configuration';
 
     properties: INodeProperties[] = [
         {

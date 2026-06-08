@@ -18,16 +18,16 @@ export const description: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create/Update',
+                name: 'Create or Update',
                 value: 'create',
-                description: 'Create or update a creditmemo',
-                action: 'Create or update a creditmemo',
+                description: 'Create a new credit memo, or update it if it already exists',
+                action: 'Create or update a credit memo',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many creditmemos',
-                action: 'Get many creditmemos',
+                description: 'Retrieve a list of credit memos',
+                action: 'Retrieve a list of credit memos',
             },
         ],
         default: 'create',

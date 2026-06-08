@@ -18,16 +18,16 @@ export const description: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create/Update',
+                name: 'Create or Update',
                 value: 'create',
-                description: 'Create or update a ticket (available from avanta v3.6)',
-                action: 'Create or update a ticket (available from avanta v3.6)',
+                description: 'Create a new ticket, or update it if it already exists (available from avanta v3.6)',
+                action: 'Create or update a ticket',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many tickets (available from avanta v3.6)',
-                action: 'Get many tickets (available from avanta v3.6)',
+                description: 'Retrieve a list of tickets (available from avanta v3.6)',
+                action: 'Retrieve a list of tickets',
             },
         ],
         default: 'create',

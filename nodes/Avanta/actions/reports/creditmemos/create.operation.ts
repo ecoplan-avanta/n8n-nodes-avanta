@@ -78,7 +78,7 @@ const properties: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Fields below',
+                name: 'Fields Below',
                 value: 'mapping',
                 description: 'Add creditmemo positions using fields below',
                 action: 'Use fields below to add creditmemo positions',
@@ -314,7 +314,7 @@ const properties: INodeProperties[] = [
 																					},
 																				},
 																				default: '[]',
-																				description: 'Provide item document files as JSON array.',
+																				description: 'Provide item document files as JSON array',
 																			},
 																		],
 																	},
@@ -460,7 +460,7 @@ const properties: INodeProperties[] = [
                     },
                 },
                 default: '[]',
-                description: 'Provide document files as JSON array.',
+                description: 'Provide document files as JSON array',
             },
         ],
     },
@@ -472,6 +472,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['creditmemos'], operation: ['create'] } },
+        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
         options: [
             { displayName: 'Creditmemo Date', name: 'creditmemo_date', type: 'dateTime', default: '', description: 'Date of the creditmemo' },
             { displayName: 'Creditmemo ID', name: 'creditmemo_id', type: 'number', default: 0, description: 'Internal creditmemo ID' },

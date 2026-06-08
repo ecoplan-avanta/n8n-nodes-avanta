@@ -44,8 +44,8 @@ export async function execute(
     }
 
     try {
-        const executionData = await createApiRequest.call(this, {'externalIds': data}, restUrl, false, 0);
-        returnData.push(...executionData);
+        await createApiRequest.call(this, {'externalIds': data}, restUrl, false, 0);
+        returnData.push({ json: { deleted: true } });
     } catch (error) {
         if (this.continueOnFail()) {
             returnData.push(...prepareErrorData.call(this, error, 0));

@@ -20,28 +20,28 @@ export const description: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create category',
+                name: 'Create Category',
                 value: 'createCategory',
-                description: 'Create or update a download category',
+                description: 'Create a new download category, or update it if it already exists',
                 action: 'Create or update a download category',
             },
             {
-                name: 'Remove category',
+                name: 'Remove Category',
                 value: 'removeCategory',
-                description: 'Remove download categories',
+                description: 'Delete one or more download categories',
                 action: 'Remove download categories',
             },
             {
-                name: 'Create item',
+                name: 'Create Item',
                 value: 'createItem',
-                description: 'Create or update a download item',
+                description: 'Create a new download item, or update it if it already exists',
                 action: 'Create or update a download item',
             },
             {
-                name: 'Remove item',
+                name: 'Remove Item',
                 value: 'removeItem',
-                description: 'Remove download item',
-                action: 'Remove download item',
+                description: 'Delete one or more download items',
+                action: 'Remove download items',
             }
         ],
         default: 'createCategory',

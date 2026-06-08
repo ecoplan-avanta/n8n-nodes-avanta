@@ -18,9 +18,9 @@ export const description: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Create/Update',
+				name: 'Create or Update',
 				value: 'create',
-				description: 'Create or update a company address',
+				description: 'Create a new company address, or update it if it already exists',
 				action: 'Create or update a company address',
 			},
 			{
@@ -32,8 +32,8 @@ export const description: INodeProperties[] = [
 			{
 				name: 'Get Many',
 				value: 'getAll',
-				description: 'Get many company addresses',
-				action: 'Get many company addresses',
+				description: 'Retrieve a list of company addresses',
+				action: 'Retrieve a list of company addresses',
 			},
 		],
 		default: 'create',

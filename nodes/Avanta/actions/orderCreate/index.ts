@@ -17,10 +17,10 @@ export const description: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Order Create',
+				name: 'Create',
 				value: 'orderCreate',
-				description: 'Run order create',
-				action: 'Run order create',
+				description: 'Create a new order',
+				action: 'Create an order',
 			}
 		],
 		default: 'orderCreate',

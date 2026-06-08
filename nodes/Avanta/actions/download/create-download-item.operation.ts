@@ -15,14 +15,14 @@ const properties: INodeProperties[] = [
         name: 'status',
         type: 'boolean',
         required: true,
-        default: '',
+        default: false,
         displayOptions: {
             show: {
                 resource: ['download'],
                 operation: ['createItem'],
             },
         },
-        description: 'Item status: active or inactive',
+        description: 'Whether the item is active',
     },
     {
         displayName: 'Title',
@@ -49,9 +49,10 @@ const properties: INodeProperties[] = [
                 operation: ['createItem'],
             },
         },
+        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
         options: [
             {
-                displayName: 'Show in portal',
+                displayName: 'Show in Portal',
                 name: 'show_in_portal',
                 type: 'number',
                 default: '',
@@ -69,7 +70,7 @@ const properties: INodeProperties[] = [
                 default: '',
             },
             {
-                displayName: 'Product all',
+                displayName: 'Product All',
                 name: 'product_all',
                 type: 'number',
                 default: '',
@@ -87,7 +88,7 @@ const properties: INodeProperties[] = [
                 default: '',
             },
             {
-                displayName: 'Short description',
+                displayName: 'Short Description',
                 name: 'short_description',
                 type: 'string',
                 default: '',
@@ -141,13 +142,13 @@ const properties: INodeProperties[] = [
                 ],
             },
             {
-                displayName: 'Company group IDs',
+                displayName: 'Company Group IDs',
                 name: 'company_group_ids',
                 type: 'string',
                 default: '',
             },
             {
-                displayName: 'Item dir',
+                displayName: 'Item Dir',
                 name: 'item_dir',
                 type: 'string',
                 default: '',
@@ -159,7 +160,7 @@ const properties: INodeProperties[] = [
                 default: '',
             },
             {
-                displayName: 'Extracted text',
+                displayName: 'Extracted Text',
                 name: 'extracted_text',
                 type: 'string',
                 default: '',
@@ -183,7 +184,7 @@ const properties: INodeProperties[] = [
                 typeOptions: {
                     multipleValues: true,
                 },
-                default: '',
+                default: {},
                 placeholder: 'Add Extension Attribute',
                 options: [
                     {
@@ -191,9 +192,10 @@ const properties: INodeProperties[] = [
                         name: 'extension_attribute',
                         values: [
                             {
-                                displayName: 'Extension Attribute',
+                                displayName: 'Extension Attribute Name or ID',
                                 name: 'attribute_code',
                                 type: 'options',
+																																description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
                                 typeOptions: {
                                     loadOptionsMethod: 'getExtensionAttributes',
                                 },

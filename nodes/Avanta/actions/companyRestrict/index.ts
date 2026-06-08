@@ -18,16 +18,16 @@ export const description: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Create/Update',
+				name: 'Create or Update',
 				value: 'create',
-				description: 'Create or update a company restrict',
-				action: 'Create or update a company restrict',
+				description: 'Create a new company restriction, or update it if it already exists',
+				action: 'Create or update a company restriction',
 			},
 			{
 				name: 'Delete',
 				value: 'delete',
-				description: 'Delete a company restrict',
-				action: 'Delete a company restrict',
+				description: 'Delete a company restriction',
+				action: 'Delete a company restriction',
 			}
 		],
 		default: 'create',

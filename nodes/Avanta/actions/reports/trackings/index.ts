@@ -18,16 +18,16 @@ export const description: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create/Update',
+                name: 'Create or Update',
                 value: 'create',
-                description: 'Create or update a tracking',
+                description: 'Create a new tracking, or update it if it already exists',
                 action: 'Create or update a tracking',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many trackings',
-                action: 'Get many trackings',
+                description: 'Retrieve a list of trackings',
+                action: 'Retrieve a list of trackings',
             },
         ],
         default: 'create',

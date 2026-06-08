@@ -18,16 +18,16 @@ export const description: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create/Update',
+                name: 'Create or Update',
                 value: 'create',
-                description: 'Create or update a invoice',
-                action: 'Create or update a invoice',
+                description: 'Create a new invoice, or update it if it already exists',
+                action: 'Create or update an invoice',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many invoices',
-                action: 'Get many invoices',
+                description: 'Retrieve a list of invoices',
+                action: 'Retrieve a list of invoices',
             },
         ],
         default: 'create',

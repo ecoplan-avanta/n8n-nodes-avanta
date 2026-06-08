@@ -21,34 +21,34 @@ export const description: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create',
+                name: 'Create or Update',
                 value: 'create',
-                description: 'Create or update a contact',
+                description: 'Create a new contact, or update it if it already exists',
                 action: 'Create or update a contact',
             },
             {
                 name: 'Delete',
                 value: 'remove',
-                description: 'Delete contacts',
+                description: 'Delete one or more contacts',
                 action: 'Delete contacts',
             },
             {
                 name: 'Get Many',
                 value: 'getAll',
-                description: 'Get many company contacts',
-                action: 'Get many company contacts'
+                description: 'Retrieve a list of company contacts',
+                action: 'Retrieve a list of company contacts',
             },
             {
                 name: 'Link to Company',
                 value: 'linkCompany',
                 description: 'Establish link between contact person and companies by external ID',
-                action: 'Link to company'
+                action: 'Link contact to company',
             },
             {
-                name: 'Link to sales org',
+                name: 'Link to Sales Org',
                 value: 'linkSalesorg',
                 description: 'Establish link between contact person and sales org by external ID',
-                action: 'Link to sales org'
+                action: 'Link contact to sales org',
             }
         ],
         default: 'create',

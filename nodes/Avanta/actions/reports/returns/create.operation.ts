@@ -29,7 +29,6 @@ const properties: INodeProperties[] = [
         displayName: 'Company ID',
         name: 'company_id',
         type: 'number',
-        required: false,
         default: 0,
         displayOptions: { show: { resource: ['returns'], operation: ['create'] } },
         description: 'Internal ID of the company',
@@ -57,7 +56,7 @@ const properties: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Fields below',
+                name: 'Fields Below',
                 value: 'mapping',
                 description: 'Add return positions using fields below',
                 action: 'Use fields below to add return positions',
@@ -89,6 +88,7 @@ const properties: INodeProperties[] = [
                         type: 'collection',
                         default: {},
                         placeholder: 'Add Field',
+                        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
                         options: [
                             // Item-level document files
                             {
@@ -147,7 +147,7 @@ const properties: INodeProperties[] = [
                                             },
                                         },
                                         default: '[]',
-                                        description: 'Provide document files as JSON array.',
+                                        description: 'Provide document files as JSON array',
                                     },
                                 ],
                             },
@@ -202,10 +202,9 @@ const properties: INodeProperties[] = [
                                 name: 'packaging_unit',
                                 type: 'string',
                                 default: '',
-                                description: 'Packaging Unit',
                             },
                             {
-                                displayName: 'shipment_number',
+                                displayName: 'Shipment_number',
                                 name: 'shipment_number',
                                 type: 'string',
                                 default: '',
@@ -216,7 +215,6 @@ const properties: INodeProperties[] = [
                                 name: 'comment',
                                 type: 'string',
                                 default: '',
-                                description: 'Comment',
                             },
                             {
                                 displayName: 'File',
@@ -244,7 +242,7 @@ const properties: INodeProperties[] = [
                         description: 'Stock Keeping Unit',
                     },
                     {
-                        displayName: 'Return reason',
+                        displayName: 'Return Reason',
                         name: 'return_reason',
                         type: 'string',
                         required:	true,
@@ -329,7 +327,7 @@ const properties: INodeProperties[] = [
                     },
                 },
                 default: '[]',
-                description: 'Provide document files as JSON array.',
+                description: 'Provide document files as JSON array',
             },
         ],
     },
@@ -341,6 +339,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['returns'], operation: ['create'] } },
+        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
         options: [
             {
                 displayName: 'Extension Attributes',
@@ -374,12 +373,12 @@ const properties: INodeProperties[] = [
                     },
                 ],
             },
-            { displayName: 'Store ID', name: 'store_id', type: 'number', default: 0, description: 'Store ID' },
-            { displayName: 'Website ID', name: 'website_id', type: 'number', default: 0, description: 'Website ID' },
+            { displayName: 'Store ID', name: 'store_id', type: 'number', default: 0 },
+            { displayName: 'Website ID', name: 'website_id', type: 'number', default: 0 },
             { displayName: 'Return ID', name: 'retoure_id', type: 'number', default: 0, description: 'Internal return ID' },
             { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External return ID' },
             { displayName: 'Return Number', name: 'retoure_number', type: 'string', default: '', description: 'Assigned Return number' },
-            { displayName: 'Company name', name: 'company_name', type: 'string', default: '', description: 'Return company name' },
+            { displayName: 'Company Name', name: 'company_name', type: 'string', default: '', description: 'Return company name' },
             { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the retoure (e.g. new, processing, finish)' },
             { displayName: 'Comment', name: 'comment', type: 'string', default: '', description: 'Return comment' },
             { displayName: 'Address City', name: 'address_city', type: 'string', default: '', description: 'Return Address city' },
@@ -390,8 +389,8 @@ const properties: INodeProperties[] = [
             { displayName: 'Contact Email', name: 'contact_email', type: 'string', default: '', description: 'Return contact email' },
             { displayName: 'User ID', name: 'user_id', type: 'number', default: 0, description: 'Internal ID of User' },
             { displayName: 'Dimensions', name: 'dimensions', type: 'string', default: '', description: 'Dimensions of Return' },
-            { displayName: 'Customer Name', name: 'customer', type: 'string', default: '', description: 'Customer Name' },
-            { displayName: 'Customer Email', name: 'customer_email', type: 'string', default: '', description: 'Customer Email' },
+            { displayName: 'Customer Name', name: 'customer', type: 'string', default: '' },
+            { displayName: 'Customer Email', name: 'customer_email', type: 'string', default: '' },
             { displayName: 'Crypt Key', name: 'crypt_key', type: 'string', default: '', description: 'Crypt Key for return' },
         ],
     },

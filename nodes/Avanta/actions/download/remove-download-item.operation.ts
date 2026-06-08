@@ -67,8 +67,8 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
 
     try {
         const requestData = { externalIds: [...new Set(allExternalIds)] };
-        const executionData = await createApiRequest.call(this, requestData, restUrl, false, 0);
-        returnData.push(...executionData);
+        await createApiRequest.call(this, requestData, restUrl, false, 0);
+        returnData.push({ json: { deleted: true } });
     } catch (error) {
         if (this.continueOnFail()) {
             returnData.push(...prepareErrorData.call(this, error, 0));

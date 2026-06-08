@@ -19,10 +19,10 @@ export const description: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Create/Update',
+				name: 'Create or Update',
 				value: 'create',
-				description: 'Create or update a company role (available from avanta v3.6)',
-				action: 'Create or update a company role (available from avanta v3.6)',
+				description: 'Create a new company role, or update it if it already exists (available from avanta v3.6)',
+				action: 'Create or update a company role',
 			},
 			{
 				name: 'Delete',
@@ -33,8 +33,8 @@ export const description: INodeProperties[] = [
 			{
 				name: 'Get Many',
 				value: 'getAll',
-				description: 'Get many company roles',
-				action: 'Get many company roles',
+				description: 'Retrieve a list of company roles',
+				action: 'Retrieve a list of company roles',
 			},
 		],
 		default: 'create',

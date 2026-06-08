@@ -37,6 +37,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['trackings'], operation: ['create'] } },
+        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
         options: [
             { displayName: 'Created At', name: 'created_at', type: 'dateTime', default: '', description: 'Creation date of the tracking' },
             { displayName: 'Customer Order ID', name: 'customer_orderid', type: 'string', default: '', description: 'Order ID provided by the customer' },

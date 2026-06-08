@@ -18,16 +18,16 @@ export const description: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Create/Update',
+				name: 'Create or Update',
 				value: 'create',
-				description: 'Create or update a company sku',
-				action: 'Create or update a company sku',
+				description: 'Create a new company SKU mapping, or update it if it already exists',
+				action: 'Create or update a company SKU mapping',
 			},
 			{
 				name: 'Delete',
 				value: 'delete',
-				description: 'Delete a company sku',
-				action: 'Delete a company sku',
+				description: 'Delete a company SKU mapping',
+				action: 'Delete a company SKU mapping',
 			}
 		],
 		default: 'create',

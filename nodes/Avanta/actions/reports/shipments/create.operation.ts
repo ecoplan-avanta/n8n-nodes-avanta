@@ -53,7 +53,7 @@ const properties: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Fields below',
+                name: 'Fields Below',
                 value: 'mapping',
                 description: 'Add shipment positions using fields below',
                 action: 'Use fields below to add shipment positions',
@@ -275,7 +275,7 @@ const properties: INodeProperties[] = [
 																					},
 																				},
 																				default: '[]',
-																				description: 'Provide item document files as JSON array.',
+																				description: 'Provide item document files as JSON array',
 																			},
 																		],
 																	},
@@ -435,7 +435,7 @@ const properties: INodeProperties[] = [
                     },
                 },
                 default: '[]',
-                description: 'Provide document files as JSON array.',
+                description: 'Provide document files as JSON array',
             },
         ],
     },
@@ -447,6 +447,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['shipments'], operation: ['create'] } },
+        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
         options: [
             { displayName: 'Custom Date 1', name: 'custom_date1', type: 'dateTime', default: '', description: 'Custom date field 1' },
             { displayName: 'Custom Date 2', name: 'custom_date2', type: 'dateTime', default: '', description: 'Custom date field 2' },

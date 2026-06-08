@@ -41,8 +41,8 @@ export async function execute(
     for (let i = 0; i < this.getInputData().length; i++) {
         try {
             const sku = this.getNodeParameter('sku', i) as string;
-            let executionData = await magentoApiRequest.call(this, 'DELETE', restUrl + '/' + sku);
-            returnData.push(executionData);
+            await magentoApiRequest.call(this, 'DELETE', restUrl + '/' + sku);
+            returnData.push({ json: { deleted: true } });
         } catch (error) {
             if (this.continueOnFail()) {
                 returnData.push(...prepareErrorData.call(this, error, 0));

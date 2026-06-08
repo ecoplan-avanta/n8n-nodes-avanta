@@ -11,7 +11,7 @@ import {createApiRequest} from "../../transport";
 
 const properties: INodeProperties[] = [
     {
-        displayName: 'Store ID',
+        displayName: 'Store Name or ID',
         name: 'store_id',
         type: 'options',
         required: true,
@@ -27,14 +27,14 @@ const properties: INodeProperties[] = [
         name: 'status',
         type: 'boolean',
         required: true,
-        default: '',
+        default: false,
         displayOptions: {
             show: {
                 resource: ['download'],
                 operation: ['createCategory'],
             },
         },
-        description: 'Category status: active or inactive',
+        description: 'Whether the category is active',
     },
     {
         displayName: 'Title',

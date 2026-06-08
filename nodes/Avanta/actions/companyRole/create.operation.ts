@@ -140,7 +140,7 @@ const properties: INodeProperties[] = [
                 action: 'Add no resources',
             },
             {
-                name: 'Fields below',
+                name: 'Fields Below',
                 value: 'mapping',
                 description: 'Add resources using fields below',
                 action: 'Use fields below to add resources',
@@ -172,7 +172,6 @@ const properties: INodeProperties[] = [
                         type: 'string',
                         required: true,
                         default: '',
-                        description: 'Resource ID',
                     },
                     {
                         displayName: 'Permission',

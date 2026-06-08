@@ -24,7 +24,6 @@ const properties: INodeProperties[] = [
         displayName: 'Company Customer ID',
         name: 'customer_id',
         type: 'string',
-        required: false,
         default: '',
         displayOptions: { show: { resource: ['tickets'], operation: ['create'] } },
         description: 'Customer ID of the company',
@@ -36,7 +35,6 @@ const properties: INodeProperties[] = [
         required: true,
         default: '',
         displayOptions: { show: { resource: ['tickets'], operation: ['create'] } },
-        description: 'ticket number',
     },
     {
         displayName: 'Subject',
@@ -54,7 +52,6 @@ const properties: INodeProperties[] = [
         required: true,
         default: '',
         displayOptions: { show: { resource: ['tickets'], operation: ['create'] } },
-        description: 'Website ID',
     },
     {
         displayName: 'Store ID',
@@ -63,7 +60,6 @@ const properties: INodeProperties[] = [
         required: true,
         default: '',
         displayOptions: { show: { resource: ['tickets'], operation: ['create'] } },
-        description: 'Store ID',
     },
     // Ticket comments
     {
@@ -79,7 +75,7 @@ const properties: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Fields below',
+                name: 'Fields Below',
                 value: 'mapping',
                 description: 'Add comments using fields below',
                 action: 'Use fields below to add comments',
@@ -106,7 +102,7 @@ const properties: INodeProperties[] = [
                 name: 'comment_entry',
                 values: [
                     {
-                        displayName: 'User name',
+                        displayName: 'User Name',
                         name: 'user',
                         type: 'string',
                         required:	true,
@@ -114,7 +110,7 @@ const properties: INodeProperties[] = [
                         description: 'Name of comment author',
                     },
                     {
-                        displayName: 'Comment content',
+                        displayName: 'Comment Content',
                         name: 'comment',
                         type: 'string',
                         required:	true,
@@ -122,7 +118,7 @@ const properties: INodeProperties[] = [
                         description: 'Content of the comment',
                     },
                     {
-                        displayName: 'Created at',
+                        displayName: 'Created At',
                         name: 'created_at',
                         type: 'dateTime',
                         required:	true,
@@ -157,6 +153,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['tickets'], operation: ['create'] } },
+        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
         options: [
             { displayName: 'Watchers', name: 'watchers', type: 'json', default: '[]', description: 'List of email adresses of watchers (e.g. ["anna.jung@b2b-demoshop.de","john.doe@b2b-demoshop.de"])' },
             { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the Ticket (e.g. open, completed, answered, in_progress, follow-up_question)' },

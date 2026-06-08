@@ -17,9 +17,9 @@ export const description: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Create/Update',
+				name: 'Create or Update',
 				value: 'create',
-				description: 'Create or update a company user',
+				description: 'Create a new company user, or update it if it already exists',
 				action: 'Create or update a company user',
 			}
 		],
