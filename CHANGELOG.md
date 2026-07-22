@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.74] - 2026-07-22
+
+### Added
+- AVANTAN8N-57 Download-Node um getAll für Items und Kategorien erweitern
+
 ## [0.1.73] - 2026-06-08
 
 ### Changed
