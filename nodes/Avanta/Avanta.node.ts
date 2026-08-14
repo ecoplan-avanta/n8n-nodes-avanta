@@ -133,7 +133,7 @@ export class Avanta implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'avanta',
 		name: 'avanta',
-		icon: { light: 'file:avanta.svg', dark: 'file:avanta.svg' },
+		icon: 'file:avanta.svg',
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
