@@ -7,12 +7,203 @@
  * Zuwiderhandlungen werden strafrechtlich verfolgt.
  */
 
-import type {IDataObject, IExecuteFunctions, INodeExecutionData, INodeProperties,} from 'n8n-workflow';
+import type {IDataObject, IExecuteFunctions, INodeExecutionData, INodeProperties, JsonObject,} from 'n8n-workflow';
+import {NodeApiError, NodeOperationError} from 'n8n-workflow';
 
 import {updateDisplayOptions} from '../../../helpers/displayOptions';
 import {formatDate, formatExtensionAttributes, prepareErrorData} from '../../../helpers/utils';
 import type {DocumentFile, RetoureItem, RetoureReport} from '../../../transport';
 import {createApiRequest} from '../../../transport';
+
+const returnPositionAdditionalFieldsOptions: INodeProperties[] = [
+    // Item-level document files
+    {
+        displayName: 'Document Files',
+        name: 'item_document_files',
+        type: 'collection',
+        default: {},
+        placeholder: 'Add Document Files',
+        description: 'Return document files. You can add them manually or provide a JSON array.',
+        options: [
+            {
+                displayName: 'Input Mode',
+                name: 'inputMode',
+                type: 'options',
+                options: [
+                    { name: 'UI Collection', value: 'collection' },
+                    { name: 'Raw JSON', value: 'json' },
+                ],
+                default: 'collection',
+                description: 'Choose whether to provide document files via the UI or as JSON',
+            },
+            {
+                displayName: 'Document File Collection',
+                name: 'file',
+                type: 'fixedCollection',
+                displayOptions: {
+                    show: {
+                        inputMode: ['collection'],
+                    },
+                },
+                typeOptions: {
+                    multipleValues: true,
+                },
+                default: {},
+                placeholder: 'Add Document File',
+                options: [
+                    {
+                        name: 'file',
+                        displayName: 'File',
+                        values: [
+                            { displayName: 'Document ID', name: 'document_id', type: 'string', default: '' },
+                            { displayName: 'Type', name: 'type', type: 'string', default: '' },
+                            { displayName: 'File', name: 'file', type: 'string', default: '' },
+                            { displayName: 'Date', name: 'date', type: 'dateTime', default: '' },
+                        ],
+                    },
+                ],
+            },
+            {
+                displayName: 'Document Files JSON',
+                name: 'itemDocumentFilesJson',
+                type: 'json',
+                displayOptions: {
+                    show: {
+                        inputMode: ['json'],
+                    },
+                },
+                default: '[]',
+                description: 'Provide document files as JSON array',
+            },
+        ],
+    },
+    {
+        displayName: 'Extension Attributes',
+        name: 'item_extension_attributes',
+        type: 'fixedCollection',
+        typeOptions: { multipleValues: true },
+        default: {},
+        placeholder: 'Add Extension Attribute',
+        options: [
+            {
+                displayName: 'Extension Attribute',
+                name: 'item_extension_attribute',
+                values: [
+                    {
+                        displayName: 'Extension Attribute Name or ID',
+                        name: 'attribute_code',
+                        type: 'options',
+                        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                        typeOptions: {
+                            loadOptionsMethod: 'getExtensionAttributes',
+                        },
+                        default: '',
+                    },
+                    {
+                        displayName: 'Value',
+                        name: 'value',
+                        type: 'string',
+                        default: '',
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        displayName: 'Return Item ID',
+        name: 'retoure_item_id',
+        type: 'number',
+        default: 0,
+        description: 'Internal ID of the Return item',
+    },
+    {
+        displayName: 'Product ID',
+        name: 'product_id',
+        type: 'number',
+        default: 0,
+        description: 'Internal ID of product',
+    },
+    {
+        displayName: 'Packaging Unit',
+        name: 'packaging_unit',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Shipment_number',
+        name: 'shipment_number',
+        type: 'string',
+        default: '',
+        description: 'Number of initial shipment of item',
+    },
+    {
+        displayName: 'Comment',
+        name: 'comment',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'File',
+        name: 'file',
+        type: 'string',
+        default: '',
+        description: 'Additional file for item',
+    }
+];
+
+const additionalFieldsOptions: INodeProperties[] = [
+    {
+        displayName: 'Extension Attributes',
+        name: 'extension_attributes',
+        type: 'fixedCollection',
+        typeOptions: { multipleValues: true },
+        default: {},
+        placeholder: 'Add Extension Attribute',
+        options: [
+            {
+                displayName: 'Extension Attribute',
+                name: 'extension_attribute',
+                values: [
+                    {
+                        displayName: 'Extension Attribute Name or ID',
+                        name: 'attribute_code',
+                        type: 'options',
+                        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                        typeOptions: {
+                            loadOptionsMethod: 'getExtensionAttributes',
+                        },
+                        default: '',
+                    },
+                    {
+                        displayName: 'Value',
+                        name: 'value',
+                        type: 'string',
+                        default: '',
+                    },
+                ],
+            },
+        ],
+    },
+    { displayName: 'Store ID', name: 'store_id', type: 'number', default: 0 },
+    { displayName: 'Website ID', name: 'website_id', type: 'number', default: 0 },
+    { displayName: 'Return ID', name: 'retoure_id', type: 'number', default: 0, description: 'Internal return ID' },
+    { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External return ID' },
+    { displayName: 'Return Number', name: 'retoure_number', type: 'string', default: '', description: 'Assigned Return number' },
+    { displayName: 'Company Name', name: 'company_name', type: 'string', default: '', description: 'Return company name' },
+    { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the retoure (e.g. new, processing, finish)' },
+    { displayName: 'Comment', name: 'comment', type: 'string', default: '', description: 'Return comment' },
+    { displayName: 'Address City', name: 'address_city', type: 'string', default: '', description: 'Return Address city' },
+    { displayName: 'Address Country ID', name: 'address_country_id', type: 'string', default: '', description: 'Return Address country ID' },
+    { displayName: 'Address Street', name: 'address_street', type: 'string', default: '', description: 'Return Address street' },
+    { displayName: 'Address Postcode', name: 'address_postcode', type: 'string', default: '', description: 'Return Address postcode' },
+    { displayName: 'Contact Telephone', name: 'contact_telephone', type: 'string', default: '', description: 'Return contact telephone' },
+    { displayName: 'Contact Email', name: 'contact_email', type: 'string', default: '', description: 'Return contact email' },
+    { displayName: 'User ID', name: 'user_id', type: 'number', default: 0, description: 'Internal ID of User' },
+    { displayName: 'Dimensions', name: 'dimensions', type: 'string', default: '', description: 'Dimensions of Return' },
+    { displayName: 'Customer Name', name: 'customer', type: 'string', default: '' },
+    { displayName: 'Customer Email', name: 'customer_email', type: 'string', default: '' },
+    { displayName: 'Crypt Key', name: 'crypt_key', type: 'string', default: '', description: 'Crypt Key for return' },
+];
 
 const properties: INodeProperties[] = [
     // Required fields
@@ -88,142 +279,7 @@ const properties: INodeProperties[] = [
                         type: 'collection',
                         default: {},
                         placeholder: 'Add Field',
-                        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
-                        options: [
-                            // Item-level document files
-                            {
-                                displayName: 'Document Files',
-                                name: 'item_document_files',
-                                type: 'collection',
-                                default: {},
-                                placeholder: 'Add Document Files',
-                                description: 'Return document files. You can add them manually or provide a JSON array.',
-                                options: [
-                                    {
-                                        displayName: 'Input Mode',
-                                        name: 'inputMode',
-                                        type: 'options',
-                                        options: [
-                                            { name: 'UI Collection', value: 'collection' },
-                                            { name: 'Raw JSON', value: 'json' },
-                                        ],
-                                        default: 'collection',
-                                        description: 'Choose whether to provide document files via the UI or as JSON',
-                                    },
-                                    {
-                                        displayName: 'Document File Collection',
-                                        name: 'file',
-                                        type: 'fixedCollection',
-                                        displayOptions: {
-                                            show: {
-                                                inputMode: ['collection'],
-                                            },
-                                        },
-                                        typeOptions: {
-                                            multipleValues: true,
-                                        },
-                                        default: {},
-                                        placeholder: 'Add Document File',
-                                        options: [
-                                            {
-                                                name: 'file',
-                                                displayName: 'File',
-                                                values: [
-                                                    { displayName: 'Document ID', name: 'document_id', type: 'string', default: '' },
-                                                    { displayName: 'Type', name: 'type', type: 'string', default: '' },
-                                                    { displayName: 'File', name: 'file', type: 'string', default: '' },
-                                                    { displayName: 'Date', name: 'date', type: 'dateTime', default: '' },
-                                                ],
-                                            },
-                                        ],
-                                    },
-                                    {
-                                        displayName: 'Document Files JSON',
-                                        name: 'itemDocumentFilesJson',
-                                        type: 'json',
-                                        displayOptions: {
-                                            show: {
-                                                inputMode: ['json'],
-                                            },
-                                        },
-                                        default: '[]',
-                                        description: 'Provide document files as JSON array',
-                                    },
-                                ],
-                            },
-                            {
-                                displayName: 'Extension Attributes',
-                                name: 'item_extension_attributes',
-                                type: 'fixedCollection',
-                                typeOptions: { multipleValues: true },
-                                default: {},
-                                placeholder: 'Add Extension Attribute',
-                                options: [
-                                    {
-                                        displayName: 'Extension Attribute',
-                                        name: 'item_extension_attribute',
-                                        values: [
-                                            {
-                                                displayName: 'Extension Attribute Name or ID',
-                                                name: 'attribute_code',
-                                                type: 'options',
-                                                description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
-                                                typeOptions: {
-                                                    loadOptionsMethod: 'getExtensionAttributes',
-                                                },
-                                                default: '',
-                                            },
-                                            {
-                                                displayName: 'Value',
-                                                name: 'value',
-                                                type: 'string',
-                                                default: '',
-                                            },
-                                        ],
-                                    },
-                                ],
-                            },
-                            {
-                                displayName: 'Return Item ID',
-                                name: 'retoure_item_id',
-                                type: 'number',
-                                default: 0,
-                                description: 'Internal ID of the Return item',
-                            },
-                            {
-                                displayName: 'Product ID',
-                                name: 'product_id',
-                                type: 'number',
-                                default: 0,
-                                description: 'Internal ID of product',
-                            },
-                            {
-                                displayName: 'Packaging Unit',
-                                name: 'packaging_unit',
-                                type: 'string',
-                                default: '',
-                            },
-                            {
-                                displayName: 'Shipment_number',
-                                name: 'shipment_number',
-                                type: 'string',
-                                default: '',
-                                description: 'Number of initial shipment of item',
-                            },
-                            {
-                                displayName: 'Comment',
-                                name: 'comment',
-                                type: 'string',
-                                default: '',
-                            },
-                            {
-                                displayName: 'File',
-                                name: 'file',
-                                type: 'string',
-                                default: '',
-                                description: 'Additional file for item',
-                            }
-                        ]
+                        options: returnPositionAdditionalFieldsOptions,
                     },
                     {
                         displayName: 'Quantity',
@@ -339,60 +395,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['returns'], operation: ['create'] } },
-        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
-        options: [
-            {
-                displayName: 'Extension Attributes',
-                name: 'extension_attributes',
-                type: 'fixedCollection',
-                typeOptions: { multipleValues: true },
-                default: {},
-                placeholder: 'Add Extension Attribute',
-                options: [
-                    {
-                        displayName: 'Extension Attribute',
-                        name: 'extension_attribute',
-                        values: [
-                            {
-                                displayName: 'Extension Attribute Name or ID',
-                                name: 'attribute_code',
-                                type: 'options',
-                                description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
-                                typeOptions: {
-                                    loadOptionsMethod: 'getExtensionAttributes',
-                                },
-                                default: '',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
-                        ],
-                    },
-                ],
-            },
-            { displayName: 'Store ID', name: 'store_id', type: 'number', default: 0 },
-            { displayName: 'Website ID', name: 'website_id', type: 'number', default: 0 },
-            { displayName: 'Return ID', name: 'retoure_id', type: 'number', default: 0, description: 'Internal return ID' },
-            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External return ID' },
-            { displayName: 'Return Number', name: 'retoure_number', type: 'string', default: '', description: 'Assigned Return number' },
-            { displayName: 'Company Name', name: 'company_name', type: 'string', default: '', description: 'Return company name' },
-            { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the retoure (e.g. new, processing, finish)' },
-            { displayName: 'Comment', name: 'comment', type: 'string', default: '', description: 'Return comment' },
-            { displayName: 'Address City', name: 'address_city', type: 'string', default: '', description: 'Return Address city' },
-            { displayName: 'Address Country ID', name: 'address_country_id', type: 'string', default: '', description: 'Return Address country ID' },
-            { displayName: 'Address Street', name: 'address_street', type: 'string', default: '', description: 'Return Address street' },
-            { displayName: 'Address Postcode', name: 'address_postcode', type: 'string', default: '', description: 'Return Address postcode' },
-            { displayName: 'Contact Telephone', name: 'contact_telephone', type: 'string', default: '', description: 'Return contact telephone' },
-            { displayName: 'Contact Email', name: 'contact_email', type: 'string', default: '', description: 'Return contact email' },
-            { displayName: 'User ID', name: 'user_id', type: 'number', default: 0, description: 'Internal ID of User' },
-            { displayName: 'Dimensions', name: 'dimensions', type: 'string', default: '', description: 'Dimensions of Return' },
-            { displayName: 'Customer Name', name: 'customer', type: 'string', default: '' },
-            { displayName: 'Customer Email', name: 'customer_email', type: 'string', default: '' },
-            { displayName: 'Crypt Key', name: 'crypt_key', type: 'string', default: '', description: 'Crypt Key for return' },
-        ],
+        options: additionalFieldsOptions,
     },
 ];
 
@@ -447,7 +450,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                                         }));
                                     }
                                 } catch (e) {
-                                    throw new Error(`Invalid JSON in Item Document Files: ${(e as Error).message}`);
+                                    throw new NodeOperationError(this.getNode(), `Invalid JSON in Item Document Files: ${(e as Error).message}`);
                                 }
                             } else if (itemFilesConfig.file) {
                                 const collection = (itemFilesConfig.file as any).file as DocumentFile[];
@@ -486,7 +489,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                         throw new Error('Document Files JSON must be an array');
                     }
                 } catch (err) {
-                    throw new Error(`Invalid JSON in Document Files: ${(err as Error).message}`);
+                    throw new NodeOperationError(this.getNode(), `Invalid JSON in Document Files: ${(err as Error).message}`);
                 }
             } else if (filesConfig.file) {
                 const collection = (filesConfig.file as any).file as DocumentFile[];
@@ -520,7 +523,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 returnData.push(...prepareErrorData.call(this, error, i));
                 continue;
             }
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 
@@ -532,7 +535,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
             if (this.continueOnFail()) {
                 returnData.push(...prepareErrorData.call(this, error, 0));
             } else {
-                throw error;
+                throw new NodeApiError(this.getNode(), error as JsonObject);
             }
         }
     }

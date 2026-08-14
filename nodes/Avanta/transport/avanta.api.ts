@@ -3,7 +3,7 @@ import {
 	IExecuteFunctions,
 	IHookFunctions,
 	IHttpRequestMethods,
-	ILoadOptionsFunctions, IRequestOptions,
+	ILoadOptionsFunctions, IHttpRequestOptions,
 	IWebhookFunctions, type JsonObject, NodeApiError
 } from "n8n-workflow";
 
@@ -57,13 +57,13 @@ export async function magentoApiRequest(
 		debugMode?: boolean;
 	};
 
-	let options: IRequestOptions = {
+	let options: IHttpRequestOptions = {
 		method,
 		body,
 		qs,
-		uri: uri || `${credentials.host}${resource}`,
+		url: uri || `${credentials.host}${resource}`,
 		json: true,
-		rejectUnauthorized: !allowUnauthorizedCerts,
+		skipSslCertificateValidation: allowUnauthorizedCerts,
 		timeout: timeout
 	};
 
@@ -74,7 +74,7 @@ export async function magentoApiRequest(
 		if (Object.keys(body as IDataObject).length === 0) {
 			delete options.body;
 		}
-		const response = await this.helpers.requestWithAuthentication.call(this, 'avantaApi', options);
+		const response = await this.helpers.httpRequestWithAuthentication.call(this, 'avantaApi', options);
 
 		if (debugMode && !isLoadOptions && typeof response === 'object' && response !== null) {
 			// Add debug info to response
@@ -82,7 +82,7 @@ export async function magentoApiRequest(
 				_debug: {
 					request: {
 						method: options.method,
-						uri: options.uri,
+						url: options.url,
 						body: options.body,
 						qs: options.qs,
 					},
@@ -95,7 +95,7 @@ export async function magentoApiRequest(
 	} catch (error) {
 		if (debugMode && !isLoadOptions) {
 			const errorResponse = (error && typeof error === 'object') ? JSON.parse(JSON.stringify(error)) : { message: error };
-			const debugInfo = { _debug: { request: { method: options.method, uri: options.uri, body: options.body, qs: options.qs } } };
+			const debugInfo = { _debug: { request: { method: options.method, url: options.url, body: options.body, qs: options.qs } } };
 			
 			// Ensure we have a message
 			errorResponse.message = errorResponse.message || (error as any).message || 'An error occurred';

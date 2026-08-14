@@ -1,14 +1,17 @@
 import type {
+    ICredentialType,
     IAuthenticateGeneric,
     ICredentialTestRequest,
-    ICredentialType,
     INodeProperties,
+    Icon,
 } from 'n8n-workflow';
 
 export class AvantaApi implements ICredentialType {
     name = 'avantaApi';
 
     displayName = 'Avanta API';
+
+    icon: Icon = 'file:../nodes/Avanta/avanta.svg';
 
     documentationUrl = 'https://github.com/ecoplan-avanta/n8n-nodes-avanta#configuration';
 

@@ -1,13 +1,178 @@
 import {
     IExecuteFunctions,
     INodeExecutionData,
-    INodeProperties
+    INodeProperties,
+    NodeApiError
 } from "n8n-workflow";
+import type {JsonObject} from "n8n-workflow";
 
 import {updateDisplayOptions} from "../../helpers/displayOptions";
 import {formatExtensionAttributes, prepareErrorData} from "../../helpers/utils";
 import type {DownloadItem} from "../../transport";
 import {createApiRequest} from "../../transport";
+
+const additionalFieldsOptions: INodeProperties[] = [
+    {
+        displayName: 'Show in Portal',
+        name: 'show_in_portal',
+        type: 'number',
+        default: '',
+    },
+    {
+        displayName: 'External ID',
+        name: 'external_id',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Visibility',
+        name: 'visibility',
+        type: 'number',
+        default: '',
+    },
+    {
+        displayName: 'Product All',
+        name: 'product_all',
+        type: 'number',
+        default: '',
+    },
+    {
+        displayName: 'Filename',
+        name: 'filename',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Description',
+        name: 'description',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Short Description',
+        name: 'short_description',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Company IDs',
+        name: 'company_ids',
+        type: 'fixedCollection',
+        placeholder: 'Add Company ID',
+        typeOptions: {
+            multipleValues: true,
+        },
+        default: {},
+        options: [
+            {
+                displayName: 'Company ID',
+                name: 'ids',
+                values: [
+                    {
+                        displayName: 'ID',
+                        name: 'id',
+                        type: 'number',
+                        default: 0,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        displayName: 'Category IDs',
+        name: 'category_ids',
+        type: 'fixedCollection',
+        placeholder: 'Add Category ID',
+        typeOptions: {
+            multipleValues: true,
+        },
+        default: {},
+        options: [
+            {
+                displayName: 'Category ID',
+                name: 'ids',
+                values: [
+                    {
+                        displayName: 'ID',
+                        name: 'id',
+                        type: 'number',
+                        default: 0,
+                    },
+                ],
+            },
+        ],
+    },
+    {
+        displayName: 'Company Group IDs',
+        name: 'company_group_ids',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Item Dir',
+        name: 'item_dir',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Preview',
+        name: 'preview',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Extracted Text',
+        name: 'extracted_text',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Type',
+        name: 'type',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'URL',
+        name: 'url',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Extension Attributes',
+        name: 'extension_attributes',
+        type: 'fixedCollection',
+        typeOptions: {
+            multipleValues: true,
+        },
+        default: {},
+        placeholder: 'Add Extension Attribute',
+        options: [
+            {
+                displayName: 'Extension Attribute',
+                name: 'extension_attribute',
+                values: [
+                    {
+                        displayName: 'Extension Attribute Name or ID',
+                        name: 'attribute_code',
+                        type: 'options',
+                                                                                            description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                        typeOptions: {
+                            loadOptionsMethod: 'getExtensionAttributes',
+                        },
+                        default: '',
+                    },
+                    {
+                        displayName: 'Value',
+                        name: 'value',
+                        type: 'string',
+                        default: '',
+                    },
+                ],
+            },
+        ],
+    },
+];
 
 const properties: INodeProperties[] = [
     {
@@ -49,169 +214,7 @@ const properties: INodeProperties[] = [
                 operation: ['createItem'],
             },
         },
-        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
-        options: [
-            {
-                displayName: 'Show in Portal',
-                name: 'show_in_portal',
-                type: 'number',
-                default: '',
-            },
-            {
-                displayName: 'External ID',
-                name: 'external_id',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Visibility',
-                name: 'visibility',
-                type: 'number',
-                default: '',
-            },
-            {
-                displayName: 'Product All',
-                name: 'product_all',
-                type: 'number',
-                default: '',
-            },
-            {
-                displayName: 'Filename',
-                name: 'filename',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Description',
-                name: 'description',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Short Description',
-                name: 'short_description',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Company IDs',
-                name: 'company_ids',
-                type: 'fixedCollection',
-                placeholder: 'Add Company ID',
-                typeOptions: {
-                    multipleValues: true,
-                },
-                default: {},
-                options: [
-                    {
-                        displayName: 'Company ID',
-                        name: 'ids',
-                        values: [
-                            {
-                                displayName: 'ID',
-                                name: 'id',
-                                type: 'number',
-                                default: 0,
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                displayName: 'Category IDs',
-                name: 'category_ids',
-                type: 'fixedCollection',
-                placeholder: 'Add Category ID',
-                typeOptions: {
-                    multipleValues: true,
-                },
-                default: {},
-                options: [
-                    {
-                        displayName: 'Category ID',
-                        name: 'ids',
-                        values: [
-                            {
-                                displayName: 'ID',
-                                name: 'id',
-                                type: 'number',
-                                default: 0,
-                            },
-                        ],
-                    },
-                ],
-            },
-            {
-                displayName: 'Company Group IDs',
-                name: 'company_group_ids',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Item Dir',
-                name: 'item_dir',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Preview',
-                name: 'preview',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Extracted Text',
-                name: 'extracted_text',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Type',
-                name: 'type',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'URL',
-                name: 'url',
-                type: 'string',
-                default: '',
-            },
-            {
-                displayName: 'Extension Attributes',
-                name: 'extension_attributes',
-                type: 'fixedCollection',
-                typeOptions: {
-                    multipleValues: true,
-                },
-                default: {},
-                placeholder: 'Add Extension Attribute',
-                options: [
-                    {
-                        displayName: 'Extension Attribute',
-                        name: 'extension_attribute',
-                        values: [
-                            {
-                                displayName: 'Extension Attribute Name or ID',
-                                name: 'attribute_code',
-                                type: 'options',
-																																description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
-                                typeOptions: {
-                                    loadOptionsMethod: 'getExtensionAttributes',
-                                },
-                                default: '',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
-                        ],
-                    },
-                ],
-            },
-        ]
+        options: additionalFieldsOptions,
     },
 ]
 
@@ -262,7 +265,7 @@ export async function execute(
                 continue;
             }
 
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
     try {
@@ -272,7 +275,7 @@ export async function execute(
         if (this.continueOnFail()) {
             returnData.push(...prepareErrorData.call(this, error, 0));
         } else {
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
     return returnData;

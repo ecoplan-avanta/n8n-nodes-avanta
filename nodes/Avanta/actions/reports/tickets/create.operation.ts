@@ -11,12 +11,57 @@ import type {
     IExecuteFunctions,
     INodeExecutionData,
     INodeProperties,
+    JsonObject,
 } from 'n8n-workflow';
+import { NodeApiError } from 'n8n-workflow';
 
 import { updateDisplayOptions } from '../../../helpers/displayOptions';
 import { prepareErrorData, formatExtensionAttributes } from '../../../helpers/utils';
 import type {TicketReport} from '../../../transport';
 import { createApiRequest } from '../../../transport';
+
+const additionalFieldsOptions: INodeProperties[] = [
+    { displayName: 'Watchers', name: 'watchers', type: 'json', default: '[]', description: 'List of email adresses of watchers (e.g. ["anna.jung@b2b-demoshop.de","john.doe@b2b-demoshop.de"])' },
+    { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the Ticket (e.g. open, completed, answered, in_progress, follow-up_question)' },
+    { displayName: 'Company ID', name: 'company_id', type: 'number', default: 0, description: 'Internal Company ID' },
+    { displayName: 'Ticket ID', name: 'ticket_id', type: 'number', default: 0, description: 'Internal Ticket ID' },
+    { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External ticket ID' },
+    {
+        displayName: 'Extension Attributes',
+        name: 'extension_attributes',
+        type: 'fixedCollection',
+        typeOptions: { multipleValues: true },
+        default: {},
+        placeholder: 'Add Extension Attribute',
+        options: [
+            {
+                displayName: 'Extension Attribute',
+                name: 'extension_attribute',
+                values: [
+                    {
+                        displayName: 'Extension Attribute Name or ID',
+                        name: 'attribute_code',
+                        type: 'options',
+                        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                        typeOptions: {
+                            loadOptionsMethod: 'getExtensionAttributes',
+                        },
+                        default: '',
+                    },
+                    {
+                        displayName: 'Value',
+                        name: 'value',
+                        type: 'string',
+                        default: '',
+                    },
+                ],
+            },
+        ],
+    },
+    { displayName: 'User ID', name: 'user_id', type: 'number', default: 0, description: 'Internal ID of author' },
+    { displayName: 'Customer', name: 'customer', type: 'string', default: '', description: 'Name of author' },
+    { displayName: 'Customer Email', name: 'customer_email', type: 'string', default: '', description: 'Email of author' },
+];
 
 const properties: INodeProperties[] = [
     // Required fields
@@ -153,49 +198,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['tickets'], operation: ['create'] } },
-        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
-        options: [
-            { displayName: 'Watchers', name: 'watchers', type: 'json', default: '[]', description: 'List of email adresses of watchers (e.g. ["anna.jung@b2b-demoshop.de","john.doe@b2b-demoshop.de"])' },
-            { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the Ticket (e.g. open, completed, answered, in_progress, follow-up_question)' },
-            { displayName: 'Company ID', name: 'company_id', type: 'number', default: 0, description: 'Internal Company ID' },
-            { displayName: 'Ticket ID', name: 'ticket_id', type: 'number', default: 0, description: 'Internal Ticket ID' },
-            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External ticket ID' },
-            {
-                displayName: 'Extension Attributes',
-                name: 'extension_attributes',
-                type: 'fixedCollection',
-                typeOptions: { multipleValues: true },
-                default: {},
-                placeholder: 'Add Extension Attribute',
-                options: [
-                    {
-                        displayName: 'Extension Attribute',
-                        name: 'extension_attribute',
-                        values: [
-                            {
-                                displayName: 'Extension Attribute Name or ID',
-                                name: 'attribute_code',
-                                type: 'options',
-                                description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
-                                typeOptions: {
-                                    loadOptionsMethod: 'getExtensionAttributes',
-                                },
-                                default: '',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
-                        ],
-                    },
-                ],
-            },
-            { displayName: 'User ID', name: 'user_id', type: 'number', default: 0, description: 'Internal ID of author' },
-            { displayName: 'Customer', name: 'customer', type: 'string', default: '', description: 'Name of author' },
-            { displayName: 'Customer Email', name: 'customer_email', type: 'string', default: '', description: 'Email of author' },
-        ],
+        options: additionalFieldsOptions,
     },
 ];
 
@@ -262,7 +265,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 returnData.push(...prepareErrorData.call(this, error, i));
                 continue;
             }
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 
@@ -274,7 +277,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
             if (this.continueOnFail()) {
                 returnData.push(...prepareErrorData.call(this, error, 0));
             } else {
-                throw error;
+                throw new NodeApiError(this.getNode(), error as JsonObject);
             }
         }
     }

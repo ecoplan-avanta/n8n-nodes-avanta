@@ -3,12 +3,69 @@ import type {
     IExecuteFunctions,
     INodeExecutionData,
     INodeProperties,
+    JsonObject,
 } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 
 import { updateDisplayOptions } from '../../../helpers/displayOptions';
 import { prepareErrorData, formatExtensionAttributes, formatDate } from '../../../helpers/utils';
 import { createApiRequest } from '../../../transport';
 import type { DocumentFile, ReshipmentItem, ReshipmentReport } from '../../../transport';
+
+const additionalFieldsOptions: INodeProperties[] = [
+    { displayName: 'Custom Date 1', name: 'custom_date1', type: 'dateTime', default: '', description: 'Custom date field 1' },
+    { displayName: 'Custom Date 2', name: 'custom_date2', type: 'dateTime', default: '', description: 'Custom date field 2' },
+    { displayName: 'Custom Price 1', name: 'custom_price1', type: 'number', default: 0, description: 'Custom price field 1' },
+    { displayName: 'Custom Price 2', name: 'custom_price2', type: 'number', default: 0, description: 'Custom price field 2' },
+    { displayName: 'Custom Text 1', name: 'custom_text1', type: 'string', default: '', description: 'Custom text field 1' },
+    { displayName: 'Custom Text 2', name: 'custom_text2', type: 'string', default: '', description: 'Custom text field 2' },
+    { displayName: 'Customer Order ID', name: 'customer_orderid', type: 'string', default: '', description: 'Order ID provided by the customer' },
+    {
+        displayName: 'Extension Attributes',
+        name: 'extension_attributes',
+        type: 'fixedCollection',
+        typeOptions: { multipleValues: true },
+        default: {},
+        placeholder: 'Add Extension Attribute',
+        options: [
+            {
+                displayName: 'Extension Attribute',
+                name: 'extension_attribute',
+                values: [
+                    {
+                        displayName: 'Extension Attribute Name or ID',
+                        name: 'attribute_code',
+                        type: 'options',
+                        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                        typeOptions: {
+                            loadOptionsMethod: 'getExtensionAttributes',
+                        },
+                        default: '',
+                    },
+                    {
+                        displayName: 'Value',
+                        name: 'value',
+                        type: 'string',
+                        default: '',
+                    },
+                ],
+            },
+        ],
+    },
+    { displayName: 'Reshipment Date', name: 'reshipment_date', type: 'dateTime', default: '', description: 'Date of the reshipment' },
+    { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the reshipment' },
+    { displayName: 'Grand Total', name: 'grand_total', type: 'number', default: 0, description: 'Grand total of the reshipment' },
+    { displayName: 'Tax Amount', name: 'tax_amount', type: 'number', default: 0, description: 'Tax amount of the reshipment' },
+    { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External reshipment ID' },
+    { displayName: 'Billing City', name: 'billing_city', type: 'string', default: '', description: 'Reshipment billing city' },
+    { displayName: 'Billing Company', name: 'billing_company', type: 'string', default: '', description: 'Reshipment billing company' },
+    { displayName: 'Billing Country', name: 'billing_country', type: 'string', default: '', description: 'Reshipment billing country' },
+    { displayName: 'Billing Email', name: 'billing_email', type: 'string', default: '', description: 'Reshipment billing email' },
+    { displayName: 'Billing Name', name: 'billing_name', type: 'string', default: '', description: 'Reshipment billing name' },
+    { displayName: 'Billing Street', name: 'billing_street', type: 'string', default: '', description: 'Reshipment billing street' },
+    { displayName: 'Billing Telephone', name: 'billing_telephone', type: 'string', default: '', description: 'Reshipment billing telephone' },
+    { displayName: 'Billing Zip', name: 'billing_zip', type: 'string', default: '', description: 'Reshipment billing zip' },
+];
 
 const properties: INodeProperties[] = [
     // Required fields
@@ -447,61 +504,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['reshipments'], operation: ['create'] } },
-        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
-        options: [
-            { displayName: 'Custom Date 1', name: 'custom_date1', type: 'dateTime', default: '', description: 'Custom date field 1' },
-            { displayName: 'Custom Date 2', name: 'custom_date2', type: 'dateTime', default: '', description: 'Custom date field 2' },
-            { displayName: 'Custom Price 1', name: 'custom_price1', type: 'number', default: 0, description: 'Custom price field 1' },
-            { displayName: 'Custom Price 2', name: 'custom_price2', type: 'number', default: 0, description: 'Custom price field 2' },
-            { displayName: 'Custom Text 1', name: 'custom_text1', type: 'string', default: '', description: 'Custom text field 1' },
-            { displayName: 'Custom Text 2', name: 'custom_text2', type: 'string', default: '', description: 'Custom text field 2' },
-            { displayName: 'Customer Order ID', name: 'customer_orderid', type: 'string', default: '', description: 'Order ID provided by the customer' },
-            {
-                displayName: 'Extension Attributes',
-                name: 'extension_attributes',
-                type: 'fixedCollection',
-                typeOptions: { multipleValues: true },
-                default: {},
-                placeholder: 'Add Extension Attribute',
-                options: [
-                    {
-                        displayName: 'Extension Attribute',
-                        name: 'extension_attribute',
-                        values: [
-                            {
-                                displayName: 'Extension Attribute Name or ID',
-                                name: 'attribute_code',
-                                type: 'options',
-                                description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
-                                typeOptions: {
-                                    loadOptionsMethod: 'getExtensionAttributes',
-                                },
-                                default: '',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
-                        ],
-                    },
-                ],
-            },
-            { displayName: 'Reshipment Date', name: 'reshipment_date', type: 'dateTime', default: '', description: 'Date of the reshipment' },
-            { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the reshipment' },
-            { displayName: 'Grand Total', name: 'grand_total', type: 'number', default: 0, description: 'Grand total of the reshipment' },
-            { displayName: 'Tax Amount', name: 'tax_amount', type: 'number', default: 0, description: 'Tax amount of the reshipment' },
-            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External reshipment ID' },
-            { displayName: 'Billing City', name: 'billing_city', type: 'string', default: '', description: 'Reshipment billing city' },
-            { displayName: 'Billing Company', name: 'billing_company', type: 'string', default: '', description: 'Reshipment billing company' },
-            { displayName: 'Billing Country', name: 'billing_country', type: 'string', default: '', description: 'Reshipment billing country' },
-            { displayName: 'Billing Email', name: 'billing_email', type: 'string', default: '', description: 'Reshipment billing email' },
-            { displayName: 'Billing Name', name: 'billing_name', type: 'string', default: '', description: 'Reshipment billing name' },
-            { displayName: 'Billing Street', name: 'billing_street', type: 'string', default: '', description: 'Reshipment billing street' },
-            { displayName: 'Billing Telephone', name: 'billing_telephone', type: 'string', default: '', description: 'Reshipment billing telephone' },
-            { displayName: 'Billing Zip', name: 'billing_zip', type: 'string', default: '', description: 'Reshipment billing zip' },
-        ],
+        options: additionalFieldsOptions,
     },
 ];
 
@@ -571,7 +574,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                                         }));
                                     }
                                 } catch (e) {
-                                    throw new Error(`Invalid JSON in Item Document Files: ${(e as Error).message}`);
+                                    throw new NodeOperationError(this.getNode(), `Invalid JSON in Item Document Files: ${(e as Error).message}`);
                                 }
                             } else if (itemFilesConfig.file) {
                                 const collection = (itemFilesConfig.file as any).file as DocumentFile[];
@@ -610,7 +613,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                         throw new Error('Document Files JSON must be an array');
                     }
                 } catch (err) {
-                    throw new Error(`Invalid JSON in Document Files: ${(err as Error).message}`);
+                    throw new NodeOperationError(this.getNode(), `Invalid JSON in Document Files: ${(err as Error).message}`);
                 }
             } else if (filesConfig.file) {
                 const collection = (filesConfig.file as any).file as DocumentFile[];
@@ -643,7 +646,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 returnData.push(...prepareErrorData.call(this, error, i));
                 continue;
             }
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 
@@ -658,7 +661,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
         if (this.continueOnFail()) {
             returnData.push(...prepareErrorData.call(this, error, 0));
         } else {
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 

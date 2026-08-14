@@ -2,12 +2,60 @@ import type {
     IExecuteFunctions,
     INodeExecutionData,
     INodeProperties,
+    JsonObject,
 } from 'n8n-workflow';
+import { NodeApiError } from 'n8n-workflow';
 
 import { updateDisplayOptions } from '../../../helpers/displayOptions';
 import { prepareErrorData, formatExtensionAttributes, formatDate } from '../../../helpers/utils';
 import { createApiRequest } from '../../../transport';
 import type { TrackingReport } from '../../../transport';
+
+const additionalFieldsOptions: INodeProperties[] = [
+    { displayName: 'Created At', name: 'created_at', type: 'dateTime', default: '', description: 'Creation date of the tracking' },
+    { displayName: 'Customer Order ID', name: 'customer_orderid', type: 'string', default: '', description: 'Order ID provided by the customer' },
+    { displayName: 'Customer Shipment ID', name: 'customer_shipmentid', type: 'string', default: '', description: 'Shipment ID provided by the customer' },
+    {
+        displayName: 'Extension Attributes',
+        name: 'extension_attributes',
+        type: 'fixedCollection',
+        typeOptions: { multipleValues: true },
+        default: {},
+        placeholder: 'Add Extension Attribute',
+        options: [
+            {
+                displayName: 'Extension Attribute',
+                name: 'extension_attribute',
+                values: [
+                    {
+                        displayName: 'Extension Attribute Name or ID',
+                        name: 'attribute_code',
+                        type: 'options',
+                        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                        typeOptions: {
+                            loadOptionsMethod: 'getExtensionAttributes',
+                        },
+                        default: '',
+                    },
+                    {
+                        displayName: 'Value',
+                        name: 'value',
+                        type: 'string',
+                        default: '',
+                    },
+                ],
+            },
+        ],
+    },
+    { displayName: 'Notice', name: 'notice', type: 'string', default: '', description: 'Additional notice for the tracking' },
+    { displayName: 'Order ID', name: 'order_id', type: 'number', default: 0, description: 'Internal order ID' },
+    { displayName: 'Provider', name: 'provider', type: 'string', default: '', description: 'Shipping provider' },
+    { displayName: 'Shipment ID', name: 'shipment_id', type: 'number', default: 0, description: 'Internal shipment ID' },
+    { displayName: 'Tracking Date', name: 'tracking_date', type: 'dateTime', default: '', description: 'Date of the tracking' },
+    { displayName: 'Tracking ID', name: 'tracking_id', type: 'number', default: 0, description: 'Internal tracking ID' },
+    { displayName: 'Updated At', name: 'updated_at', type: 'dateTime', default: '', description: 'Last update date of the tracking' },
+    { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Current tracking status (e.g., shipped, delivered, pending)' },
+];
 
 const properties: INodeProperties[] = [
     // Required fields
@@ -37,52 +85,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['trackings'], operation: ['create'] } },
-        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
-        options: [
-            { displayName: 'Created At', name: 'created_at', type: 'dateTime', default: '', description: 'Creation date of the tracking' },
-            { displayName: 'Customer Order ID', name: 'customer_orderid', type: 'string', default: '', description: 'Order ID provided by the customer' },
-            { displayName: 'Customer Shipment ID', name: 'customer_shipmentid', type: 'string', default: '', description: 'Shipment ID provided by the customer' },
-            {
-                displayName: 'Extension Attributes',
-                name: 'extension_attributes',
-                type: 'fixedCollection',
-                typeOptions: { multipleValues: true },
-                default: {},
-                placeholder: 'Add Extension Attribute',
-                options: [
-                    {
-                        displayName: 'Extension Attribute',
-                        name: 'extension_attribute',
-                        values: [
-                            {
-                                displayName: 'Extension Attribute Name or ID',
-                                name: 'attribute_code',
-                                type: 'options',
-                                description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
-                                typeOptions: {
-                                    loadOptionsMethod: 'getExtensionAttributes',
-                                },
-                                default: '',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
-                        ],
-                    },
-                ],
-            },
-            { displayName: 'Notice', name: 'notice', type: 'string', default: '', description: 'Additional notice for the tracking' },
-            { displayName: 'Order ID', name: 'order_id', type: 'number', default: 0, description: 'Internal order ID' },
-            { displayName: 'Provider', name: 'provider', type: 'string', default: '', description: 'Shipping provider' },
-            { displayName: 'Shipment ID', name: 'shipment_id', type: 'number', default: 0, description: 'Internal shipment ID' },
-            { displayName: 'Tracking Date', name: 'tracking_date', type: 'dateTime', default: '', description: 'Date of the tracking' },
-            { displayName: 'Tracking ID', name: 'tracking_id', type: 'number', default: 0, description: 'Internal tracking ID' },
-            { displayName: 'Updated At', name: 'updated_at', type: 'dateTime', default: '', description: 'Last update date of the tracking' },
-            { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Current tracking status (e.g., shipped, delivered, pending)' },
-        ],
+        options: additionalFieldsOptions,
     },
 ];
 
@@ -130,7 +133,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 returnData.push(...prepareErrorData.call(this, error, i));
                 continue;
             }
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 
@@ -144,7 +147,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
         if (this.continueOnFail()) {
             returnData.push(...prepareErrorData.call(this, error, 0));
         } else {
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 

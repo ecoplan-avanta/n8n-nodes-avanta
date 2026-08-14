@@ -3,12 +3,76 @@ import type {
     IExecuteFunctions,
     INodeExecutionData,
     INodeProperties,
+    JsonObject,
 } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 
 import { updateDisplayOptions } from '../../../helpers/displayOptions';
 import { prepareErrorData, formatExtensionAttributes, formatDate } from '../../../helpers/utils';
 import { createApiRequest } from '../../../transport';
 import type { DocumentFile, BackorderItem, BackorderReport } from '../../../transport';
+
+const backorderAdditionalFieldsOptions: INodeProperties[] = [
+    { displayName: 'Backorder Date', name: 'backorder_date', type: 'dateTime', default: '', description: 'Date of the backorder' },
+    { displayName: 'Backorder ID', name: 'backorder_id', type: 'number', default: 0, description: 'Internal backorder ID' },
+    { displayName: 'Comment', name: 'comment', type: 'string', default: '', description: 'Comment for the backorder' },
+    { displayName: 'Custom Date 1', name: 'custom_date1', type: 'dateTime', default: '', description: 'Custom date field 1' },
+    { displayName: 'Custom Date 2', name: 'custom_date2', type: 'dateTime', default: '', description: 'Custom date field 2' },
+    { displayName: 'Custom Price 1', name: 'custom_price1', type: 'number', default: 0, description: 'Custom price field 1' },
+    { displayName: 'Custom Price 2', name: 'custom_price2', type: 'number', default: 0, description: 'Custom price field 2' },
+    { displayName: 'Custom Text 1', name: 'custom_text1', type: 'string', default: '', description: 'Custom text field 1' },
+    { displayName: 'Custom Text 2', name: 'custom_text2', type: 'string', default: '', description: 'Custom text field 2' },
+    {
+        displayName: 'Extension Attributes',
+        name: 'extension_attributes',
+        type: 'fixedCollection',
+        typeOptions: { multipleValues: true },
+        default: {},
+        placeholder: 'Add Extension Attribute',
+        options: [
+            {
+                displayName: 'Extension Attribute',
+                name: 'extension_attribute',
+                values: [
+                    {
+                        displayName: 'Extension Attribute Name or ID',
+                        name: 'attribute_code',
+                        type: 'options',
+                        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                        typeOptions: {
+                            loadOptionsMethod: 'getExtensionAttributes',
+                        },
+                        default: '',
+                    },
+                    {
+                        displayName: 'Value',
+                        name: 'value',
+                        type: 'string',
+                        default: '',
+                    },
+                ],
+            },
+        ],
+    },
+    { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the backorder' },
+    { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External backorder ID' },
+    { displayName: 'Billing City', name: 'billing_city', type: 'string', default: '', description: 'Backorder billing city' },
+    { displayName: 'Billing Company', name: 'billing_company', type: 'string', default: '', description: 'Backorder billing company' },
+    { displayName: 'Billing Country', name: 'billing_country', type: 'string', default: '', description: 'Backorder billing country' },
+    { displayName: 'Billing Email', name: 'billing_email', type: 'string', default: '', description: 'Backorder billing email' },
+    { displayName: 'Billing Name', name: 'billing_name', type: 'string', default: '', description: 'Backorder billing name' },
+    { displayName: 'Billing Street', name: 'billing_street', type: 'string', default: '', description: 'Backorder billing street' },
+    { displayName: 'Billing Telephone', name: 'billing_telephone', type: 'string', default: '', description: 'Backorder billing telephone' },
+    { displayName: 'Billing Zip', name: 'billing_zip', type: 'string', default: '', description: 'Backorder billing zip' },
+    { displayName: 'Shipping City', name: 'shipping_city', type: 'string', default: '', description: 'Backorder shipping city' },
+    { displayName: 'Shipping Company', name: 'shipping_company', type: 'string', default: '', description: 'Backorder shipping company' },
+    { displayName: 'Shipping Country', name: 'shipping_country', type: 'string', default: '', description: 'Backorder shipping country' },
+    { displayName: 'Shipping Email', name: 'shipping_email', type: 'string', default: '', description: 'Backorder shipping email' },
+    { displayName: 'Shipping Name', name: 'shipping_name', type: 'string', default: '', description: 'Backorder shipping name' },
+    { displayName: 'Shipping Street', name: 'shipping_street', type: 'string', default: '', description: 'Backorder shipping street' },
+    { displayName: 'Shipping Telephone', name: 'shipping_telephone', type: 'string', default: '', description: 'Backorder shipping telephone' },
+    { displayName: 'Shipping Zip', name: 'shipping_zip', type: 'string', default: '', description: 'Backorder shipping zip' },
+];
 
 const properties: INodeProperties[] = [
     // Required fields
@@ -464,68 +528,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['backorders'], operation: ['create'] } },
-        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
-        options: [
-            { displayName: 'Backorder Date', name: 'backorder_date', type: 'dateTime', default: '', description: 'Date of the backorder' },
-            { displayName: 'Backorder ID', name: 'backorder_id', type: 'number', default: 0, description: 'Internal backorder ID' },
-            { displayName: 'Comment', name: 'comment', type: 'string', default: '', description: 'Comment for the backorder' },
-            { displayName: 'Custom Date 1', name: 'custom_date1', type: 'dateTime', default: '', description: 'Custom date field 1' },
-            { displayName: 'Custom Date 2', name: 'custom_date2', type: 'dateTime', default: '', description: 'Custom date field 2' },
-            { displayName: 'Custom Price 1', name: 'custom_price1', type: 'number', default: 0, description: 'Custom price field 1' },
-            { displayName: 'Custom Price 2', name: 'custom_price2', type: 'number', default: 0, description: 'Custom price field 2' },
-            { displayName: 'Custom Text 1', name: 'custom_text1', type: 'string', default: '', description: 'Custom text field 1' },
-            { displayName: 'Custom Text 2', name: 'custom_text2', type: 'string', default: '', description: 'Custom text field 2' },
-            {
-                displayName: 'Extension Attributes',
-                name: 'extension_attributes',
-                type: 'fixedCollection',
-                typeOptions: { multipleValues: true },
-                default: {},
-                placeholder: 'Add Extension Attribute',
-                options: [
-                    {
-                        displayName: 'Extension Attribute',
-                        name: 'extension_attribute',
-                        values: [
-                            {
-                                displayName: 'Extension Attribute Name or ID',
-                                name: 'attribute_code',
-                                type: 'options',
-                                description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
-                                typeOptions: {
-                                    loadOptionsMethod: 'getExtensionAttributes',
-                                },
-                                default: '',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
-                        ],
-                    },
-                ],
-            },
-            { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the backorder' },
-            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External backorder ID' },
-            { displayName: 'Billing City', name: 'billing_city', type: 'string', default: '', description: 'Backorder billing city' },
-            { displayName: 'Billing Company', name: 'billing_company', type: 'string', default: '', description: 'Backorder billing company' },
-            { displayName: 'Billing Country', name: 'billing_country', type: 'string', default: '', description: 'Backorder billing country' },
-            { displayName: 'Billing Email', name: 'billing_email', type: 'string', default: '', description: 'Backorder billing email' },
-            { displayName: 'Billing Name', name: 'billing_name', type: 'string', default: '', description: 'Backorder billing name' },
-            { displayName: 'Billing Street', name: 'billing_street', type: 'string', default: '', description: 'Backorder billing street' },
-            { displayName: 'Billing Telephone', name: 'billing_telephone', type: 'string', default: '', description: 'Backorder billing telephone' },
-            { displayName: 'Billing Zip', name: 'billing_zip', type: 'string', default: '', description: 'Backorder billing zip' },
-            { displayName: 'Shipping City', name: 'shipping_city', type: 'string', default: '', description: 'Backorder shipping city' },
-            { displayName: 'Shipping Company', name: 'shipping_company', type: 'string', default: '', description: 'Backorder shipping company' },
-            { displayName: 'Shipping Country', name: 'shipping_country', type: 'string', default: '', description: 'Backorder shipping country' },
-            { displayName: 'Shipping Email', name: 'shipping_email', type: 'string', default: '', description: 'Backorder shipping email' },
-            { displayName: 'Shipping Name', name: 'shipping_name', type: 'string', default: '', description: 'Backorder shipping name' },
-            { displayName: 'Shipping Street', name: 'shipping_street', type: 'string', default: '', description: 'Backorder shipping street' },
-            { displayName: 'Shipping Telephone', name: 'shipping_telephone', type: 'string', default: '', description: 'Backorder shipping telephone' },
-            { displayName: 'Shipping Zip', name: 'shipping_zip', type: 'string', default: '', description: 'Backorder shipping zip' },
-        ],
+        options: backorderAdditionalFieldsOptions,
     },
 ];
 
@@ -596,7 +599,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                                         }));
                                     }
                                 } catch (e) {
-                                    throw new Error(`Invalid JSON in Item Document Files: ${(e as Error).message}`);
+                                    throw new NodeOperationError(this.getNode(), `Invalid JSON in Item Document Files: ${(e as Error).message}`);
                                 }
                             } else if (itemFilesConfig.file) {
                                 const collection = (itemFilesConfig.file as any).file as DocumentFile[];
@@ -635,7 +638,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                         throw new Error('Document Files JSON must be an array');
                     }
                 } catch (err) {
-                    throw new Error(`Invalid JSON in Document Files: ${(err as Error).message}`);
+                    throw new NodeOperationError(this.getNode(), `Invalid JSON in Document Files: ${(err as Error).message}`);
                 }
             } else if (filesConfig.file) {
                 const collection = (filesConfig.file as any).file as DocumentFile[];
@@ -668,7 +671,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 returnData.push(...prepareErrorData.call(this, error, i));
                 continue;
             }
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 
@@ -683,7 +686,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
         if (this.continueOnFail()) {
             returnData.push(...prepareErrorData.call(this, error, 0));
         } else {
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 

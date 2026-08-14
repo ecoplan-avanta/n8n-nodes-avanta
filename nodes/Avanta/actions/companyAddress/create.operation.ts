@@ -2,7 +2,9 @@ import type {
     IExecuteFunctions,
     INodeExecutionData,
     INodeProperties,
+    JsonObject,
 } from 'n8n-workflow';
+import { NodeApiError } from 'n8n-workflow';
 
 import {updateDisplayOptions} from '../../helpers/displayOptions';
 import {formatExtensionAttributes, prepareErrorData} from "../../helpers/utils";
@@ -256,7 +258,7 @@ export async function execute(
                 continue;
             }
 
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 
@@ -267,7 +269,7 @@ export async function execute(
         if (this.continueOnFail()) {
             returnData.push(...prepareErrorData.call(this, error, 0));
         } else {
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
     return returnData;

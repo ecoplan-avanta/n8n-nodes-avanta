@@ -1,8 +1,12 @@
+import {
+	NodeConnectionTypes,
+} from 'n8n-workflow';
 import type {
 	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
-	INodeTypeDescription
+	INodeTypeDescription,
+	INodePropertyOptions,
 } from 'n8n-workflow';
 
 import {router} from './actions/router';
@@ -24,11 +28,112 @@ import * as bom from './actions/bom';
 import * as category from './actions/category';
 import {loadOptions} from './methods';
 
+// Kept as a named constant (not inlined) so the resource list can stay grouped by
+// business area instead of the alphabetical order the linter otherwise enforces.
+const resourceOptions: INodePropertyOptions[] = [
+	{
+		name: 'Company',
+		value: 'company',
+	},
+	{
+		name: 'Company - Address',
+		value: 'companyAddress',
+	},
+	{
+		name: 'Company - User',
+		value: 'companyUser',
+	},
+	{
+		name: 'Company - Contact',
+		value: 'companyContact',
+	},
+	{
+		name: 'Company - Group',
+		value: 'companyGroup',
+	},
+	{
+		name: 'Company - Role',
+		value: 'companyRole',
+	},
+	{
+		name: 'Company - Rule',
+		value: 'companyRule',
+	},
+	{
+		name: 'Company - Sku',
+		value: 'companySku',
+	},
+	{
+		name: 'Company - Restrict',
+		value: 'companyRestrict',
+	},
+	{
+		name: 'Sales Organization',
+		value: 'salesOrg',
+	},
+	{
+		name: 'Product',
+		value: 'product',
+	},
+	{
+		name: 'Category',
+		value: 'category',
+	},
+	{
+		name: 'Servicecenter - Order',
+		value: 'orders',
+	},
+	{
+		name: 'Servicecenter - Invoice',
+		value: 'invoices',
+	},
+	{
+		name: 'Servicecenter - Credit Memo',
+		value: 'creditmemos',
+	},
+	{
+		name: 'Servicecenter - Shipment',
+		value: 'shipments',
+	},
+	{
+		name: 'Servicecenter - Tracking',
+		value: 'trackings',
+	},
+	{
+		name: 'Servicecenter - Reshipment',
+		value: 'reshipments',
+	},
+	{
+		name: 'Servicecenter - Backorder',
+		value: 'backorders',
+	},
+	{
+		name: 'Requests - Inquiry',
+		value: 'inquiries',
+	},
+	{
+		name: 'Requests - Ticket',
+		value: 'tickets',
+	},
+	{
+		name: 'Requests - Return Registration',
+		value: 'returns',
+	},
+	{
+		name: 'Download',
+		value: 'download',
+	},
+	{
+		name: 'Bill of Material',
+		value: 'bom',
+	},
+];
+
 export class Avanta implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'avanta',
 		name: 'avanta',
-		icon: 'file:avanta.svg',
+		icon: { light: 'file:avanta.svg', dark: 'file:avanta.svg' },
 		group: ['input'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
@@ -37,8 +142,8 @@ export class Avanta implements INodeType {
 			name: 'avanta',
 		},
 		usableAsTool: true,
-		inputs: ['main'],
-		outputs: ['main'],
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
 		credentials: [
 			{
 				name: 'avantaApi',
@@ -52,105 +157,7 @@ export class Avanta implements INodeType {
 				type: 'options',
 				default: 'company',
 				noDataExpression: true,
-				// eslint-disable-next-line n8n-nodes-base/node-param-options-type-unsorted-items
-				options: [
-					{
-						name: 'Company',
-						value: 'company',
-					},
-					{
-						name: 'Company - Address',
-						value: 'companyAddress',
-					},
-					{
-						name: 'Company - User',
-						value: 'companyUser',
-					},
-					{
-						name: 'Company - Contact',
-						value: 'companyContact',
-					},
-					{
-						name: 'Company - Group',
-						value: 'companyGroup',
-					},
-					{
-						name: 'Company - Role',
-						value: 'companyRole',
-					},
-                    {
-						name: 'Company - Rule',
-						value: 'companyRule',
-					},
-					{
-						name: 'Company - Sku',
-						value: 'companySku',
-					},
-					{
-						name: 'Company - Restrict',
-						value: 'companyRestrict',
-					},
-					{
-						name: 'Sales Organization',
-						value: 'salesOrg',
-					},
-					{
-						name: 'Product',
-						value: 'product',
-					},
-					{
-						name: 'Category',
-						value: 'category',
-					},
-					{
-						name: 'Servicecenter - Order',
-						value: 'orders',
-					},
-					{
-						name: 'Servicecenter - Invoice',
-						value: 'invoices',
-					},
-					{
-						name: 'Servicecenter - Credit Memo',
-						value: 'creditmemos',
-					},
-					{
-						name: 'Servicecenter - Shipment',
-						value: 'shipments',
-					},
-					{
-						name: 'Servicecenter - Tracking',
-						value: 'trackings',
-					},
-					{
-						name: 'Servicecenter - Reshipment',
-						value: 'reshipments',
-					},
-					{
-						name: 'Servicecenter - Backorder',
-						value: 'backorders',
-					},
-                    {
-						name: 'Requests - Inquiry',
-						value: 'inquiries',
-					},
-                    {
-						name: 'Requests - Ticket',
-						value: 'tickets',
-					},
-                    {
-						name: 'Requests - Return Registration',
-						value: 'returns',
-					},
-                    {
-                        name: 'Download',
-                        value: 'download',
-                    },
-                    {
-                        name: 'Bill of Material',
-                        value: 'bom',
-                    }
-				]
+				options: resourceOptions,
 			},
 			...routerDescription.description,
 			...company.description,

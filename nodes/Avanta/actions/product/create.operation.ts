@@ -2,8 +2,11 @@ import {
     IDataObject,
     IExecuteFunctions,
     INodeExecutionData,
-    INodeProperties
+    INodeProperties,
+    NodeApiError,
+    NodeOperationError
 } from 'n8n-workflow';
+import type { JsonObject } from 'n8n-workflow';
 
 import { updateDisplayOptions } from '../../helpers/displayOptions';
 import { formatExtensionAttributes, prepareErrorData } from '../../helpers/utils';
@@ -16,6 +19,323 @@ import type {
     DownloadItem,
     ProductLink
 } from '../../transport';
+
+const downloadItemFixedCollectionOptions: INodeProperties[] = [
+    {
+        displayName: 'Type',
+        name: 'type',
+        type: 'options',
+        options: [
+            { name: 'URL', value: 'url' },
+            { name: 'Other', value: 'other' },
+        ],
+        default: 'other',
+        description: 'The type of the download item',
+    },
+    {
+        displayName: 'Content (URL or Base64)',
+        name: 'content',
+        type: 'string',
+        displayOptions: {
+            show: {
+                type: ['other'],
+            },
+        },
+        default: '',
+        description: 'The downloadable file content or URL',
+    },
+    {
+        displayName: 'URL',
+        name: 'url',
+        type: 'string',
+        displayOptions: {
+            show: {
+                type: ['url'],
+            },
+        },
+        default: '',
+        description: 'The URL for the download item (required if Type is URL)',
+    },
+    {
+        displayName: 'External Category IDs (Comma Separated)',
+        name: 'external_category_ids',
+        type: 'string',
+        default: '',
+        description: 'Comma-separated list of external category IDs',
+    },
+    {
+        displayName: 'External Company IDs (Comma Separated)',
+        name: 'external_company_ids',
+        type: 'string',
+        default: '',
+        description: 'Comma-separated list of external company IDs',
+    },
+    {
+        displayName: 'External ID',
+        name: 'external_id',
+        type: 'string',
+        default: '',
+        description: 'External reference ID for this download item',
+    },
+    {
+        displayName: 'Filename',
+        name: 'filename',
+        type: 'string',
+        displayOptions: {
+            show: {
+                type: ['other'],
+            },
+        },
+        default: '',
+        description: 'The name of the file (e.g., "manual.pdf")',
+    },
+    {
+        displayName: 'For All Products',
+        name: 'product_all',
+        type: 'boolean',
+        default: false,
+        description: 'Whether this download applies to all products',
+    },
+    {
+        displayName: 'Show In Portal',
+        name: 'show_in_portal',
+        type: 'boolean',
+        default: false,
+        description: 'Whether this item is visible in the customer portal',
+    },
+    {
+        displayName: 'SKUs (Comma Separated)',
+        name: 'skus',
+        type: 'string',
+        default: '',
+        description: 'Comma-separated list of SKUs this item belongs to',
+    },
+    {
+        displayName: 'Status',
+        name: 'status',
+        type: 'options',
+        options: [
+            { name: 'Enabled', value: 1 },
+            { name: 'Disabled', value: 2 },
+        ],
+        default: 1,
+        description: 'Current status of the download item',
+    },
+    {
+        displayName: 'Store ID',
+        name: 'store_id',
+        type: 'number',
+        default: 1,
+        description: 'Magento store ID',
+    },
+    {
+        displayName: 'Title',
+        name: 'title',
+        type: 'string',
+        default: '',
+        description: 'The title or display name for the download item',
+    },
+    {
+        displayName: 'Visibility',
+        name: 'visibility',
+        type: 'options',
+        options: [
+            { name: 'Enterprise Users (B2B)', value: 1 },
+            { name: 'Consumers (B2C)', value: 2 },
+            { name: 'No Restriction', value: 3 },
+            { name: 'Selected Companies', value: 4 },
+            { name: 'Selected Company Groups', value: 5 },
+            { name: 'Enterprise & Consumers (B2B/B2C)', value: 6 },
+        ],
+        default: 3,
+        description: 'Visibility level of the download item',
+    },
+];
+
+const stockItemCollectionOptions: INodeProperties[] = [
+    {
+        displayName: 'Input Mode',
+        name: 'inputMode',
+        type: 'options',
+        options: [
+            { name: 'UI Collection', value: 'collection' },
+            { name: 'Raw JSON', value: 'json' },
+        ],
+        default: 'collection',
+        description: 'Choose whether to provide stock information via the UI or as JSON',
+    },
+    {
+        displayName: 'Stock Item JSON',
+        name: 'stockItemJson',
+        type: 'json',
+        displayOptions: {
+            show: {
+                inputMode: ['json'],
+            },
+        },
+        default: '{}',
+        description: 'Provide stock information as JSON object',
+    },
+    {
+        displayName: 'Backorders',
+        name: 'backorders',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'options',
+        options: [
+            { name: 'No Backorders', value: 0 },
+            { name: 'Allow Qty Below 0', value: 1 },
+            { name: 'Allow Qty Below 0 + Notify Customer', value: 2 },
+        ],
+        default: 0,
+    },
+    {
+        displayName: 'Enable Qty Increments',
+        name: 'enable_qty_increments',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'boolean',
+        default: false,
+    },
+    {
+        displayName: 'Is In Stock',
+        name: 'is_in_stock',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'boolean',
+        default: true,
+    },
+    {
+        displayName: 'Is Qty Decimal',
+        name: 'is_qty_decimal',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'boolean',
+        default: false,
+    },
+    {
+        displayName: 'Manage Stock',
+        name: 'manage_stock',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'boolean',
+        default: true,
+    },
+    {
+        displayName: 'Max Sale Qty',
+        name: 'max_sale_qty',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'number',
+        default: 9999,
+    },
+    {
+        displayName: 'Min Qty',
+        name: 'min_qty',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'number',
+        default: 0,
+    },
+    {
+        displayName: 'Min Sale Qty',
+        name: 'min_sale_qty',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'number',
+        default: 1,
+    },
+    {
+        displayName: 'Notify Stock Qty',
+        name: 'notify_stock_qty',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'number',
+        default: 0,
+    },
+    {
+        displayName: 'Qty Increments',
+        name: 'qty_increments',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'number',
+        default: 1,
+    },
+    {
+        displayName: 'Quantity',
+        name: 'qty',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'number',
+        default: 0,
+    },
+    {
+        displayName: 'Use Config Backorders',
+        name: 'use_config_backorders',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'boolean',
+        default: true,
+    },
+    {
+        displayName: 'Use Config Manage Stock',
+        name: 'use_config_manage_stock',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'boolean',
+        default: true,
+    },
+    {
+        displayName: 'Use Config Min Qty',
+        name: 'use_config_min_qty',
+        displayOptions: {
+            show: {
+                inputMode: ['collection'],
+            },
+        },
+        type: 'boolean',
+        default: true,
+    },
+];
 
 const properties: INodeProperties[] = [
     {
@@ -255,7 +575,7 @@ export async function execute(
                             throw new Error('Dynamic Custom Attributes JSON must be an array');
                         }
                     } catch (err) {
-                        throw new Error(`Invalid JSON in Dynamic Custom Attributes: ${(err as Error).message}`);
+                        throw new NodeOperationError(this.getNode(), `Invalid JSON in Dynamic Custom Attributes: ${(err as Error).message}`);
                     }
                 }
 
@@ -304,7 +624,7 @@ export async function execute(
                             throw new Error('Product Symbols JSON must be an array');
                         }
                     } catch (err) {
-                        throw new Error(`Invalid JSON in Product Symbols: ${(err as Error).message}`);
+                        throw new NodeOperationError(this.getNode(), `Invalid JSON in Product Symbols: ${(err as Error).message}`);
                     }
                 } else if (symbolConfig.productSymbol) {
                     const collection = symbolConfig.productSymbol as IDataObject[];
@@ -353,7 +673,7 @@ export async function execute(
                             throw new Error('Media Gallery JSON must be an array');
                         }
                     } catch (err) {
-                        throw new Error(`Invalid JSON in Media Gallery Entries: ${(err as Error).message}`);
+                        throw new NodeOperationError(this.getNode(), `Invalid JSON in Media Gallery Entries: ${(err as Error).message}`);
                     }
                 } else if (mediaConfig.mediaGalleryEntry) {
                     const collection = mediaConfig.mediaGalleryEntry as IDataObject[];
@@ -412,7 +732,7 @@ export async function execute(
                             throw new Error('Download Items JSON must be an array');
                         }
                     } catch (err) {
-                        throw new Error(`Invalid JSON in Download Items: ${(err as Error).message}`);
+                        throw new NodeOperationError(this.getNode(), `Invalid JSON in Download Items: ${(err as Error).message}`);
                     }
                 } else if (downloadConfig.downloadItem) {
                     const collectionItems = (downloadConfig.downloadItem as any).downloadItem as IDataObject[];
@@ -497,7 +817,7 @@ export async function execute(
                             throw new Error('Product Links JSON must be an array');
                         }
                     } catch (err) {
-                        throw new Error(`Invalid JSON in Product Links: ${(err as Error).message}`);
+                        throw new NodeOperationError(this.getNode(), `Invalid JSON in Product Links: ${(err as Error).message}`);
                     }
                 }
 
@@ -615,7 +935,7 @@ export async function execute(
                     try {
                         cleanedStockItem = JSON.parse(stockItem.stockItemJson as string);
                     } catch (err) {
-                        throw new Error(`Invalid JSON in Stock Item: ${(err as Error).message}`);
+                        throw new NodeOperationError(this.getNode(), `Invalid JSON in Stock Item: ${(err as Error).message}`);
                     }
                 } else {
                     // Nur definierte Werte in ein sauberes Objekt übernehmen
@@ -652,7 +972,7 @@ export async function execute(
                 continue;
             }
 
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 
@@ -664,7 +984,7 @@ export async function execute(
             if (this.continueOnFail()) {
                 returnData.push(...prepareErrorData.call(this, error, 0));
             } else {
-                throw error;
+                throw new NodeApiError(this.getNode(), error as JsonObject);
             }
         }
     }
@@ -1085,138 +1405,7 @@ function getProductOptionalFields(): INodeProperties[] {
                         {
                             displayName: 'Download Item',
                             name: 'downloadItem',
-                            // eslint-disable-next-line n8n-nodes-base/node-param-fixed-collection-type-unsorted-items
-                            values: [
-                                {
-                                    displayName: 'Type',
-                                    name: 'type',
-                                    type: 'options',
-                                    options: [
-                                        { name: 'URL', value: 'url' },
-                                        { name: 'Other', value: 'other' },
-                                    ],
-                                    default: 'other',
-                                    description: 'The type of the download item',
-                                },
-                                {
-                                    displayName: 'Content (URL or Base64)',
-                                    name: 'content',
-                                    type: 'string',
-                                    displayOptions: {
-                                        show: {
-                                            type: ['other'],
-                                        },
-                                    },
-                                    default: '',
-                                    description: 'The downloadable file content or URL',
-                                },
-                                {
-                                    displayName: 'URL',
-                                    name: 'url',
-                                    type: 'string',
-                                    displayOptions: {
-                                        show: {
-                                            type: ['url'],
-                                        },
-                                    },
-                                    default: '',
-                                    description: 'The URL for the download item (required if Type is URL)',
-                                },
-                                {
-                                    displayName: 'External Category IDs (Comma Separated)',
-                                    name: 'external_category_ids',
-                                    type: 'string',
-                                    default: '',
-                                    description: 'Comma-separated list of external category IDs',
-                                },
-                                {
-                                    displayName: 'External Company IDs (Comma Separated)',
-                                    name: 'external_company_ids',
-                                    type: 'string',
-                                    default: '',
-                                    description: 'Comma-separated list of external company IDs',
-                                },
-                                {
-                                    displayName: 'External ID',
-                                    name: 'external_id',
-                                    type: 'string',
-                                    default: '',
-                                    description: 'External reference ID for this download item',
-                                },
-                                {
-                                    displayName: 'Filename',
-                                    name: 'filename',
-                                    type: 'string',
-                                    displayOptions: {
-                                        show: {
-                                            type: ['other'],
-                                        },
-                                    },
-                                    default: '',
-                                    description: 'The name of the file (e.g., "manual.pdf")',
-                                },
-                                {
-                                    displayName: 'For All Products',
-                                    name: 'product_all',
-                                    type: 'boolean',
-                                    default: false,
-                                    description: 'Whether this download applies to all products',
-                                },
-                                {
-                                    displayName: 'Show In Portal',
-                                    name: 'show_in_portal',
-                                    type: 'boolean',
-                                    default: false,
-                                    description: 'Whether this item is visible in the customer portal',
-                                },
-                                {
-                                    displayName: 'SKUs (Comma Separated)',
-                                    name: 'skus',
-                                    type: 'string',
-                                    default: '',
-                                    description: 'Comma-separated list of SKUs this item belongs to',
-                                },
-                                {
-                                    displayName: 'Status',
-                                    name: 'status',
-                                    type: 'options',
-                                    options: [
-                                        { name: 'Enabled', value: 1 },
-                                        { name: 'Disabled', value: 2 },
-                                    ],
-                                    default: 1,
-                                    description: 'Current status of the download item',
-                                },
-                                {
-                                    displayName: 'Store ID',
-                                    name: 'store_id',
-                                    type: 'number',
-                                    default: 1,
-                                    description: 'Magento store ID',
-                                },
-                                {
-                                    displayName: 'Title',
-                                    name: 'title',
-                                    type: 'string',
-                                    default: '',
-                                    description: 'The title or display name for the download item',
-                                },
-                                {
-                                    displayName: 'Visibility',
-                                    name: 'visibility',
-                                    type: 'options',
-                                    options: [
-                                        { name: 'Enterprise Users (B2B)', value: 1 },
-                                        { name: 'Consumers (B2C)', value: 2 },
-                                        { name: 'No Restriction', value: 3 },
-                                        { name: 'Selected Companies', value: 4 },
-                                        { name: 'Selected Company Groups', value: 5 },
-                                        { name: 'Enterprise & Consumers (B2B/B2C)', value: 6 },
-                                    ],
-                                    default: 3,
-                                    description: 'Visibility level of the download item',
-                                },
-                            ],
+                            values: downloadItemFixedCollectionOptions,
                         },
                     ],
                 },
@@ -1360,191 +1549,7 @@ function getProductOptionalFields(): INodeProperties[] {
             placeholder: 'Add Stock Information',
             description:
                 'Inventory management settings for this product. Only filled fields are sent to Magento.',
-            // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
-            options: [
-                {
-                    displayName: 'Input Mode',
-                    name: 'inputMode',
-                    type: 'options',
-                    options: [
-                        { name: 'UI Collection', value: 'collection' },
-                        { name: 'Raw JSON', value: 'json' },
-                    ],
-                    default: 'collection',
-                    description: 'Choose whether to provide stock information via the UI or as JSON',
-                },
-                {
-                    displayName: 'Stock Item JSON',
-                    name: 'stockItemJson',
-                    type: 'json',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['json'],
-                        },
-                    },
-                    default: '{}',
-                    description: 'Provide stock information as JSON object',
-                },
-                {
-                    displayName: 'Backorders',
-                    name: 'backorders',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'options',
-                    options: [
-                        { name: 'No Backorders', value: 0 },
-                        { name: 'Allow Qty Below 0', value: 1 },
-                        { name: 'Allow Qty Below 0 + Notify Customer', value: 2 },
-                    ],
-                    default: 0,
-                },
-                {
-                    displayName: 'Enable Qty Increments',
-                    name: 'enable_qty_increments',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'boolean',
-                    default: false,
-                },
-                {
-                    displayName: 'Is In Stock',
-                    name: 'is_in_stock',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'boolean',
-                    default: true,
-                },
-                {
-                    displayName: 'Is Qty Decimal',
-                    name: 'is_qty_decimal',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'boolean',
-                    default: false,
-                },
-                {
-                    displayName: 'Manage Stock',
-                    name: 'manage_stock',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'boolean',
-                    default: true,
-                },
-                {
-                    displayName: 'Max Sale Qty',
-                    name: 'max_sale_qty',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'number',
-                    default: 9999,
-                },
-                {
-                    displayName: 'Min Qty',
-                    name: 'min_qty',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'number',
-                    default: 0,
-                },
-                {
-                    displayName: 'Min Sale Qty',
-                    name: 'min_sale_qty',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'number',
-                    default: 1,
-                },
-                {
-                    displayName: 'Notify Stock Qty',
-                    name: 'notify_stock_qty',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'number',
-                    default: 0,
-                },
-                {
-                    displayName: 'Qty Increments',
-                    name: 'qty_increments',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'number',
-                    default: 1,
-                },
-                {
-                    displayName: 'Quantity',
-                    name: 'qty',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'number',
-                    default: 0,
-                },
-                {
-                    displayName: 'Use Config Backorders',
-                    name: 'use_config_backorders',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'boolean',
-                    default: true,
-                },
-                {
-                    displayName: 'Use Config Manage Stock',
-                    name: 'use_config_manage_stock',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'boolean',
-                    default: true,
-                },
-                {
-                    displayName: 'Use Config Min Qty',
-                    name: 'use_config_min_qty',
-                    displayOptions: {
-                        show: {
-                            inputMode: ['collection'],
-                        },
-                    },
-                    type: 'boolean',
-                    default: true,
-                },
-            ],
+            options: stockItemCollectionOptions,
         },
     ];
 }

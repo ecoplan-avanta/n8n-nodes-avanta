@@ -12,12 +12,102 @@ import type {
     IExecuteFunctions,
     INodeExecutionData,
     INodeProperties,
+    JsonObject,
 } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 
 import { updateDisplayOptions } from '../../../helpers/displayOptions';
 import { prepareErrorData, formatExtensionAttributes, formatDate } from '../../../helpers/utils';
 import {createApiRequest} from '../../../transport';
 import type { DocumentFile, InquiryItem, InquiryReport } from '../../../transport';
+
+const inquiryPositionAdditionalFieldsOptions: INodeProperties[] = [
+    {
+        displayName: 'Inquiry Item ID',
+        name: 'inquiry_item_id',
+        type: 'number',
+        default: 0,
+        description: 'Internal ID of the Inquiry item',
+    },
+    {
+        displayName: 'Parent Item ID',
+        name: 'parent_item_id',
+        type: 'number',
+        default: 0,
+        description: 'Internal ID of Parent Item (if value is provided the parent will automatically be the previous item)',
+    },
+    {
+        displayName: 'Product ID',
+        name: 'product_id',
+        type: 'number',
+        default: 0,
+        description: 'Internal ID of product',
+    },
+    {
+        displayName: 'Packaging Unit',
+        name: 'proline_productunit',
+        type: 'string',
+        default: '',
+    },
+    {
+        displayName: 'Info BuyRequest',
+        name: 'buy_request',
+        type: 'string',
+        default: '',
+        description: 'Value of info_buyRequest for cart offer items',
+    }
+];
+
+const additionalFieldsOptions: INodeProperties[] = [
+    {
+        displayName: 'Extension Attributes',
+        name: 'extension_attributes',
+        type: 'fixedCollection',
+        typeOptions: { multipleValues: true },
+        default: {},
+        placeholder: 'Add Extension Attribute',
+        options: [
+            {
+                displayName: 'Extension Attribute',
+                name: 'extension_attribute',
+                values: [
+                    {
+                        displayName: 'Extension Attribute Name or ID',
+                        name: 'attribute_code',
+                        type: 'options',
+                        description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
+                        typeOptions: {
+                            loadOptionsMethod: 'getExtensionAttributes',
+                        },
+                        default: '',
+                    },
+                    {
+                        displayName: 'Value',
+                        name: 'value',
+                        type: 'string',
+                        default: '',
+                    },
+                ],
+            },
+        ],
+    },
+    { displayName: 'Store ID', name: 'store_id', type: 'number', default: 0 },
+    { displayName: 'Website ID', name: 'website_id', type: 'number', default: 0 },
+    { displayName: 'Inquiry ID', name: 'inquiry_id', type: 'number', default: 0, description: 'Internal inquiry ID' },
+    { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External inquiry ID' },
+    { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the inquiry (e.g. open, processing, finished)' },
+    { displayName: 'Content', name: 'content', type: 'string', default: '', description: 'Inquiry content' },
+    { displayName: 'City', name: 'city', type: 'string', default: '', description: 'Inquiry city' },
+    { displayName: 'Company Name', name: 'company_name', type: 'string', default: '', description: 'Inquiry company name' },
+    { displayName: 'Country ID', name: 'country_id', type: 'string', default: '', description: 'Inquiry country ID' },
+    { displayName: 'Street', name: 'street', type: 'string', default: '', description: 'Inquiry street' },
+    { displayName: 'Telephone', name: 'telephone', type: 'string', default: '', description: 'Inquiry telephone' },
+    { displayName: 'Postcode', name: 'postcode', type: 'string', default: '', description: 'Inquiry postcode' },
+    { displayName: 'Offer Number', name: 'offer_number', type: 'string', default: '', description: 'Assigned Offer number of inquiry' },
+    { displayName: 'User ID', name: 'user_id', type: 'number', default: 0, description: 'Internal ID of User' },
+    { displayName: 'Customer Name', name: 'customer', type: 'string', default: '' },
+    { displayName: 'Customer Email', name: 'customer_email', type: 'string', default: '' },
+];
 
 const properties: INodeProperties[] = [
     // Required fields
@@ -118,43 +208,7 @@ const properties: INodeProperties[] = [
                         type: 'collection',
                         default: {},
                         placeholder: 'Add Field',
-                        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
-                        options: [
-                            {
-                                displayName: 'Inquiry Item ID',
-                                name: 'inquiry_item_id',
-                                type: 'number',
-                                default: 0,
-                                description: 'Internal ID of the Inquiry item',
-                            },
-                            {
-                                displayName: 'Parent Item ID',
-                                name: 'parent_item_id',
-                                type: 'number',
-                                default: 0,
-                                description: 'Internal ID of Parent Item (if value is provided the parent will automatically be the previous item)',
-                            },
-                            {
-                                displayName: 'Product ID',
-                                name: 'product_id',
-                                type: 'number',
-                                default: 0,
-                                description: 'Internal ID of product',
-                            },
-                            {
-                                displayName: 'Packaging Unit',
-                                name: 'proline_productunit',
-                                type: 'string',
-                                default: '',
-                            },
-                            {
-                                displayName: 'Info BuyRequest',
-                                name: 'buy_request',
-                                type: 'string',
-                                default: '',
-                                description: 'Value of info_buyRequest for cart offer items',
-                            }
-                        ]
+                        options: inquiryPositionAdditionalFieldsOptions,
                     },
                     {
                         displayName: 'Product Name',
@@ -282,57 +336,7 @@ const properties: INodeProperties[] = [
         placeholder: 'Add Field',
         default: {},
         displayOptions: { show: { resource: ['inquiries'], operation: ['create'] } },
-        // eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
-        options: [
-            {
-                displayName: 'Extension Attributes',
-                name: 'extension_attributes',
-                type: 'fixedCollection',
-                typeOptions: { multipleValues: true },
-                default: {},
-                placeholder: 'Add Extension Attribute',
-                options: [
-                    {
-                        displayName: 'Extension Attribute',
-                        name: 'extension_attribute',
-                        values: [
-                            {
-                                displayName: 'Extension Attribute Name or ID',
-                                name: 'attribute_code',
-                                type: 'options',
-                                description: 'Choose from the list, or specify an ID using an <a href="https://docs.n8n.io/code/expressions/">expression</a>',
-                                typeOptions: {
-                                    loadOptionsMethod: 'getExtensionAttributes',
-                                },
-                                default: '',
-                            },
-                            {
-                                displayName: 'Value',
-                                name: 'value',
-                                type: 'string',
-                                default: '',
-                            },
-                        ],
-                    },
-                ],
-            },
-            { displayName: 'Store ID', name: 'store_id', type: 'number', default: 0 },
-            { displayName: 'Website ID', name: 'website_id', type: 'number', default: 0 },
-            { displayName: 'Inquiry ID', name: 'inquiry_id', type: 'number', default: 0, description: 'Internal inquiry ID' },
-            { displayName: 'External ID', name: 'external_id', type: 'string', default: '', description: 'External inquiry ID' },
-            { displayName: 'Status', name: 'status', type: 'string', default: '', description: 'Status of the inquiry (e.g. open, processing, finished)' },
-            { displayName: 'Content', name: 'content', type: 'string', default: '', description: 'Inquiry content' },
-            { displayName: 'City', name: 'city', type: 'string', default: '', description: 'Inquiry city' },
-            { displayName: 'Company Name', name: 'company_name', type: 'string', default: '', description: 'Inquiry company name' },
-            { displayName: 'Country ID', name: 'country_id', type: 'string', default: '', description: 'Inquiry country ID' },
-            { displayName: 'Street', name: 'street', type: 'string', default: '', description: 'Inquiry street' },
-            { displayName: 'Telephone', name: 'telephone', type: 'string', default: '', description: 'Inquiry telephone' },
-            { displayName: 'Postcode', name: 'postcode', type: 'string', default: '', description: 'Inquiry postcode' },
-            { displayName: 'Offer Number', name: 'offer_number', type: 'string', default: '', description: 'Assigned Offer number of inquiry' },
-            { displayName: 'User ID', name: 'user_id', type: 'number', default: 0, description: 'Internal ID of User' },
-            { displayName: 'Customer Name', name: 'customer', type: 'string', default: '' },
-            { displayName: 'Customer Email', name: 'customer_email', type: 'string', default: '' },
-        ],
+        options: additionalFieldsOptions,
     },
 ];
 
@@ -398,7 +402,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                         throw new Error('Document Files JSON must be an array');
                     }
                 } catch (err) {
-                    throw new Error(`Invalid JSON in Document Files: ${(err as Error).message}`);
+                    throw new NodeOperationError(this.getNode(), `Invalid JSON in Document Files: ${(err as Error).message}`);
                 }
             } else if (filesConfig.file) {
                 const collection = (filesConfig.file as any).file as DocumentFile[];
@@ -432,7 +436,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
                 returnData.push(...prepareErrorData.call(this, error, i));
                 continue;
             }
-            throw error;
+            throw new NodeApiError(this.getNode(), error as JsonObject);
         }
     }
 
@@ -444,7 +448,7 @@ export async function execute(this: IExecuteFunctions): Promise<INodeExecutionDa
             if (this.continueOnFail()) {
                 returnData.push(...prepareErrorData.call(this, error, 0));
             } else {
-                throw error;
+                throw new NodeApiError(this.getNode(), error as JsonObject);
             }
         }
     }
