@@ -22,7 +22,7 @@ export async function createApiRequest(this: IExecuteFunctions, data: any, url: 
 					dataflowId = basic.entity_id as number;
 				}
 			} catch {
-				// Input-Daten nicht verfügbar — kein Fehler
+				// Input data not available — not an error
 			}
 		}
 		if (dataflowId) {

@@ -15,6 +15,7 @@ export function prepareErrorData(this: IExecuteFunctions, error: any, i: number)
 	try {
 		description = JSON.parse(error.description as string);
 	} catch (err) {
+		// keep raw string if description is not JSON
 	}
 
 	return this.helpers.constructExecutionMetaData(
@@ -38,13 +39,13 @@ export function formatExtensionAttributes(this: IExecuteFunctions, additionalFie
 	if (additionalFields.extension_attributes) {
 		const extensionAttributesRaw = (additionalFields.extension_attributes as IDataObject).extension_attribute as IDataObject[];
 
-		// Umwandlung in ein Objekt anstelle eines Arrays
+		// Convert into an object instead of an array
 		const formattedExtensionAttributes: IDataObject = {};
 		extensionAttributesRaw.forEach(attr => {
 			formattedExtensionAttributes[attr.attribute_code as string] = attr.value;
 		});
 
-		// Ergebnis zurück in additionalFields einfügen
+		// Insert the result back into additionalFields
 		additionalFields.extension_attributes = formattedExtensionAttributes;
 	}
 	return additionalFields;

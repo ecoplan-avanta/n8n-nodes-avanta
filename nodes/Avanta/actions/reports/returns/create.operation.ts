@@ -1,10 +1,10 @@
 /*
  * Copyright (c) 2026 by ECOPLAN E-Commerce GmbH
  *
- * Diese Software ist urheberrechtlich geschützt.
- * Es ist verboten, den Quelltext zu entschlüsseln oder zu verändern,
- * sowie die Software mehr als lizenziert zu nutzen.
- * Zuwiderhandlungen werden strafrechtlich verfolgt.
+ * This software is protected by copyright.
+ * Decompiling or modifying the source code, as well as using the
+ * software beyond the licensed scope, is prohibited.
+ * Violations will be prosecuted.
  */
 
 import type {IDataObject, IExecuteFunctions, INodeExecutionData, INodeProperties, JsonObject,} from 'n8n-workflow';

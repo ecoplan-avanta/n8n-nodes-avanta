@@ -938,7 +938,7 @@ export async function execute(
                         throw new NodeOperationError(this.getNode(), `Invalid JSON in Stock Item: ${(err as Error).message}`);
                     }
                 } else {
-                    // Nur definierte Werte in ein sauberes Objekt übernehmen
+                    // Only copy defined values into a clean object
                     for (const [key, value] of Object.entries(stockItem)) {
                         if (key === 'inputMode' || key === 'stockItemJson') continue;
                         if (value !== undefined && value !== null && value !== '') {
