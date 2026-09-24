@@ -54,17 +54,18 @@ const properties: INodeProperties[] = [
         }
     },
     {
-        displayName: 'External Company Customer Group ID',
-        name: 'external_company_customergroup_id',
+        displayName: 'External Company Customer Group IDs',
+        name: 'external_company_customergroup_ids',
         type: 'string',
-        required: true,
         default: '',
         displayOptions: {
             show: {
                 resource: ['company'],
                 operation: ['create'],
             },
-        }
+        },
+        description:
+            'External IDs of the company customer groups, comma-separated (e.g. 101,102). Leave empty to use the default group.',
     },
     {
         displayName: 'External SalesOrg ID',
@@ -213,7 +214,7 @@ export async function execute(
             const name = this.getNodeParameter('name', i) as string;
             const customer_id = this.getNodeParameter('customer_id', i) as string;
             const status = this.getNodeParameter('status', i) as boolean ? 1 : 0;
-            const external_company_customergroup_id = this.getNodeParameter('external_company_customergroup_id', i) as string;
+            const external_company_customergroup_ids = this.getNodeParameter('external_company_customergroup_ids', i) as string;
             const external_sales_org_id = this.getNodeParameter('external_sales_org_id', i) as string;
             let additionalFields = this.getNodeParameter(
                 'additionalFields',
@@ -233,10 +234,14 @@ export async function execute(
 
             company.company.extension_attributes = {
                 ...company.company.extension_attributes, ...{
-                    'external_company_customergroup_id': external_company_customergroup_id,
                     'external_sales_org_id': external_sales_org_id
                 }
             };
+
+            if (external_company_customergroup_ids) {
+                company.company.extension_attributes['external_company_customergroup_ids'] =
+                    external_company_customergroup_ids;
+            }
 
             if (!('group_id' in company.company)) {
                 company.company.group_id = 1
