@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.79] - 2026-09-24
+
+### Changed
+- AVANTA-2024 n8n - Company Create: `external_company_customergroup_id` wurde durch `external_company_customergroup_ids` ersetzt (Multigruppenzuordnung, mehrere IDs kommagetrennt). Das Feld wird nur gesendet, wenn es befüllt ist.
+
 ## [0.1.78] - 2026-08-19
 
 ### Added
