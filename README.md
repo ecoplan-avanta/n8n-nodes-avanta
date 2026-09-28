@@ -133,6 +133,7 @@ The avanta node supports comprehensive B2B E-Commerce operations across the foll
 - **Deactivate**: Deactivate customer companies
 - **Delete**: Remove customer companies from the platform
 - **Get Many**: Retrieve multiple customer companies
+- **Customer Group Assignment** *(Create)*: `External Company Customer Group IDs` for multiple groups, comma-separated *(available from avanta v3.7)*, or `External Company Customer Group ID (Legacy)` for a single group *(avanta before v3.7)* — fill in only the field matching your instance
 
 ### Company Addresses
 - **Create/Update**: Add or modify billing and shipping addresses for B2B customers

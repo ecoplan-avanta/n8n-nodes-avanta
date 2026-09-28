@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.79] - 2026-09-24
 
 ### Changed
-- AVANTA-2024 n8n - Company Create: `external_company_customergroup_id` wurde durch `external_company_customergroup_ids` ersetzt (Multigruppenzuordnung, mehrere IDs kommagetrennt). Das Feld wird nur gesendet, wenn es befüllt ist.
+- AVANTA-2024 n8n - Company Create: `external_company_customergroup_ids` ergänzt (Multigruppenzuordnung, mehrere IDs kommagetrennt, ab avanta 3.7). Das Feld wird nur gesendet, wenn es befüllt ist.
+- AVANTAN8N-59 n8n - Company Create: `external_company_customergroup_id` bleibt als "External Company Customer Group ID (Legacy)" für avanta-Versionen vor 3.7 erhalten. Beide Parameter werden parallel unterstützt und jeweils nur gesendet, wenn sie befüllt sind.
 
 ## [0.1.78] - 2026-08-19
 

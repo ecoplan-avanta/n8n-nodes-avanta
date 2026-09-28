@@ -65,7 +65,21 @@ const properties: INodeProperties[] = [
             },
         },
         description:
-            'External IDs of the company customer groups, comma-separated (e.g. 101,102). Leave empty to use the default group.',
+            'External IDs of the company customer groups, comma-separated (e.g. 101,102). Requires avanta 3.7 or newer. Leave empty to use the default group.',
+    },
+    {
+        displayName: 'External Company Customer Group ID (Legacy)',
+        name: 'external_company_customergroup_id',
+        type: 'string',
+        default: '',
+        displayOptions: {
+            show: {
+                resource: ['company'],
+                operation: ['create'],
+            },
+        },
+        description:
+            'Single external ID of the company customer group for avanta versions before 3.7. Newer instances use "External Company Customer Group IDs" instead. Only fill in one of the two fields.',
     },
     {
         displayName: 'External SalesOrg ID',
@@ -214,7 +228,8 @@ export async function execute(
             const name = this.getNodeParameter('name', i) as string;
             const customer_id = this.getNodeParameter('customer_id', i) as string;
             const status = this.getNodeParameter('status', i) as boolean ? 1 : 0;
-            const external_company_customergroup_ids = this.getNodeParameter('external_company_customergroup_ids', i) as string;
+            const external_company_customergroup_ids = this.getNodeParameter('external_company_customergroup_ids', i, '') as string;
+            const external_company_customergroup_id = this.getNodeParameter('external_company_customergroup_id', i, '') as string;
             const external_sales_org_id = this.getNodeParameter('external_sales_org_id', i) as string;
             let additionalFields = this.getNodeParameter(
                 'additionalFields',
@@ -241,6 +256,12 @@ export async function execute(
             if (external_company_customergroup_ids) {
                 company.company.extension_attributes['external_company_customergroup_ids'] =
                     external_company_customergroup_ids;
+            }
+
+            // Legacy: avanta < 3.7 expects the single-value attribute
+            if (external_company_customergroup_id) {
+                company.company.extension_attributes['external_company_customergroup_id'] =
+                    external_company_customergroup_id;
             }
 
             if (!('group_id' in company.company)) {
