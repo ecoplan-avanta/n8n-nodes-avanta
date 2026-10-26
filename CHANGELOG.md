@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.79] - 2026-10-26
+
+### Changed
+- n8nNodesApiVersion auf 1 (n8n 2.44 unterstützt nur API-Version 1)
+
 ## [0.1.78] - 2026-08-19
 
 ### Added
