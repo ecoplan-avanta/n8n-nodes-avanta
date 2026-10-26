@@ -38,7 +38,7 @@
     "README.md"
   ],
   "n8n": {
-    "n8nNodesApiVersion": 2,
+    "n8nNodesApiVersion": 1,
     "strict": true,
     "credentials": [
       "dist/credentials/AvantaApi.credentials.js"
